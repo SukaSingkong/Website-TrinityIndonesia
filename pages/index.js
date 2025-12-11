@@ -100,9 +100,33 @@ export default function Home() {
 	const [toastVisible, setToastVisible] = useState(false);
 	const [toastMsg, setToastMsg] = useState('');
 	const [hoveredMode, setHoveredMode] = useState(null);
+	const [scrolled, setScrolled] = useState(false);
+	const [showBackToTop, setShowBackToTop] = useState(false);
+
+	// Track scroll position
+	useEffect(() => {
+		const handleScroll = () => {
+			setScrolled(window.scrollY > 100);
+			setShowBackToTop(window.scrollY > 500);
+		};
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, []);
 
 	function toast(msg) { setToastMsg(msg); setToastVisible(true); setTimeout(() => setToastVisible(false), 2500); }
 	function copyIp(e) { e?.preventDefault(); navigator.clipboard?.writeText(config.serverIpAddress); toast('IP Copied! Paste di Minecraft'); }
+
+	function scrollToTop() {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}
+
+	function scrollToSection(e, sectionId) {
+		e.preventDefault();
+		const element = document.getElementById(sectionId);
+		if (element) {
+			element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
+	}
 
 	return (
 		<Wrapper>
@@ -165,10 +189,10 @@ export default function Home() {
 							<span>{config.serverIpAddress}</span>
 							<span className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 skew-x-12" />
 						</button>
-						<a href="#modes" className="glass font-semibold py-5 px-10 rounded-2xl flex items-center gap-3 text-white hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-white/20">
+						<button onClick={(e) => scrollToSection(e, 'modes')} className="glass font-semibold py-5 px-10 rounded-2xl flex items-center gap-3 text-white hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-white/20">
 							Explore Game Modes
 							<Icons.ArrowRight className="h-5 w-5" />
-						</a>
+						</button>
 					</div>
 
 					{/* Stats */}
@@ -179,8 +203,8 @@ export default function Home() {
 					</div>
 				</div>
 
-				{/* Scroll Indicator */}
-				<div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+				{/* Scroll Indicator - Hides on scroll */}
+				<div className={`absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce transition-all duration-500 ${scrolled ? 'opacity-0 translate-y-4 pointer-events-none' : 'opacity-100'}`}>
 					<span className="text-xs text-gray-500 uppercase tracking-widest">Scroll</span>
 					<Icons.ChevronDown className="h-5 w-5 text-gray-500" />
 				</div>
@@ -356,6 +380,17 @@ export default function Home() {
 					</div>
 				</div>
 			</section>
+
+			{/* Back to Top Button */}
+			<button
+				onClick={scrollToTop}
+				className={`fixed bottom-8 right-8 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/30 transition-all duration-500 hover:scale-110 hover:shadow-xl ${showBackToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
+				aria-label="Scroll to top"
+			>
+				<svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+					<path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+				</svg>
+			</button>
 		</Wrapper>
 	)
 }
