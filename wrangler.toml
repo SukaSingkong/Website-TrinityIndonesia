@@ -1,0 +1,4 @@
+name = "trinity-website"
+compatibility_date = "2024-12-11"
+
+main = "./.vercel/output/static/_worker.js"
