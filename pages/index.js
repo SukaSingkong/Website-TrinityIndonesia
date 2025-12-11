@@ -74,6 +74,7 @@ function useCountUp(end, duration = 2000, start = 0) {
 
 		if (ref.current) observer.observe(ref.current);
 		return () => observer.disconnect();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
@@ -172,17 +173,9 @@ export default function Home() {
 
 					{/* Stats */}
 					<div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-						{stats.map((stat, i) => {
-							const { count, ref } = useCountUp(stat.value, 2000);
-							return (
-								<div key={i} ref={ref} className="glass px-6 py-5 rounded-2xl border border-white/5 hover:border-white/10 transition-all duration-300 group hover:scale-105">
-									<div className="text-3xl md:text-4xl font-black text-white mb-1 tabular-nums">
-										{typeof stat.value === 'number' && stat.value < 100 ? count : count.toLocaleString()}{stat.suffix}
-									</div>
-									<div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">{stat.label}</div>
-								</div>
-							);
-						})}
+						{stats.map((stat, i) => (
+							<StatCard key={i} value={stat.value} suffix={stat.suffix} label={stat.label} />
+						))}
 					</div>
 				</div>
 
@@ -365,4 +358,17 @@ export default function Home() {
 			</section>
 		</Wrapper>
 	)
+}
+
+// Stat card component to properly use hooks
+function StatCard({ value, suffix, label }) {
+	const { count, ref } = useCountUp(value, 2000);
+	return (
+		<div ref={ref} className="glass px-6 py-5 rounded-2xl border border-white/5 hover:border-white/10 transition-all duration-300 group hover:scale-105">
+			<div className="text-3xl md:text-4xl font-black text-white mb-1 tabular-nums">
+				{typeof value === 'number' && value < 100 ? count : count.toLocaleString()}{suffix}
+			</div>
+			<div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">{label}</div>
+		</div>
+	);
 }
