@@ -6,8 +6,8 @@ import { Tab } from '@headlessui/react'
 
 const modeInfo = {
 	oneblock: { name: 'OneBlock', gradient: 'from-emerald-500 to-teal-500', cheatPolicy: 'DILARANG', toxicPolicy: 'DILARANG', description: 'Mode survival dengan aturan ketat untuk fair play' },
-	boxsmp: { name: 'BoxSMP', gradient: 'from-blue-500 to-indigo-500', cheatPolicy: 'DILARANG', toxicPolicy: 'DILARANG', description: 'Mode SMP dengan komunitas ramah dan aturan sopan' },
-	anarchy: { name: 'Anarchy Economy', gradient: 'from-red-500 to-rose-500', cheatPolicy: 'DIIZINKAN*', toxicPolicy: 'DIIZINKAN*', description: 'Mode bebas dengan minimal aturan dengan tambahan ekonomi' }
+	boxsmp: { name: 'BoxSMP', gradient: 'from-blue-500 to-indigo-500', cheatPolicy: 'DILARANG', toxicPolicy: 'DILARANG', description: 'Mode SMP dengan komunitas ramah dan aturan' },
+	anarchy: { name: 'Anarchy Economy', gradient: 'from-red-500 to-rose-500', cheatPolicy: 'DIIZINKAN*', toxicPolicy: 'DIIZINKAN*', description: 'Mode bebas dengan minimal aturan' }
 }
 
 const generalRules = [

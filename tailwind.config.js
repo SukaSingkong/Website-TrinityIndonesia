@@ -7,7 +7,7 @@ module.exports = {
 	theme: {
 		extend: {
 			fontFamily: {
-				sans: ['Montserrat', 'sans-serif']
+				sans: ['Space Grotesk', 'Inter', 'sans-serif']
 			},
 			colors: {
 				// Primary brand red - softer, more elegant
