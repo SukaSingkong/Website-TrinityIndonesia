@@ -31,7 +31,8 @@ const generalRules = [
 			{ num: '2.4', text: 'Apabila akun pemain diretas, dikompromikan, atau disalahgunakan oleh pihak lain dan digunakan untuk melakukan pelanggaran aturan, sanksi tetap berlaku dan dikenakan pada akun tersebut tanpa pengecualian. Pemilik akun dapat mengajukan banding disertai dengan bukti-bukti yang valid, lengkap, dan dapat diverifikasi.' },
 			{ num: '2.5', text: 'Penggunaan akun alternatif (alt account) atau akun multipel dengan tujuan untuk menghindari, mengakali, atau meringankan sanksi yang sedang berjalan, atau untuk mendapatkan keuntungan tidak adil dalam gameplay, akan mengakibatkan sanksi ban permanen pada SELURUH akun yang terdeteksi terkait dengan pemain tersebut.' },
 			{ num: '2.6', text: 'Aktivitas jual-beli, tukar-menukar, atau transfer kepemilikan akun Minecraft yang terhubung dengan server Trinity Indonesia adalah dilarang. Pemain yang terbukti terlibat dalam aktivitas tersebut akan dikenakan ban permanen tanpa peringatan.' },
-			{ num: '2.7', text: 'Pemain wajib menggunakan nama akun Minecraft yang tidak mengandung unsur SARA, kata-kata kasar, nama tokoh kontroversial, atau konten tidak pantas lainnya. Akun dengan nama melanggar dapat dilarang masuk tanpa pemberitahuan.' }
+			{ num: '2.7', text: 'Pemain wajib menggunakan nama akun Minecraft yang tidak mengandung unsur SARA, kata-kata kasar, nama tokoh kontroversial, atau konten tidak pantas lainnya. Akun dengan nama melanggar dapat dilarang masuk tanpa pemberitahuan.' },
+			{ num: '2.8', text: 'DILARANG KERAS berpura-pura menjadi Admin, Staff, atau pihak resmi server. Pemain yang mengaku sebagai staff untuk menipu, mendapatkan kepercayaan, atau keuntungan apapun akan dikenakan sanksi BAN PERMANEN tanpa peringatan.' }
 		]
 	},
 	{
@@ -228,33 +229,35 @@ function RuleAccordion({ title, content }) {
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (
-		<div className="rule-card mb-4 overflow-hidden rounded-2xl bg-gradient-to-b from-white/[0.03] to-transparent border border-white/5">
+		<div className={`mb-4 rounded-xl overflow-hidden transition-all duration-300 ${isOpen ? 'bg-white/[0.03] ring-1 ring-rose-500/20' : 'bg-white/[0.02] hover:bg-white/[0.04]'}`}>
 			<button
 				onClick={() => setIsOpen(!isOpen)}
-				className="w-full p-6 flex items-center gap-4 text-left transition-all duration-300 hover:bg-white/[0.02]"
+				className="w-full p-5 flex items-center gap-4 text-left"
 			>
-				<div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-red-500/20 to-rose-500/20 flex items-center justify-center text-rose-400">
-					<Icons.Shield className="h-6 w-6" />
+				<div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-rose-500/20 text-rose-400' : 'bg-white/5 text-gray-400'}`}>
+					<Icons.Shield className="h-5 w-5" />
 				</div>
 				<div className="flex-1">
-					<h3 className="text-lg font-bold text-white">{title}</h3>
+					<h3 className={`font-semibold transition-colors duration-300 ${isOpen ? 'text-rose-100' : 'text-white'}`}>{title}</h3>
 				</div>
-				<div className={`flex-shrink-0 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`}>
-					<Icons.ChevronDown className="h-5 w-5 text-gray-400" />
+				<div className={`flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+					<Icons.ChevronDown className={`h-5 w-5 transition-colors duration-300 ${isOpen ? 'text-rose-400' : 'text-gray-500'}`} />
 				</div>
 			</button>
 
 			<div
-				className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}
+				className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
 			>
-				<div className="px-6 pb-6">
-					<div className="pl-16 border-l-2 border-rose-500/20 space-y-4">
-						{content.map((item, i) => (
-							<div key={i} className="text-gray-300 leading-relaxed">
-								<span className="text-rose-400 font-mono font-bold mr-2">{item.num}</span>
-								{item.text}
-							</div>
-						))}
+				<div className="overflow-hidden">
+					<div className="px-5 pb-5 pt-0">
+						<div className="ml-14 space-y-3 border-l border-rose-500/20 pl-4">
+							{content.map((item, i) => (
+								<div key={i} className="text-gray-300 text-sm leading-relaxed">
+									<span className="text-rose-400 font-mono font-semibold mr-2">{item.num}</span>
+									{item.text}
+								</div>
+							))}
+						</div>
 					</div>
 				</div>
 			</div>
@@ -264,35 +267,41 @@ function RuleAccordion({ title, content }) {
 
 function ModeRuleCard({ title, type, content }) {
 	const [isOpen, setIsOpen] = useState(false);
-	const typeStyles = { danger: 'border-red-500/30 from-red-500/5 to-transparent', warning: 'border-yellow-500/30 from-yellow-500/5 to-transparent', info: 'border-blue-500/30 from-blue-500/5 to-transparent' };
-	const iconStyles = { danger: 'from-red-500/20 to-rose-500/20 text-red-400', warning: 'from-yellow-500/20 to-orange-500/20 text-yellow-400', info: 'from-blue-500/20 to-indigo-500/20 text-blue-400' };
+	const typeColors = {
+		danger: { ring: 'ring-red-500/20', icon: 'bg-red-500/20 text-red-400', text: 'text-red-400', chevron: 'text-red-400' },
+		warning: { ring: 'ring-yellow-500/20', icon: 'bg-yellow-500/20 text-yellow-400', text: 'text-yellow-400', chevron: 'text-yellow-400' },
+		info: { ring: 'ring-blue-500/20', icon: 'bg-blue-500/20 text-blue-400', text: 'text-blue-400', chevron: 'text-blue-400' }
+	};
+	const colors = typeColors[type];
 
 	return (
-		<div className={`mb-6 rounded-2xl border bg-gradient-to-b ${typeStyles[type]} overflow-hidden`}>
+		<div className={`mb-4 rounded-xl overflow-hidden transition-all duration-300 ${isOpen ? `bg-white/[0.03] ring-1 ${colors.ring}` : 'bg-white/[0.02] hover:bg-white/[0.04]'}`}>
 			<button
 				onClick={() => setIsOpen(!isOpen)}
-				className="w-full p-6 flex items-start gap-4 text-left transition-all duration-300 hover:bg-white/[0.02]"
+				className="w-full p-5 flex items-center gap-4 text-left"
 			>
-				<div className={`flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${iconStyles[type]} flex items-center justify-center`}>
-					<Icons.Shield className="h-6 w-6" />
+				<div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${isOpen ? colors.icon : 'bg-white/5 text-gray-400'}`}>
+					<Icons.Shield className="h-5 w-5" />
 				</div>
 				<div className="flex-1">
-					<h3 className="text-lg font-bold text-white mb-1">{title}</h3>
+					<h3 className={`font-semibold transition-colors duration-300 ${isOpen ? 'text-white' : 'text-white'}`}>{title}</h3>
 				</div>
-				<div className={`flex-shrink-0 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`}>
-					<Icons.ChevronDown className="h-4 w-4 text-gray-400" />
+				<div className={`flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+					<Icons.ChevronDown className={`h-5 w-5 transition-colors duration-300 ${isOpen ? colors.chevron : 'text-gray-500'}`} />
 				</div>
 			</button>
 
-			<div className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen ? 'max-h-[3000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-				<div className="px-6 pb-6">
-					<div className="pl-16 space-y-4">
-						{content.map((item, i) => (
-							<div key={i} className="text-gray-300 leading-relaxed">
-								<span className={`font-mono font-bold mr-2 ${type === 'danger' ? 'text-red-400' : type === 'warning' ? 'text-yellow-400' : 'text-blue-400'}`}>{item.num}</span>
-								{item.text}
-							</div>
-						))}
+			<div className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+				<div className="overflow-hidden">
+					<div className="px-5 pb-5 pt-0">
+						<div className={`ml-14 space-y-3 border-l pl-4 ${type === 'danger' ? 'border-red-500/20' : type === 'warning' ? 'border-yellow-500/20' : 'border-blue-500/20'}`}>
+							{content.map((item, i) => (
+								<div key={i} className="text-gray-300 text-sm leading-relaxed">
+									<span className={`font-mono font-semibold mr-2 ${colors.text}`}>{item.num}</span>
+									{item.text}
+								</div>
+							))}
+						</div>
 					</div>
 				</div>
 			</div>

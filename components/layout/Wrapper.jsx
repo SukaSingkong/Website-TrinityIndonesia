@@ -24,6 +24,12 @@ const solutions = [
         href: '/rules',
         icon: Icons.Flag,
     },
+    {
+        name: 'Store',
+        description: 'Beli gems untuk keuntungan in-game.',
+        href: '/store',
+        icon: Icons.Gem,
+    },
 ]
 
 export function Wrapper({ children, seo }) {
@@ -74,10 +80,10 @@ export function Wrapper({ children, seo }) {
                                 <Link href="/">Beranda</Link>
                                 <Link href="/staff">Tim Staf</Link>
                                 <Link href="/rules">Aturan</Link>
-                                {!config.hideWebstoreButton && <a href={config.webstoreLink} {...config.openWebstoreInNewTab ? { target: '_blank', rel: 'noreferrer' } : {}}>
-                                    <Icons.Cash className="h-4 w-4" />
-                                    {config.webstoreLabel}
-                                </a>}
+                                <Link href="/store">
+                                    <Icons.Gem className="h-4 w-4" />
+                                    Beli Gems
+                                </Link>
                             </div>
                             <div className="flex md:hidden flex-grow justify-end items-center">
                                 <Popover className="relative">
@@ -133,6 +139,7 @@ export function Wrapper({ children, seo }) {
                                 <Link href="/">Beranda</Link>
                                 <Link href="/staff">Tim Staf</Link>
                                 <Link href="/rules">Aturan</Link>
+                                <Link href="/store">Store</Link>
                             </div>
                             <div className="text-center md:text-right">
                                 <p className="text-sm text-gray-600 font-medium">© 2026 Trinity Indonesia</p>
