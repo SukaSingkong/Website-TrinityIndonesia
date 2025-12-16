@@ -2,6 +2,7 @@
 import crypto from 'crypto'
 
 const TRIPAY_PRIVATE_KEY = process.env.TRIPAY_PRIVATE_KEY
+const HANDLER_WEBHOOK_URL = process.env.HANDLER_WEBHOOK_URL || 'https://hkdk.events/3h9ssf9nu78nlt'
 
 // Disable body parsing to get raw body for signature verification
 export const config = {
@@ -28,6 +29,23 @@ async function getRawBody(req) {
             reject(err)
         })
     })
+}
+
+// Forward data to external webhook (non-blocking)
+async function forwardToHandler(data, signature) {
+    try {
+        const response = await fetch(HANDLER_WEBHOOK_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Callback-Signature': signature || ''
+            },
+            body: JSON.stringify(data)
+        })
+        console.log('Forward to handler:', response.status)
+    } catch (error) {
+        console.error('Forward error:', error.message)
+    }
 }
 
 export default async function handler(req, res) {
@@ -84,6 +102,9 @@ export default async function handler(req, res) {
             if (global.tripayDonations.length > 100) {
                 global.tripayDonations = global.tripayDonations.slice(0, 100)
             }
+
+            // Forward to external handler (non-blocking)
+            forwardToHandler(data, callbackSignature)
         }
 
         // Return success immediately
@@ -95,3 +116,4 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true })
     }
 }
+
