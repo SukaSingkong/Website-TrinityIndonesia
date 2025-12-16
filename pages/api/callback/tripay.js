@@ -1,14 +1,7 @@
-// Tripay callback webhook handler at /callback/tripay
+// Tripay callback webhook handler at /api/callback/tripay
 import crypto from 'crypto'
 
 const TRIPAY_PRIVATE_KEY = process.env.TRIPAY_PRIVATE_KEY
-
-// In-memory store for donations (in production, use a database)
-// This is exported so /api/donate can access it
-let donations = []
-
-// Export donations for external access
-export { donations }
 
 // Disable body parsing to get raw body for signature verification
 export const config = {
@@ -29,6 +22,15 @@ async function getRawBody(req) {
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, message: 'Method not allowed' })
+    }
+
+    // Check for required credentials
+    if (!TRIPAY_PRIVATE_KEY) {
+        console.error('Missing TRIPAY_PRIVATE_KEY')
+        return res.status(500).json({
+            success: false,
+            message: 'Callback not configured'
+        })
     }
 
     try {
@@ -88,14 +90,16 @@ export default async function handler(req, res) {
                 paid_at: paid_at || new Date().toISOString()
             }
 
-            // Add to donations list (keep last 100)
-            donations.unshift(donation)
-            if (donations.length > 100) {
-                donations = donations.slice(0, 100)
+            // Initialize global if needed
+            if (!global.tripayDonations) {
+                global.tripayDonations = []
             }
 
-            // Store in global for cross-file access
-            global.tripayDonations = donations
+            // Add to donations list (keep last 100)
+            global.tripayDonations.unshift(donation)
+            if (global.tripayDonations.length > 100) {
+                global.tripayDonations = global.tripayDonations.slice(0, 100)
+            }
         }
 
         // Return success to Tripay
