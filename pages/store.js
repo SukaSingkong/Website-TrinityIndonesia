@@ -332,17 +332,17 @@ export default function Store() {
             {showSuccessModal && successData && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
                     <div className="w-full max-w-md glass-card rounded-3xl border border-white/10 overflow-hidden text-center">
-                        {/* Success Header */}
-                        <div className="p-8 bg-gradient-to-r from-emerald-500 to-emerald-600">
+                        {/* Header */}
+                        <div className="p-8 bg-gradient-to-r from-amber-500 to-orange-500">
                             <div className="w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-4">
-                                <Icons.CheckCircle className="h-12 w-12 text-white" />
+                                <Icons.Clock className="h-12 w-12 text-white" />
                             </div>
-                            <h3 className="text-2xl font-bold text-white">Pembayaran Berhasil!</h3>
+                            <h3 className="text-2xl font-bold text-white">Pesanan Dibuat!</h3>
                         </div>
 
                         <div className="p-6 space-y-4">
                             <p className="text-gray-400">
-                                Terima kasih sudah membeli gems di Trinity Indonesia!
+                                Pesanan kamu telah dibuat. Setelah pembayaran dikonfirmasi, gems akan otomatis ditambahkan ke akunmu.
                             </p>
 
                             <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
@@ -350,13 +350,19 @@ export default function Store() {
                                 <p className="text-white font-bold text-lg">{successData.nickname}</p>
                             </div>
 
-                            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
-                                <p className="text-emerald-400 text-sm mb-1">Gems yang dibeli</p>
+                            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30">
+                                <p className="text-amber-400 text-sm mb-1">Gems yang dipesan</p>
                                 <p className="text-white font-bold text-2xl">{successData.gems} Gems 💎</p>
                             </div>
 
+                            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30">
+                                <p className="text-rose-300 text-sm">
+                                    ⚠️ Jika kamu belum membayar, gems tidak akan ditambahkan. Silakan selesaikan pembayaran.
+                                </p>
+                            </div>
+
                             <p className="text-gray-500 text-sm">
-                                Gems kamu akan segera ditambahkan ke akun. Jika dalam 24 jam gems belum masuk, silakan hubungi admin.
+                                Jika dalam 24 jam setelah pembayaran gems belum masuk, silakan hubungi admin.
                             </p>
 
                             <button
@@ -369,6 +375,7 @@ export default function Store() {
                     </div>
                 </div>
             )}
+
 
             {/* Purchase Confirmation Modal */}
             {showPurchaseModal && selectedProduct && (
