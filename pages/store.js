@@ -90,6 +90,46 @@ const products = [
     }
 ]
 
+// Payment methods with Tripay channel codes
+const paymentMethods = [
+    {
+        id: 'QRIS',
+        name: 'QRIS',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Logo_QRIS.svg/2560px-Logo_QRIS.svg.png',
+        description: 'Scan QR untuk bayar'
+    },
+    {
+        id: 'OVO',
+        name: 'OVO',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/2560px-Logo_ovo_purple.svg.png',
+        description: 'Bayar dengan OVO'
+    },
+    {
+        id: 'DANA',
+        name: 'DANA',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/2560px-Logo_dana_blue.svg.png',
+        description: 'Bayar dengan DANA'
+    },
+    {
+        id: 'BCAVA',
+        name: 'BCA Virtual Account',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/2560px-Bank_Central_Asia.svg.png',
+        description: 'Transfer via BCA VA'
+    },
+    {
+        id: 'MANDIRIVA',
+        name: 'Mandiri Virtual Account',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Mandiri_logo_2016.svg/2560px-Bank_Mandiri_logo_2016.svg.png',
+        description: 'Transfer via Mandiri VA'
+    },
+    {
+        id: 'BNIVA',
+        name: 'BNI Virtual Account',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Bank_Negara_Indonesia_logo_%282004%29.svg',
+        description: 'Transfer via BNI VA'
+    }
+]
+
 export default function Store() {
     const [username, setUsername] = useState('')
     const [referral, setReferral] = useState('')
@@ -100,6 +140,12 @@ export default function Store() {
     const [error, setError] = useState('')
     const [toastVisible, setToastVisible] = useState(false)
     const [toastMsg, setToastMsg] = useState('')
+
+    // Purchase modal states
+    const [showPurchaseModal, setShowPurchaseModal] = useState(false)
+    const [selectedProduct, setSelectedProduct] = useState(null)
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('')
+    const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
         const stored = localStorage.getItem("mcUsername")
@@ -182,13 +228,62 @@ export default function Store() {
         toast("Logout berhasil!")
     }
 
-    function buyProduct(quantity) {
+    function openPurchaseModal(product) {
         if (!loggedIn) {
             toast("Silakan login terlebih dahulu!")
             return
         }
-        const url = `https://trakteer.id/trinity-indonesia/tip/?open=true&step=2&quantity=${quantity}&display_name=${encodeURIComponent(savedUsername)}&unit=gems`
-        window.open(url, 'trakteerPopup', 'width=500,height=700')
+        setSelectedProduct(product)
+        setSelectedPaymentMethod('')
+        setShowPurchaseModal(true)
+    }
+
+    async function confirmPurchase() {
+        if (!selectedPaymentMethod) {
+            toast("Silakan pilih metode pembayaran!")
+            return
+        }
+
+        setIsProcessing(true)
+
+        try {
+            // Get numeric price from product (remove 'Rp ' and '.')
+            const priceString = selectedProduct.price.replace('Rp ', '').replace(/\./g, '')
+            const amount = parseInt(priceString, 10)
+
+            const response = await fetch('/api/tripay/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    method: selectedPaymentMethod,
+                    amount: amount,
+                    nickname: savedUsername,
+                    gems: selectedProduct.totalGems
+                })
+            })
+
+            const data = await response.json()
+
+            if (data.success) {
+                // Redirect to Tripay checkout
+                window.location.href = data.data.checkout_url
+            } else {
+                toast(data.message || 'Gagal membuat transaksi')
+            }
+        } catch (err) {
+            console.error('Payment error:', err)
+            toast('Terjadi kesalahan. Silakan coba lagi.')
+        } finally {
+            setIsProcessing(false)
+        }
+    }
+
+    function closePurchaseModal() {
+        setShowPurchaseModal(false)
+        setSelectedProduct(null)
+        setSelectedPaymentMethod('')
     }
 
     const cleanUsername = savedUsername.replace(".", "")
@@ -209,6 +304,109 @@ export default function Store() {
             {isLoading && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
                     <div className="w-12 h-12 border-4 border-rose-500/30 border-t-rose-500 rounded-full animate-spin" />
+                </div>
+            )}
+
+            {/* Purchase Confirmation Modal */}
+            {showPurchaseModal && selectedProduct && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={closePurchaseModal}>
+                    <div
+                        className="w-full max-w-lg glass-card rounded-3xl border border-white/10 overflow-hidden max-h-[90vh] overflow-y-auto modal-scroll"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header */}
+                        <div className="p-6 bg-gradient-to-r from-rose-500 to-rose-600">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-white">Konfirmasi Pembelian</h3>
+                                    <p className="text-white/80 text-sm mt-1">{selectedProduct.totalGems} Gems - {selectedProduct.price}</p>
+                                </div>
+                                <button
+                                    onClick={closePurchaseModal}
+                                    className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                                >
+                                    <Icons.X className="h-5 w-5 text-white" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="p-6 space-y-6">
+                            {/* Nickname Confirmation */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-400 mb-3">Konfirmasi Nickname</label>
+                                <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                                    <img
+                                        src={`https://mc-heads.net/avatar/${cleanUsername}/56`}
+                                        alt="Player Head"
+                                        className="w-14 h-14 rounded-xl border-2 border-rose-500/30"
+                                    />
+                                    <div>
+                                        <p className="text-white font-bold text-lg">{savedUsername}</p>
+                                        <p className="text-gray-500 text-sm">{platform === 'java' ? 'Java Edition' : 'Bedrock Edition'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Payment Method Selection */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-400 mb-3">Pilih Metode Pembayaran</label>
+                                <div className="space-y-3">
+                                    {paymentMethods.map((method) => (
+                                        <button
+                                            key={method.id}
+                                            onClick={() => setSelectedPaymentMethod(method.id)}
+                                            className={`w-full p-4 rounded-xl border-2 transition-all duration-200 flex items-center gap-4 ${selectedPaymentMethod === method.id
+                                                ? 'border-rose-500 bg-rose-500/10'
+                                                : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                                                }`}
+                                        >
+                                            <div className="w-16 h-12 flex items-center justify-center bg-white rounded-lg p-2">
+                                                <img
+                                                    src={method.logo}
+                                                    alt={method.name}
+                                                    className="max-w-full max-h-full object-contain"
+                                                />
+                                            </div>
+                                            <div className="flex-1 text-left">
+                                                <p className={`font-bold ${selectedPaymentMethod === method.id ? 'text-rose-400' : 'text-white'}`}>
+                                                    {method.name}
+                                                </p>
+                                                <p className="text-gray-500 text-sm">{method.description}</p>
+                                            </div>
+                                            {selectedPaymentMethod === method.id && (
+                                                <div className="w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center">
+                                                    <Icons.CheckCircle className="h-4 w-4 text-white" />
+                                                </div>
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Confirm Button */}
+                            <button
+                                onClick={confirmPurchase}
+                                disabled={!selectedPaymentMethod || isProcessing}
+                                className={`w-full py-4 rounded-xl font-bold uppercase text-white transition-all duration-300 flex items-center justify-center gap-2 ${selectedPaymentMethod && !isProcessing
+                                    ? 'glow-button hover:opacity-90 hover:shadow-lg'
+                                    : 'bg-gray-700 cursor-not-allowed'
+                                    }`}
+                            >
+                                {isProcessing ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        Memproses...
+                                    </>
+                                ) : (
+                                    'Konfirmasi & Bayar'
+                                )}
+                            </button>
+
+                            <p className="text-xs text-gray-500 text-center">
+                                Dengan melanjutkan, kamu menyetujui <a href="https://blog.trinityindonesia.cc/2025/03/term-and-condition.html" className="text-rose-400 hover:underline">Syarat & Ketentuan</a>
+                            </p>
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -409,7 +607,7 @@ export default function Store() {
 
                                             {/* Buy Button */}
                                             <button
-                                                onClick={() => buyProduct(product.quantity)}
+                                                onClick={() => openPurchaseModal(product)}
                                                 disabled={!loggedIn}
                                                 className={`w-full py-4 rounded-xl font-bold uppercase text-sm text-white transition-all duration-300 ${loggedIn ? `bg-gradient-to-r ${product.gradient} hover:opacity-90 hover:shadow-lg group-hover:scale-[1.02]` : 'bg-gray-700 cursor-not-allowed'}`}
                                             >
