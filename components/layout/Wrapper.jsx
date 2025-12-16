@@ -127,23 +127,84 @@ export function Wrapper({ children, seo }) {
                 <footer className="relative">
                     <div className="section-divider" />
                     <div className="container py-16">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
-                            <div className="text-center md:text-left">
-                                <h1 className="text-3xl font-bold uppercase mb-4">
+                        {/* Main Footer Content */}
+                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 mb-12">
+                            {/* Brand */}
+                            <div className="lg:col-span-1">
+                                <h1 className="text-2xl font-bold uppercase mb-4">
                                     <span className="text-white">{brandPrimary}</span>
                                     {brandAccent && <span className="gradient-text"> {brandAccent}</span>}
                                 </h1>
-                                <p className="text-gray-500 text-sm">Server Minecraft dengan 3 mode berbeda.</p>
+                                <p className="text-gray-500 text-sm mb-4">Server Minecraft Indonesia dengan berbagai mode seru: Survival, Skyblock, Lifesteal, dan Bedwars.</p>
                             </div>
-                            <div className="flex justify-center items-center gap-6" data-apply="footer-links">
-                                <Link href="/">Beranda</Link>
-                                <Link href="/staff">Tim Staf</Link>
-                                <Link href="/rules">Aturan</Link>
-                                <Link href="/store">Store</Link>
+
+                            {/* Quick Links */}
+                            <div className="lg:col-span-1">
+                                <h3 className="text-white font-bold uppercase text-sm mb-4">Menu</h3>
+                                <div className="flex flex-col gap-3" data-apply="footer-links">
+                                    <Link href="/">Beranda</Link>
+                                    <Link href="/staff">Tim Staf</Link>
+                                    <Link href="/rules">Aturan Server</Link>
+                                    <Link href="/store">Beli Gems</Link>
+                                </div>
                             </div>
-                            <div className="text-center md:text-right">
-                                <p className="text-sm text-gray-600 font-medium">© 2026 Trinity Indonesia</p>
+
+                            {/* Legal */}
+                            <div className="lg:col-span-1">
+                                <h3 className="text-white font-bold uppercase text-sm mb-4">Legal</h3>
+                                <div className="flex flex-col gap-3" data-apply="footer-links">
+                                    <Link href="/privacy">Kebijakan Privasi</Link>
+                                    <Link href="/terms">Ketentuan Layanan</Link>
+                                    <Link href="/refund">Kebijakan Refund</Link>
+                                </div>
                             </div>
+
+                            {/* Join Server */}
+                            <div className="lg:col-span-1">
+                                <h3 className="text-white font-bold uppercase text-sm mb-4">Join Server</h3>
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-rose-500/10 to-transparent border border-rose-500/20 hover:border-rose-500/40 transition-all cursor-default">
+                                        <div className="w-8 h-8 rounded-md bg-rose-500/20 flex items-center justify-center flex-shrink-0">
+                                            <Icons.Server className="h-4 w-4 text-rose-400" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-gray-500 text-[10px] uppercase tracking-wider">Server IP</p>
+                                            <p className="text-white font-semibold text-sm truncate">trinityindonesia.cc</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-rose-500/10 to-transparent border border-rose-500/20 hover:border-rose-500/40 transition-all cursor-default">
+                                        <div className="w-8 h-8 rounded-md bg-rose-500/20 flex items-center justify-center flex-shrink-0">
+                                            <Icons.Cube className="h-4 w-4 text-rose-400" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-gray-500 text-[10px] uppercase tracking-wider">Version</p>
+                                            <p className="text-white font-semibold text-sm">Java & Bedrock</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Bottom Section */}
+                        <div className="section-divider mb-8" />
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                            <p className="text-sm text-gray-600 font-medium">© 2026 Trinity Indonesia. All rights reserved.</p>
+
+                            {/* Powered by Syncara */}
+                            <a
+                                href="https://syncara.host"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 group"
+                            >
+                                <span className="text-gray-500 text-sm">Powered & Part of</span>
+                                <img
+                                    src="https://syncara.host/storage/logo-dark.webp"
+                                    alt="Syncara.host"
+                                    className="h-6 opacity-70 group-hover:opacity-100 transition-opacity"
+                                />
+                                <span className="text-white font-semibold group-hover:text-rose-400 transition-colors">Syncara.host</span>
+                            </a>
                         </div>
                     </div>
                 </footer>
