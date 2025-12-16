@@ -63,7 +63,7 @@ export default async function handler(req, res) {
             customer_email: customerEmail || 'noreply@trinityindonesia.cc',
             customer_phone: customerPhone || '08123456789',
             order_items: orderItems,
-            return_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://trinityindonesia.cc'}/store?status=success`,
+            return_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.trinityindonesia.cc'}/store?status=success`,
             expired_time: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
             signature: signature
         }

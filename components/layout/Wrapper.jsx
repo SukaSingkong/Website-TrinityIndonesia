@@ -197,7 +197,7 @@ export function Wrapper({ children, seo }) {
                                 rel="noreferrer"
                                 className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 group"
                             >
-                                <span className="text-gray-500 text-sm">Powered & Part of</span>
+                                <span className="text-gray-500 text-sm">Powered by & Part of</span>
                                 <img
                                     src="https://syncara.host/storage/logo-dark.webp"
                                     alt="Syncara.host"
