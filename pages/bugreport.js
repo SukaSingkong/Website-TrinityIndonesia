@@ -1,6 +1,6 @@
 import { Wrapper } from '@layer/components/layout/Wrapper.jsx'
 import { Icons } from '@layer/components/elements/Icons.jsx'
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from 'next/router'
 import config from '@layer/theme.config'
 
@@ -13,22 +13,24 @@ const gameModes = [
     { id: 'other', name: 'Lainnya', icon: '❓' },
 ]
 
-const categories = [
-    { id: 'suggestion', name: 'Saran', color: 'emerald' },
-    { id: 'idea', name: 'Ide Fitur', color: 'blue' },
-    { id: 'event', name: 'Ide Event', color: 'rose' },
-    { id: 'complaint', name: 'Keluhan', color: 'amber' },
-    { id: 'appreciation', name: 'Apresiasi', color: 'purple' },
-    { id: 'other', name: 'Lainnya', color: 'gray' },
+const bugTypes = [
+    { id: 'gameplay', name: 'Bug Gameplay', icon: '🎮' },
+    { id: 'visual', name: 'Bug Visual', icon: '👁️' },
+    { id: 'performance', name: 'Lag / Performance', icon: '🐌' },
+    { id: 'exploit', name: 'Exploit / Dupe', icon: '⚠️' },
+    { id: 'other', name: 'Lainnya', icon: '❓' },
 ]
 
-export default function Suggestion() {
+export default function BugReport() {
     const router = useRouter()
+    const fileInputRef = useRef(null)
+
     const [nickname, setNickname] = useState('')
     const [platform, setPlatform] = useState('java')
     const [gameMode, setGameMode] = useState('')
-    const [category, setCategory] = useState('')
-    const [suggestion, setSuggestion] = useState('')
+    const [bugType, setBugType] = useState('')
+    const [description, setDescription] = useState('')
+    const [files, setFiles] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [isVerified, setIsVerified] = useState(false)
     const [verifiedNickname, setVerifiedNickname] = useState('')
@@ -75,7 +77,30 @@ export default function Suggestion() {
         }
     }
 
-    async function submitSuggestion(e) {
+    function handleFileSelect(e) {
+        const selectedFiles = Array.from(e.target.files)
+
+        // Filter only images
+        const imageFiles = selectedFiles.filter(file => file.type.startsWith('image/'))
+
+        if (imageFiles.length !== selectedFiles.length) {
+            toast("Hanya file gambar yang diperbolehkan!")
+        }
+
+        // Max 5 files
+        const newFiles = [...files, ...imageFiles].slice(0, 5)
+        setFiles(newFiles)
+
+        if (newFiles.length >= 5) {
+            toast("Maksimal 5 foto!")
+        }
+    }
+
+    function removeFile(index) {
+        setFiles(files.filter((_, i) => i !== index))
+    }
+
+    async function submitBugReport(e) {
         e.preventDefault()
 
         if (!gameMode) {
@@ -83,18 +108,18 @@ export default function Suggestion() {
             return
         }
 
-        if (!category) {
-            setError('Pilih kategori terlebih dahulu')
+        if (!bugType) {
+            setError('Pilih jenis bug terlebih dahulu')
             return
         }
 
-        if (!suggestion.trim()) {
-            setError('Kritik/saran tidak boleh kosong')
+        if (!description.trim()) {
+            setError('Deskripsi bug tidak boleh kosong')
             return
         }
 
-        if (suggestion.trim().length < 20) {
-            setError('Kritik/saran minimal 20 karakter')
+        if (description.trim().length < 100) {
+            setError('Deskripsi bug minimal 100 karakter')
             return
         }
 
@@ -102,31 +127,37 @@ export default function Suggestion() {
         setError('')
 
         try {
-            const response = await fetch('/api/suggestion', {
+            // Create FormData for file upload
+            const formData = new FormData()
+            formData.append('nickname', verifiedNickname)
+            formData.append('platform', platform)
+            formData.append('gameMode', gameMode)
+            formData.append('bugType', bugType)
+            formData.append('description', description.trim())
+
+            // Append files
+            files.forEach((file, index) => {
+                formData.append(`file${index}`, file)
+            })
+
+            const response = await fetch('/api/bugreport', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    nickname: verifiedNickname,
-                    platform,
-                    gameMode,
-                    category,
-                    suggestion: suggestion.trim()
-                })
+                body: formData
             })
 
             const data = await response.json()
 
             if (data.success) {
                 setSuccess(true)
-                toast("Kritik/saran berhasil dikirim!")
+                toast("Bug report berhasil dikirim!")
                 setTimeout(() => {
                     router.push('/')
                 }, 3000)
             } else {
-                setError(data.message || 'Gagal mengirim kritik/saran')
+                setError(data.message || 'Gagal mengirim bug report')
             }
         } catch {
-            setError("Tidak dapat mengirim kritik/saran. Coba lagi nanti.")
+            setError("Tidak dapat mengirim bug report. Coba lagi nanti.")
         } finally {
             setIsLoading(false)
         }
@@ -134,9 +165,10 @@ export default function Suggestion() {
 
     function resetForm() {
         setNickname('')
-        setSuggestion('')
+        setDescription('')
         setGameMode('')
-        setCategory('')
+        setBugType('')
+        setFiles([])
         setIsVerified(false)
         setVerifiedNickname('')
         setSuccess(false)
@@ -144,24 +176,10 @@ export default function Suggestion() {
     }
 
     const selectedMode = gameModes.find(m => m.id === gameMode)
-    const selectedCategory = categories.find(c => c.id === category)
-
-    const getCategoryStyle = (cat, isSelected) => {
-        if (!isSelected) return {}
-        const colors = {
-            emerald: { border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)', text: '#34d399' },
-            blue: { border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)', text: '#60a5fa' },
-            rose: { border: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)', text: '#fb7185' },
-            amber: { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)', text: '#fbbf24' },
-            purple: { border: '#a855f7', bg: 'rgba(168, 85, 247, 0.1)', text: '#c084fc' },
-            gray: { border: '#6b7280', bg: 'rgba(107, 114, 128, 0.1)', text: '#9ca3af' },
-        }
-        const c = colors[cat.color] || colors.gray
-        return { borderColor: c.border, backgroundColor: c.bg, color: c.text }
-    }
+    const selectedBugType = bugTypes.find(b => b.id === bugType)
 
     return (
-        <Wrapper seo={{ title: 'Kritik & Saran' }}>
+        <Wrapper seo={{ title: 'Bug Report' }}>
             {/* Toast */}
             <div className={`${toastVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95'} fixed right-6 bottom-6 z-50 glass-card px-6 py-4 rounded-2xl shadow-2xl transition-all duration-300 border border-emerald-500/30`}>
                 <div className="flex items-center gap-3">
@@ -182,9 +200,9 @@ export default function Suggestion() {
 
                 <div className="container relative z-10">
                     <div className="max-w-3xl">
-                        <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20 mb-6">Feedback</span>
-                        <h1 className="text-4xl md:text-6xl font-black text-white uppercase mb-6">Kritik & <span className="gradient-text">Saran</span></h1>
-                        <p className="text-lg text-gray-300 mb-8">Bantu kami meningkatkan kualitas server dengan memberikan masukan berhargamu!</p>
+                        <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20 mb-6">Report</span>
+                        <h1 className="text-4xl md:text-6xl font-black text-white uppercase mb-6">Bug <span className="gradient-text">Report</span></h1>
+                        <p className="text-lg text-gray-300 mb-8">Bantu kami memperbaiki bug dengan melaporkan masalah yang kamu temukan!</p>
                     </div>
                 </div>
             </section>
@@ -199,7 +217,7 @@ export default function Suggestion() {
                                     <Icons.CheckCircle className="h-10 w-10 text-emerald-400" />
                                 </div>
                                 <h2 className="text-2xl font-bold text-white mb-4">Terima Kasih!</h2>
-                                <p className="text-gray-400 mb-6">Kritik dan saran kamu telah berhasil dikirim ke tim kami. Kami akan meninjau masukanmu.</p>
+                                <p className="text-gray-400 mb-6">Bug report kamu telah berhasil dikirim ke tim developer. Kami akan segera menyelidiki dan memperbaikinya.</p>
 
                                 <div className="p-4 rounded-xl bg-white/5 border border-white/10 mb-6">
                                     <div className="flex items-center gap-4">
@@ -210,7 +228,7 @@ export default function Suggestion() {
                                         />
                                         <div className="text-left flex-1">
                                             <p className="text-white font-bold">{verifiedNickname}</p>
-                                            <p className="text-gray-500 text-sm">{selectedMode?.name} • {selectedCategory?.name}</p>
+                                            <p className="text-gray-500 text-sm">{selectedMode?.name} • {selectedBugType?.name}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -325,7 +343,8 @@ export default function Suggestion() {
                                     </button>
                                 </div>
 
-                                <form onSubmit={submitSuggestion} className="space-y-6">
+                                <form onSubmit={submitBugReport} className="space-y-6">
+                                    {/* Game Mode Selection */}
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-400 mb-3">Mode Permainan</label>
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -346,48 +365,104 @@ export default function Suggestion() {
                                         </div>
                                     </div>
 
+                                    {/* Bug Type Selection */}
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-400 mb-3">Kategori</label>
+                                        <label className="block text-sm font-semibold text-gray-400 mb-3">Jenis Bug</label>
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                            {categories.map((cat) => (
+                                            {bugTypes.map((type) => (
                                                 <button
                                                     type="button"
-                                                    key={cat.id}
-                                                    onClick={() => setCategory(cat.id)}
-                                                    className={`p-3 rounded-xl border-2 transition-all duration-200 text-center ${category === cat.id
-                                                        ? ''
+                                                    key={type.id}
+                                                    onClick={() => setBugType(type.id)}
+                                                    className={`p-3 rounded-xl border-2 transition-all duration-200 flex items-center gap-2 ${bugType === type.id
+                                                        ? 'border-amber-500 bg-amber-500/10 text-amber-400'
                                                         : 'border-white/10 bg-white/5 text-gray-400 hover:border-white/20'
                                                         }`}
-                                                    style={getCategoryStyle(cat, category === cat.id)}
                                                 >
-                                                    <span className="font-semibold text-sm">{cat.name}</span>
+                                                    <span className="text-lg">{type.icon}</span>
+                                                    <span className="font-semibold text-sm truncate">{type.name}</span>
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
 
+                                    {/* Description */}
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-400 mb-3">Kritik / Saran / Ide</label>
+                                        <label className="block text-sm font-semibold text-gray-400 mb-3">Deskripsi Bug</label>
                                         <textarea
-                                            value={suggestion}
-                                            onChange={(e) => setSuggestion(e.target.value)}
-                                            placeholder="Tulis kritik, saran, atau ide kamu di sini... (minimal 20 karakter)"
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            placeholder="Jelaskan bug yang kamu temukan secara detail: apa yang terjadi, langkah untuk reproduce bug, dll... (minimal 100 karakter)"
                                             rows={6}
                                             className="w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-rose-500/50 transition-colors resize-none"
                                         />
-                                        <p className="text-gray-500 text-sm mt-2">{suggestion.length} / 20 karakter minimum</p>
+                                        <p className={`text-sm mt-2 ${description.length >= 100 ? 'text-emerald-400' : 'text-gray-500'}`}>
+                                            {description.length} / 100 karakter minimum {description.length >= 100 && '✓'}
+                                        </p>
                                     </div>
 
+                                    {/* File Upload */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-400 mb-3">
+                                            Screenshot / Bukti (Opsional, max 5 foto)
+                                        </label>
+
+                                        {/* File Preview */}
+                                        {files.length > 0 && (
+                                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-3">
+                                                {files.map((file, index) => (
+                                                    <div key={index} className="relative group">
+                                                        <img
+                                                            src={URL.createObjectURL(file)}
+                                                            alt={`Preview ${index + 1}`}
+                                                            className="w-full h-20 object-cover rounded-lg border border-white/10"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeFile(index)}
+                                                            className="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        >
+                                                            <Icons.X className="h-3 w-3 text-white" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {files.length < 5 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="w-full p-6 rounded-xl border-2 border-dashed border-white/20 hover:border-rose-500/50 transition-colors flex flex-col items-center gap-2 text-gray-400 hover:text-rose-400"
+                                            >
+                                                <Icons.Photo className="h-8 w-8" />
+                                                <span className="font-semibold">Klik untuk upload foto</span>
+                                                <span className="text-xs">{files.length}/5 foto</span>
+                                            </button>
+                                        )}
+
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept="image/*"
+                                            multiple
+                                            onChange={handleFileSelect}
+                                            className="hidden"
+                                        />
+                                    </div>
+
+                                    {/* Error Message */}
                                     {error && (
                                         <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30">
                                             <p className="text-rose-300 text-sm">{error}</p>
                                         </div>
                                     )}
 
+                                    {/* Submit Button */}
                                     <button
                                         type="submit"
-                                        disabled={isLoading || !gameMode || !category || suggestion.trim().length < 20}
-                                        className={`w-full py-4 rounded-xl font-bold uppercase text-white transition-all duration-300 flex items-center justify-center gap-2 ${gameMode && category && suggestion.trim().length >= 20 && !isLoading
+                                        disabled={isLoading || !gameMode || !bugType || description.trim().length < 100}
+                                        className={`w-full py-4 rounded-xl font-bold uppercase text-white transition-all duration-300 flex items-center justify-center gap-2 ${gameMode && bugType && description.trim().length >= 100 && !isLoading
                                             ? 'glow-button hover:opacity-90'
                                             : 'bg-gray-700 cursor-not-allowed'
                                             }`}
@@ -399,8 +474,8 @@ export default function Suggestion() {
                                             </>
                                         ) : (
                                             <>
-                                                <Icons.Speakerphone className="h-5 w-5" />
-                                                Kirim Kritik & Saran
+                                                <Icons.Flag className="h-5 w-5" />
+                                                Kirim Bug Report
                                             </>
                                         )}
                                     </button>

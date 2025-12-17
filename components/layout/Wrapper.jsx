@@ -38,6 +38,12 @@ const solutions = [
         href: '/suggestion',
         icon: Icons.Speakerphone,
     },
+    {
+        name: 'Bug Report',
+        description: 'Laporkan bug yang kamu temukan.',
+        href: '/bugreport',
+        icon: Icons.Exclamation,
+    },
 ]
 
 export function Wrapper({ children, seo }) {
@@ -155,6 +161,7 @@ export function Wrapper({ children, seo }) {
                                     <Link href="/rules">Aturan Server</Link>
                                     <Link href="/store">Beli Gems</Link>
                                     <Link href="/suggestion">Kritik & Saran</Link>
+                                    <Link href="/bugreport">Bug Report</Link>
                                 </div>
                             </div>
 

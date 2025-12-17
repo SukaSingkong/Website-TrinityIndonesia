@@ -14,7 +14,7 @@ const gameModeLabels = {
 const categoryLabels = {
     suggestion: { name: 'Saran', emoji: '💡', color: 0x10b981 },
     idea: { name: 'Ide Fitur', emoji: '✨', color: 0x3b82f6 },
-    bug: { name: 'Bug Report', emoji: '🐛', color: 0xf43f5e },
+    event: { name: 'Ide Event', emoji: '🎉', color: 0xf43f5e },
     complaint: { name: 'Keluhan', emoji: '😤', color: 0xf59e0b },
     appreciation: { name: 'Apresiasi', emoji: '❤️', color: 0xa855f7 },
     other: { name: 'Lainnya', emoji: '📝', color: 0x6b7280 }
