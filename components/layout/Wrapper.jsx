@@ -32,6 +32,12 @@ const solutions = [
         href: '/store',
         icon: Icons.Gem,
     },
+    {
+        name: 'Kritik & Saran',
+        description: 'Sampaikan ide dan masukan untuk server.',
+        href: '/suggestion',
+        icon: Icons.Speakerphone,
+    },
 ]
 
 export function Wrapper({ children, seo }) {
@@ -148,6 +154,7 @@ export function Wrapper({ children, seo }) {
                                     <Link href="/staff">Tim Staf</Link>
                                     <Link href="/rules">Aturan Server</Link>
                                     <Link href="/store">Beli Gems</Link>
+                                    <Link href="/suggestion">Kritik & Saran</Link>
                                 </div>
                             </div>
 
