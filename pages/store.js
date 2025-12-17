@@ -91,46 +91,6 @@ const products = [
     }
 ]
 
-// Payment methods with Tripay channel codes
-const paymentMethods = [
-    {
-        id: 'QRIS',
-        name: 'QRIS',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Logo_QRIS.svg/2560px-Logo_QRIS.svg.png',
-        description: 'Scan QR untuk bayar'
-    },
-    {
-        id: 'OVO',
-        name: 'OVO',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/2560px-Logo_ovo_purple.svg.png',
-        description: 'Bayar dengan OVO'
-    },
-    {
-        id: 'DANA',
-        name: 'DANA',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/2560px-Logo_dana_blue.svg.png',
-        description: 'Bayar dengan DANA'
-    },
-    {
-        id: 'BCAVA',
-        name: 'BCA Virtual Account',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/2560px-Bank_Central_Asia.svg.png',
-        description: 'Transfer via BCA VA'
-    },
-    {
-        id: 'MANDIRIVA',
-        name: 'Mandiri Virtual Account',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Mandiri_logo_2016.svg/2560px-Bank_Mandiri_logo_2016.svg.png',
-        description: 'Transfer via Mandiri VA'
-    },
-    {
-        id: 'BNIVA',
-        name: 'BNI Virtual Account',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Bank_Negara_Indonesia_logo_%282004%29.svg',
-        description: 'Transfer via BNI VA'
-    }
-]
-
 export default function Store() {
     const [username, setUsername] = useState('')
     const [referral, setReferral] = useState('')
@@ -145,7 +105,7 @@ export default function Store() {
     // Purchase modal states
     const [showPurchaseModal, setShowPurchaseModal] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState(null)
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('')
+    const [agreedToTerms, setAgreedToTerms] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
 
     // Success modal state
@@ -255,56 +215,26 @@ export default function Store() {
             return
         }
         setSelectedProduct(product)
-        setSelectedPaymentMethod('')
+        setAgreedToTerms(false)
         setShowPurchaseModal(true)
     }
 
-    async function confirmPurchase() {
-        if (!selectedPaymentMethod) {
-            toast("Silakan pilih metode pembayaran!")
+    function confirmPurchase() {
+        if (!agreedToTerms) {
+            toast("Silakan centang persetujuan syarat dan ketentuan!")
             return
         }
 
-        setIsProcessing(true)
-
-        try {
-            // Get numeric price from product (remove 'Rp ' and '.')
-            const priceString = selectedProduct.price.replace('Rp ', '').replace(/\./g, '')
-            const amount = parseInt(priceString, 10)
-
-            const response = await fetch('/api/tripay/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    method: selectedPaymentMethod,
-                    amount: amount,
-                    nickname: savedUsername,
-                    gems: selectedProduct.totalGems
-                })
-            })
-
-            const data = await response.json()
-
-            if (data.success) {
-                // Redirect to Tripay checkout
-                window.location.href = data.data.checkout_url
-            } else {
-                toast(data.message || 'Gagal membuat transaksi')
-            }
-        } catch (err) {
-            console.error('Payment error:', err)
-            toast('Terjadi kesalahan. Silakan coba lagi.')
-        } finally {
-            setIsProcessing(false)
-        }
+        const quantity = selectedProduct.quantity
+        const url = `https://trakteer.id/trinity-indonesia/tip/?open=true&step=2&quantity=${quantity}&display_name=${encodeURIComponent(savedUsername)}&unit=gems`
+        window.open(url, 'trakteerPopup', 'width=500,height=700')
+        closePurchaseModal()
     }
 
     function closePurchaseModal() {
         setShowPurchaseModal(false)
         setSelectedProduct(null)
-        setSelectedPaymentMethod('')
+        setAgreedToTerms(false)
     }
 
     const cleanUsername = savedUsername.replace(".", "")
@@ -332,17 +262,17 @@ export default function Store() {
             {showSuccessModal && successData && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
                     <div className="w-full max-w-md glass-card rounded-3xl border border-white/10 overflow-hidden text-center">
-                        {/* Header */}
-                        <div className="p-8 bg-gradient-to-r from-amber-500 to-orange-500">
+                        {/* Success Header */}
+                        <div className="p-8 bg-gradient-to-r from-emerald-500 to-emerald-600">
                             <div className="w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-4">
-                                <Icons.Clock className="h-12 w-12 text-white" />
+                                <Icons.CheckCircle className="h-12 w-12 text-white" />
                             </div>
-                            <h3 className="text-2xl font-bold text-white">Pesanan Dibuat!</h3>
+                            <h3 className="text-2xl font-bold text-white">Pembayaran Berhasil!</h3>
                         </div>
 
                         <div className="p-6 space-y-4">
                             <p className="text-gray-400">
-                                Pesanan kamu telah dibuat. Setelah pembayaran dikonfirmasi, gems akan otomatis ditambahkan ke akunmu.
+                                Terima kasih sudah membeli gems di Trinity Indonesia!
                             </p>
 
                             <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
@@ -350,19 +280,13 @@ export default function Store() {
                                 <p className="text-white font-bold text-lg">{successData.nickname}</p>
                             </div>
 
-                            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30">
-                                <p className="text-amber-400 text-sm mb-1">Gems yang dipesan</p>
+                            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
+                                <p className="text-emerald-400 text-sm mb-1">Gems yang dibeli</p>
                                 <p className="text-white font-bold text-2xl">{successData.gems} Gems 💎</p>
                             </div>
 
-                            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30">
-                                <p className="text-rose-300 text-sm">
-                                    ⚠️ Jika kamu belum membayar, gems tidak akan ditambahkan. Silakan selesaikan pembayaran.
-                                </p>
-                            </div>
-
                             <p className="text-gray-500 text-sm">
-                                Jika dalam 24 jam setelah pembayaran gems belum masuk, silakan hubungi admin.
+                                Gems kamu akan segera ditambahkan ke akun. Jika dalam 24 jam gems belum masuk, silakan hubungi admin.
                             </p>
 
                             <button
@@ -417,64 +341,65 @@ export default function Store() {
                                 </div>
                             </div>
 
-                            {/* Payment Method Selection */}
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-400 mb-3">Pilih Metode Pembayaran</label>
-                                <div className="space-y-3">
-                                    {paymentMethods.map((method) => (
-                                        <button
-                                            key={method.id}
-                                            onClick={() => setSelectedPaymentMethod(method.id)}
-                                            className={`w-full p-4 rounded-xl border-2 transition-all duration-200 flex items-center gap-4 ${selectedPaymentMethod === method.id
-                                                ? 'border-rose-500 bg-rose-500/10'
-                                                : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
-                                                }`}
-                                        >
-                                            <div className="w-16 h-12 flex items-center justify-center bg-white rounded-lg p-2">
-                                                <img
-                                                    src={method.logo}
-                                                    alt={method.name}
-                                                    className="max-w-full max-h-full object-contain"
-                                                />
-                                            </div>
-                                            <div className="flex-1 text-left">
-                                                <p className={`font-bold ${selectedPaymentMethod === method.id ? 'text-rose-400' : 'text-white'}`}>
-                                                    {method.name}
-                                                </p>
-                                                <p className="text-gray-500 text-sm">{method.description}</p>
-                                            </div>
-                                            {selectedPaymentMethod === method.id && (
-                                                <div className="w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center">
-                                                    <Icons.CheckCircle className="h-4 w-4 text-white" />
-                                                </div>
-                                            )}
-                                        </button>
-                                    ))}
+                            {/* Important Warnings */}
+                            <div className="space-y-3">
+                                <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-rose-500/20 flex items-center justify-center flex-shrink-0">
+                                            <Icons.Ban className="h-5 w-5 text-rose-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-rose-300 font-semibold text-sm">JANGAN centang "Dukungan sebagai anonim"!</p>
+                                            <p className="text-rose-300/70 text-xs mt-1">Jika kamu centang anonim, gems tidak akan terkirim karena nickname tidak terbaca.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                                            <Icons.ExclamationCircle className="h-5 w-5 text-amber-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-amber-300 font-semibold text-sm">Pastikan nickname & platform sudah benar!</p>
+                                            <p className="text-amber-300/70 text-xs mt-1">Jika nickname/platform salah, tidak ada refund. Silakan logout dan login ulang dengan nickname yang benar.</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Agreement Checkbox */}
+                            <button
+                                type="button"
+                                onClick={() => setAgreedToTerms(!agreedToTerms)}
+                                className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 text-left ${agreedToTerms
+                                    ? 'bg-rose-500/10 border-rose-500/50'
+                                    : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                                    }`}
+                            >
+                                <div className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-200 ${agreedToTerms
+                                    ? 'bg-rose-500'
+                                    : 'bg-white/10 border-2 border-white/20'
+                                    }`}>
+                                    {agreedToTerms && (
+                                        <Icons.CheckCircle className="h-4 w-4 text-white" />
+                                    )}
+                                </div>
+                                <span className="text-gray-400 text-sm leading-relaxed">
+                                    Saya sudah membaca dan menyetujui <a href="/rules" className="text-rose-400 hover:underline font-semibold" onClick={(e) => e.stopPropagation()}>Syarat dan Ketentuan</a>
+                                </span>
+                            </button>
 
                             {/* Confirm Button */}
                             <button
                                 onClick={confirmPurchase}
-                                disabled={!selectedPaymentMethod || isProcessing}
-                                className={`w-full py-4 rounded-xl font-bold uppercase text-white transition-all duration-300 flex items-center justify-center gap-2 ${selectedPaymentMethod && !isProcessing
+                                disabled={!agreedToTerms}
+                                className={`w-full py-4 rounded-xl font-bold uppercase text-white transition-all duration-300 flex items-center justify-center gap-2 ${agreedToTerms
                                     ? 'glow-button hover:opacity-90 hover:shadow-lg'
                                     : 'bg-gray-700 cursor-not-allowed'
                                     }`}
                             >
-                                {isProcessing ? (
-                                    <>
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        Memproses...
-                                    </>
-                                ) : (
-                                    'Konfirmasi & Bayar'
-                                )}
+                                Lanjutkan ke Pembayaran
                             </button>
-
-                            <p className="text-xs text-gray-500 text-center">
-                                Dengan melanjutkan, kamu menyetujui <a href="https://blog.trinityindonesia.cc/2025/03/term-and-condition.html" className="text-rose-400 hover:underline">Syarat & Ketentuan</a>
-                            </p>
                         </div>
                     </div>
                 </div>

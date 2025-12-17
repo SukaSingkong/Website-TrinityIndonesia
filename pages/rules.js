@@ -46,14 +46,15 @@ const generalRules = [
 		]
 	},
 	{
-		title: 'Pasal 4: Kebijakan Donasi dan Transaksi Keuangan',
+		title: 'Pasal 4: Kebijakan Pembelian Gems dan Transaksi',
 		content: [
-			{ num: '4.1', text: 'Semua donasi yang diberikan kepada server Trinity Indonesia bersifat sukarela sepenuhnya dan TIDAK DAPAT DIKEMBALIKAN (non-refundable) dalam keadaan, situasi, atau alasan apapun tanpa pengecualian, termasuk namun tidak terbatas pada: ban akun, reset server partial/total, kehilangan item/progress, kesalahan pembelian, ketidakpuasan terhadap layanan, atau penutupan server.' },
-			{ num: '4.2', text: 'Donasi adalah bentuk apresiasi dan dukungan terhadap operasional dan pengembangan server, BUKAN pembelian layanan yang disertai dengan jaminan, garansi, atau kewajiban kontraktual dari pihak server.' },
-			{ num: '4.3', text: 'Melakukan chargeback, dispute pembayaran, atau klaim pengembalian dana kepada penyedia layanan pembayaran untuk transaksi yang sudah berhasil diproses adalah pelanggaran serius. Pemain yang terbukti melakukan chargeback akan dikenakan sanksi ban permanen serta dapat dituntut secara hukum sesuai dengan peraturan perundang-undangan yang berlaku di Indonesia.' },
-			{ num: '4.4', text: 'Transaksi jual-beli, tukar-menukar, atau perdagangan item in-game, mata uang in-game, akun, atau aset virtual lainnya dengan uang nyata (Real Money Trading/RMT) di luar sistem resmi yang disediakan server adalah sepenuhnya risiko dan tanggung jawab pemain yang terlibat. Server tidak memberikan perlindungan, jaminan, atau bantuan apapun untuk transaksi semacam ini.' },
-			{ num: '4.5', text: 'Penipuan atau scamming dalam konteks RMT atau transaksi yang melibatkan uang nyata merupakan tindak pidana dan dapat dilaporkan kepada pihak berwajib sesuai dengan hukum yang berlaku.' },
-			{ num: '4.6', text: 'Harga dan ketersediaan paket donasi dapat berubah sewaktu-waktu tanpa pemberitahuan. Benefit donasi yang sudah diterima pada saat transaksi berlaku sesuai kondisi saat itu dan tidak terpengaruh oleh perubahan di kemudian hari.' }
+			{ num: '4.1', text: 'Semua pembelian Gems yang dilakukan melalui sistem resmi server Trinity Indonesia bersifat FINAL dan TIDAK DAPAT DIKEMBALIKAN (non-refundable) dalam keadaan, situasi, atau alasan apapun tanpa pengecualian.' },
+			{ num: '4.2', text: 'TIDAK ADA REFUND untuk kesalahan yang disebabkan oleh pihak pembeli, termasuk namun tidak terbatas pada: kesalahan input nickname, kesalahan memilih platform (Java/Bedrock), kesalahan jumlah pembelian, atau mencentang opsi "Dukungan sebagai anonim" yang menyebabkan gems tidak terkirim.' },
+			{ num: '4.3', text: 'Pembeli WAJIB memastikan nickname Minecraft dan platform (Java/Bedrock) yang diinput sudah benar sebelum melakukan pembayaran. Server tidak bertanggung jawab atas kesalahan input data oleh pembeli.' },
+			{ num: '4.4', text: 'Melakukan chargeback, dispute pembayaran, atau klaim pengembalian dana kepada penyedia layanan pembayaran untuk transaksi yang sudah berhasil diproses adalah pelanggaran serius. Pemain yang terbukti melakukan chargeback akan dikenakan sanksi ban permanen serta dapat dituntut secara hukum sesuai dengan peraturan perundang-undangan yang berlaku di Indonesia.' },
+			{ num: '4.5', text: 'Gems yang sudah dibeli dan dikirim ke akun pemain tidak dapat dipindahtangankan, dijual kembali, atau ditukar dengan uang nyata. Transaksi jual-beli Gems antar pemain di luar sistem resmi sepenuhnya menjadi risiko dan tanggung jawab pemain yang terlibat.' },
+			{ num: '4.6', text: 'Refund HANYA dapat dipertimbangkan jika terjadi kesalahan teknis dari pihak server yang menyebabkan Gems tidak terkirim meskipun pembayaran sudah berhasil DAN pembeli dapat menunjukkan bukti pembayaran yang valid. Pengajuan refund wajib dilakukan melalui sistem tiket Discord dalam waktu maksimal 7 hari sejak transaksi.' },
+			{ num: '4.7', text: 'Harga dan ketersediaan paket Gems dapat berubah sewaktu-waktu tanpa pemberitahuan. Benefit yang sudah diterima pada saat transaksi berlaku sesuai kondisi saat itu dan tidak terpengaruh oleh perubahan di kemudian hari.' }
 		]
 	},
 	{

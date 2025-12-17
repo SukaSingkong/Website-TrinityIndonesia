@@ -5,6 +5,8 @@ import { Fragment, useState, useEffect } from 'react'
 import Link from 'next/link'
 import Head from "next/head"
 
+const SERVER_IP = 'trinityindonesia.cc'
+
 const solutions = [
     {
         name: 'Beranda',
@@ -149,29 +151,37 @@ export function Wrapper({ children, seo }) {
                                 </div>
                             </div>
 
-                            {/* Legal */}
-                            <div className="lg:col-span-1">
-                                <h3 className="text-white font-bold uppercase text-sm mb-4">Legal</h3>
-                                <div className="flex flex-col gap-3" data-apply="footer-links">
-                                    <Link href="/privacy">Kebijakan Privasi</Link>
-                                    <Link href="/terms">Ketentuan Layanan</Link>
-                                    <Link href="/refund">Kebijakan Refund</Link>
-                                </div>
-                            </div>
-
                             {/* Join Server */}
                             <div className="lg:col-span-1">
                                 <h3 className="text-white font-bold uppercase text-sm mb-4">Join Server</h3>
                                 <div className="flex flex-col gap-2">
-                                    <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-rose-500/10 to-transparent border border-rose-500/20 hover:border-rose-500/40 transition-all cursor-default">
+                                    <button
+                                        onClick={() => {
+                                            navigator.clipboard?.writeText(SERVER_IP)
+                                            // Show toast
+                                            const toast = document.getElementById('footer-toast')
+                                            if (toast) {
+                                                toast.classList.remove('opacity-0', 'translate-y-2')
+                                                toast.classList.add('opacity-100', 'translate-y-0')
+                                                setTimeout(() => {
+                                                    toast.classList.remove('opacity-100', 'translate-y-0')
+                                                    toast.classList.add('opacity-0', 'translate-y-2')
+                                                }, 2000)
+                                            }
+                                        }}
+                                        className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-rose-500/10 to-transparent border border-rose-500/20 hover:border-rose-500/40 hover:bg-rose-500/10 transition-all cursor-pointer group"
+                                    >
                                         <div className="w-8 h-8 rounded-md bg-rose-500/20 flex items-center justify-center flex-shrink-0">
                                             <Icons.Server className="h-4 w-4 text-rose-400" />
                                         </div>
-                                        <div className="min-w-0">
+                                        <div className="min-w-0 flex-1 text-left">
                                             <p className="text-gray-500 text-[10px] uppercase tracking-wider">Server IP</p>
-                                            <p className="text-white font-semibold text-sm truncate">trinityindonesia.cc</p>
+                                            <p className="text-white font-semibold text-sm truncate">{SERVER_IP}</p>
                                         </div>
-                                    </div>
+                                        <div className="w-8 h-8 rounded-md bg-rose-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-rose-500/30 transition-colors">
+                                            <Icons.ClipboardCopy className="h-4 w-4 text-rose-400" />
+                                        </div>
+                                    </button>
                                     <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-rose-500/10 to-transparent border border-rose-500/20 hover:border-rose-500/40 transition-all cursor-default">
                                         <div className="w-8 h-8 rounded-md bg-rose-500/20 flex items-center justify-center flex-shrink-0">
                                             <Icons.Cube className="h-4 w-4 text-rose-400" />
@@ -182,6 +192,16 @@ export function Wrapper({ children, seo }) {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Toast Notification */}
+                        <div id="footer-toast" className="fixed bottom-6 right-6 z-50 px-6 py-4 rounded-2xl glass-card border border-emerald-500/30 shadow-2xl opacity-0 translate-y-2 transition-all duration-300 pointer-events-none">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                    <Icons.CheckCircle className="h-5 w-5 text-emerald-400" />
+                                </div>
+                                <p className="text-white font-semibold">IP Server berhasil disalin!</p>
                             </div>
                         </div>
 
