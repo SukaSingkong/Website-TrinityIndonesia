@@ -55,6 +55,9 @@ export default async function handler(req, res) {
         // Get player avatar from mc-heads
         const avatarUrl = `https://mc-heads.net/avatar/${nickname}/128`
 
+        // Server icon for webhook avatar
+        const serverIconUrl = `https://cdn.discordapp.com/icons/1304809491099160580/a_3420e2d90d6e3e2f1fe8cc6f1b4fbb28.gif`
+
         // Get category info
         const categoryInfo = categoryLabels[category] || categoryLabels.other
         const gameModeLabel = gameModeLabels[gameMode] || 'Unknown'
@@ -95,7 +98,7 @@ export default async function handler(req, res) {
             ],
             footer: {
                 text: "Kirim saran kamu di trinityindonesia.cc/suggestion",
-                icon_url: "https://trinityindonesia.cc/favicon.ico"
+                icon_url: serverIconUrl
             },
             timestamp: new Date().toISOString(),
             url: "https://trinityindonesia.cc/suggestion"
@@ -108,8 +111,8 @@ export default async function handler(req, res) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                username: "Trinity Suggestion",
-                avatar_url: "https://trinityindonesia.cc/favicon.ico",
+                username: "Trinity Indonesia",
+                avatar_url: serverIconUrl,
                 embeds: [embed]
             })
         })

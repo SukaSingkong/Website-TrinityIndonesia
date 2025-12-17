@@ -1,38 +1,40 @@
-// API endpoint to send bug report to Discord webhook with file attachments
+// API endpoint to send player report to Discord webhook with file attachments
 import { IncomingForm } from 'formidable'
 import fs from 'fs'
-import path from 'path'
 
 export const config = {
     api: {
-        bodyParser: false, // Disable default body parser for file uploads
+        bodyParser: false,
     },
 }
 
-const DISCORD_WEBHOOK_URL = process.env.BUGREPORT_WEBHOOK_URL
+const DISCORD_WEBHOOK_URL = process.env.PLAYERREPORT_WEBHOOK_URL
 
 const gameModeLabels = {
     general: 'Umum / General',
     oneblock: 'OneBlock',
     boxsmp: 'BoxSMP',
     anarchy: 'Anarchy Economy',
-    website: 'Website',
+    discord: 'Discord',
+    external: 'Di Luar Game',
     other: 'Lainnya'
 }
 
-const bugTypeLabels = {
-    gameplay: { name: 'Bug Gameplay', emoji: '🎮' },
-    visual: { name: 'Bug Visual', emoji: '👁️' },
-    performance: { name: 'Lag / Performance', emoji: '🐌' },
-    exploit: { name: 'Exploit / Dupe', emoji: '⚠️' },
-    other: { name: 'Lainnya', emoji: '❓' }
+const categoryLabels = {
+    cheat: { name: 'Cheat / Hack', emoji: '🎮', color: 0xf43f5e },
+    exploit: { name: 'Exploit / Bug Abuse', emoji: '⚠️', color: 0xf59e0b },
+    toxic: { name: 'Toxic / Harassment', emoji: '💢', color: 0xef4444 },
+    scam: { name: 'Penipuan', emoji: '🦊', color: 0xf97316 },
+    account_selling: { name: 'Jual Beli Akun', emoji: '💰', color: 0xeab308 },
+    rmt: { name: 'RMT (Real Money Trading)', emoji: '💵', color: 0x22c55e },
+    other: { name: 'Lainnya', emoji: '❓', color: 0x6b7280 }
 }
 
 function parseForm(req) {
     return new Promise((resolve, reject) => {
         const form = new IncomingForm({
             multiples: true,
-            maxFileSize: 10 * 1024 * 1024, // 10MB max per file
+            maxFileSize: 10 * 1024 * 1024,
             maxFiles: 5,
         })
 
@@ -49,17 +51,17 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Parse form data
         const { fields, files } = await parseForm(req)
 
-        const nickname = Array.isArray(fields.nickname) ? fields.nickname[0] : fields.nickname
+        const reporter = Array.isArray(fields.reporter) ? fields.reporter[0] : fields.reporter
         const platform = Array.isArray(fields.platform) ? fields.platform[0] : fields.platform
+        const reportedPlayer = Array.isArray(fields.reportedPlayer) ? fields.reportedPlayer[0] : fields.reportedPlayer
         const gameMode = Array.isArray(fields.gameMode) ? fields.gameMode[0] : fields.gameMode
-        const bugType = Array.isArray(fields.bugType) ? fields.bugType[0] : fields.bugType
+        const category = Array.isArray(fields.category) ? fields.category[0] : fields.category
         const description = Array.isArray(fields.description) ? fields.description[0] : fields.description
 
         // Validate input
-        if (!nickname || !description || !gameMode || !bugType) {
+        if (!reporter || !reportedPlayer || !description || !gameMode || !category) {
             return res.status(400).json({
                 success: false,
                 message: 'Semua field wajib diisi'
@@ -73,39 +75,44 @@ export default async function handler(req, res) {
             })
         }
 
-        // Check if webhook URL is configured
+        const fileKeys = Object.keys(files).filter(key => key.startsWith('file'))
+        if (fileKeys.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Bukti screenshot wajib dilampirkan'
+            })
+        }
+
         if (!DISCORD_WEBHOOK_URL) {
-            console.error('BUGREPORT_WEBHOOK_URL not configured')
+            console.error('PLAYERREPORT_WEBHOOK_URL not configured')
             return res.status(500).json({
                 success: false,
                 message: 'Webhook tidak dikonfigurasi'
             })
         }
 
-        // Get player avatar from mc-heads
-        const avatarUrl = `https://mc-heads.net/avatar/${nickname}/128`
+        // Get avatars
+        const reporterAvatarUrl = `https://mc-heads.net/avatar/${reporter}/128`
+        const reportedAvatarUrl = `https://mc-heads.net/avatar/${reportedPlayer}/64`
 
-        // Server icon for webhook avatar
+        // Server icon
         const serverIconUrl = `https://cdn.discordapp.com/icons/1304809491099160580/a_3420e2d90d6e3e2f1fe8cc6f1b4fbb28.gif`
 
         // Get labels
         const gameModeLabel = gameModeLabels[gameMode] || 'Unknown'
-        const bugTypeInfo = bugTypeLabels[bugType] || bugTypeLabels.other
-
-        // Collect file keys
-        const fileKeys = Object.keys(files).filter(key => key.startsWith('file'))
+        const categoryInfo = categoryLabels[category] || categoryLabels.other
 
         // Create Discord embed
         const embed = {
-            title: `🐛 Bug Report Baru`,
-            color: 0xf43f5e, // Rose color for bugs
+            title: `${categoryInfo.emoji} Player Report - ${categoryInfo.name}`,
+            color: categoryInfo.color,
             thumbnail: {
-                url: avatarUrl
+                url: reporterAvatarUrl
             },
             fields: [
                 {
-                    name: "👤 Reporter",
-                    value: `\`${nickname}\``,
+                    name: "👤 Pelapor",
+                    value: `\`${reporter}\``,
                     inline: true
                 },
                 {
@@ -114,40 +121,44 @@ export default async function handler(req, res) {
                     inline: true
                 },
                 {
-                    name: "🎯 Mode Permainan",
+                    name: "🚨 Terlapor",
+                    value: `\`${reportedPlayer}\``,
+                    inline: true
+                },
+                {
+                    name: "📍 Lokasi Kejadian",
                     value: gameModeLabel,
                     inline: true
                 },
                 {
-                    name: `${bugTypeInfo.emoji} Jenis Bug`,
-                    value: bugTypeInfo.name,
+                    name: `${categoryInfo.emoji} Kategori`,
+                    value: categoryInfo.name,
                     inline: true
                 },
                 {
-                    name: "📝 Deskripsi Bug",
+                    name: "📝 Kronologi",
                     value: description.length > 1000 ? description.substring(0, 1000) + '...' : description,
                     inline: false
                 }
             ],
             footer: {
-                text: "Laporkan bug di trinityindonesia.cc/bugreport",
+                text: "Laporkan player di trinityindonesia.cc/report",
                 icon_url: serverIconUrl
             },
             timestamp: new Date().toISOString(),
-            url: "https://trinityindonesia.cc/bugreport"
+            url: "https://trinityindonesia.cc/report"
         }
 
-        // Add first image to embed if available
+        // Add first image to embed
         if (fileKeys.length > 0) {
             embed.image = {
-                url: `attachment://screenshot0.png`
+                url: `attachment://evidence0.png`
             }
         }
 
-        // Prepare FormData for Discord webhook with files
+        // Prepare FormData
         const formData = new FormData()
 
-        // Add JSON payload with server icon
         formData.append('payload_json', JSON.stringify({
             username: "Trinity Indonesia",
             avatar_url: serverIconUrl,
@@ -162,7 +173,7 @@ export default async function handler(req, res) {
             if (file && file.filepath) {
                 const fileBuffer = fs.readFileSync(file.filepath)
                 const blob = new Blob([fileBuffer], { type: file.mimetype })
-                formData.append(`files[${i}]`, blob, `screenshot${i}.png`)
+                formData.append(`files[${i}]`, blob, `evidence${i}.png`)
             }
         }
 
@@ -192,11 +203,11 @@ export default async function handler(req, res) {
 
         return res.status(200).json({
             success: true,
-            message: 'Bug report berhasil dikirim'
+            message: 'Laporan berhasil dikirim'
         })
 
     } catch (error) {
-        console.error('Bug Report API error:', error)
+        console.error('Player Report API error:', error)
         return res.status(500).json({
             success: false,
             message: 'Internal server error'

@@ -44,6 +44,12 @@ const solutions = [
         href: '/bugreport',
         icon: Icons.Exclamation,
     },
+    {
+        name: 'Report Player',
+        description: 'Laporkan pemain yang melanggar aturan.',
+        href: '/report',
+        icon: Icons.Flag,
+    },
 ]
 
 export function Wrapper({ children, seo }) {
@@ -160,8 +166,16 @@ export function Wrapper({ children, seo }) {
                                     <Link href="/staff">Tim Staf</Link>
                                     <Link href="/rules">Aturan Server</Link>
                                     <Link href="/store">Beli Gems</Link>
+                                </div>
+                            </div>
+
+                            {/* Feedback */}
+                            <div className="lg:col-span-1">
+                                <h3 className="text-white font-bold uppercase text-sm mb-4">Feedback</h3>
+                                <div className="flex flex-col gap-3" data-apply="footer-links">
                                     <Link href="/suggestion">Kritik & Saran</Link>
                                     <Link href="/bugreport">Bug Report</Link>
+                                    <Link href="/report">Report Player</Link>
                                 </div>
                             </div>
 
