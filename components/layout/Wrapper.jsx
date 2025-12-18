@@ -91,9 +91,12 @@ export function Wrapper({ children, seo }) {
                     <div className="container">
                         <div className="flex gap-12 items-center">
                             <Link href="/">
-                                <div className="text-2xl font-bold uppercase cursor-pointer group">
-                                    <span className="text-white transition-all duration-300 group-hover:text-rose-100">{brandPrimary}</span>
-                                    {brandAccent && <span className="gradient-text transition-all duration-300"> {brandAccent}</span>}
+                                <div className="flex items-center gap-3 cursor-pointer group">
+                                    <img src="/vendor/logo.png" alt="Trinity Indonesia" className="h-10 w-10" />
+                                    <div className="text-xl font-bold uppercase">
+                                        <span className="text-white transition-all duration-300 group-hover:text-rose-100">{brandPrimary}</span>
+                                        {brandAccent && <span className="gradient-text transition-all duration-300"> {brandAccent}</span>}
+                                    </div>
                                 </div>
                             </Link>
                             <div className="hidden md:flex flex-grow justify-end items-center gap-8" data-apply="navbar">
@@ -151,10 +154,13 @@ export function Wrapper({ children, seo }) {
                         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 mb-12">
                             {/* Brand */}
                             <div className="lg:col-span-1">
-                                <h1 className="text-2xl font-bold uppercase mb-4">
-                                    <span className="text-white">{brandPrimary}</span>
-                                    {brandAccent && <span className="gradient-text"> {brandAccent}</span>}
-                                </h1>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <img src="/vendor/logo.png" alt="Trinity Indonesia" className="h-12 w-12" />
+                                    <h1 className="text-xl font-bold uppercase">
+                                        <span className="text-white">{brandPrimary}</span>
+                                        {brandAccent && <span className="gradient-text"> {brandAccent}</span>}
+                                    </h1>
+                                </div>
                                 <p className="text-gray-500 text-sm mb-4">Server Minecraft Indonesia dengan berbagai mode seru: Survival, Skyblock, Lifesteal, dan Bedwars.</p>
                             </div>
 

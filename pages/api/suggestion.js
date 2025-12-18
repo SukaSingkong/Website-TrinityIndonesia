@@ -56,7 +56,7 @@ export default async function handler(req, res) {
         const avatarUrl = `https://mc-heads.net/avatar/${nickname}/128`
 
         // Server icon for webhook avatar
-        const serverIconUrl = `https://cdn.discordapp.com/icons/1304809491099160580/a_3420e2d90d6e3e2f1fe8cc6f1b4fbb28.gif`
+        const serverIconUrl = `https://trinityindonesia.cc/vendor/logo.png`
 
         // Get category info
         const categoryInfo = categoryLabels[category] || categoryLabels.other
