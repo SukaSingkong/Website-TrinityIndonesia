@@ -32,6 +32,7 @@ export default function Suggestion() {
     const [isLoading, setIsLoading] = useState(false)
     const [isVerified, setIsVerified] = useState(false)
     const [verifiedNickname, setVerifiedNickname] = useState('')
+    const [isAnonymous, setIsAnonymous] = useState(false)
     const [error, setError] = useState('')
     const [success, setSuccess] = useState(false)
     const [toastVisible, setToastVisible] = useState(false)
@@ -45,6 +46,15 @@ export default function Suggestion() {
 
     async function verifyNickname(e) {
         e.preventDefault()
+
+        // If anonymous, skip verification
+        if (isAnonymous) {
+            setIsVerified(true)
+            setVerifiedNickname('Anonymous')
+            toast("Melanjutkan sebagai Anonymous")
+            return
+        }
+
         if (!nickname.trim()) {
             setError('Nickname tidak boleh kosong')
             return
@@ -267,12 +277,30 @@ export default function Suggestion() {
                                         <label className="block text-sm font-semibold text-gray-400 mb-3">Nickname Minecraft</label>
                                         <input
                                             type="text"
-                                            value={nickname}
+                                            value={isAnonymous ? '' : nickname}
                                             onChange={(e) => setNickname(e.target.value)}
-                                            placeholder="Masukkan nickname..."
-                                            className="w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-rose-500/50 transition-colors"
+                                            placeholder={isAnonymous ? 'Kirim sebagai Anonymous' : 'Masukkan nickname...'}
+                                            disabled={isAnonymous}
+                                            className={`w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-rose-500/50 transition-colors ${isAnonymous ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         />
                                     </div>
+
+                                    {/* Anonymous Checkbox */}
+                                    <label className="flex items-center gap-3 cursor-pointer group">
+                                        <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${isAnonymous ? 'bg-rose-500 border-rose-500' : 'border-white/20 bg-white/5 group-hover:border-white/40'}`}>
+                                            {isAnonymous && <Icons.Check className="h-4 w-4 text-white" />}
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            checked={isAnonymous}
+                                            onChange={(e) => {
+                                                setIsAnonymous(e.target.checked)
+                                                if (e.target.checked) setNickname('')
+                                            }}
+                                            className="hidden"
+                                        />
+                                        <span className="text-gray-400 group-hover:text-white transition-colors">Kirim sebagai Anonymous</span>
+                                    </label>
 
                                     {error && (
                                         <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30">
@@ -282,8 +310,8 @@ export default function Suggestion() {
 
                                     <button
                                         type="submit"
-                                        disabled={isLoading || !nickname.trim()}
-                                        className={`w-full py-4 rounded-xl font-bold uppercase text-white transition-all duration-300 flex items-center justify-center gap-2 ${nickname.trim() && !isLoading
+                                        disabled={isLoading || (!isAnonymous && !nickname.trim())}
+                                        className={`w-full py-4 rounded-xl font-bold uppercase text-white transition-all duration-300 flex items-center justify-center gap-2 ${(isAnonymous || nickname.trim()) && !isLoading
                                             ? 'glow-button hover:opacity-90'
                                             : 'bg-gray-700 cursor-not-allowed'
                                             }`}
@@ -292,6 +320,11 @@ export default function Suggestion() {
                                             <>
                                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                                 Memverifikasi...
+                                            </>
+                                        ) : isAnonymous ? (
+                                            <>
+                                                <Icons.ArrowRight className="h-5 w-5" />
+                                                Lanjut
                                             </>
                                         ) : (
                                             <>

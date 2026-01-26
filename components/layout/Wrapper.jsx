@@ -103,6 +103,9 @@ export function Wrapper({ children, seo }) {
                                 <Link href="/">Beranda</Link>
                                 <Link href="/staff">Tim Staf</Link>
                                 <Link href="/rules">Aturan</Link>
+                                <Link href="/bugreport">Bug Report</Link>
+                                <Link href="/report">Report Player</Link>
+                                <Link href="/suggestion">Kritik & Saran</Link>
                                 <Link href="/store">
                                     <Icons.Gem className="h-4 w-4" />
                                     Beli Gems
@@ -253,7 +256,7 @@ export function Wrapper({ children, seo }) {
                             >
                                 <span className="text-gray-500 text-sm">Powered by & Part of</span>
                                 <img
-                                    src="https://syncara.host/storage/logo-dark.webp"
+                                    src="https://panel.syncara.host/storage/assets/91006e750ec3e9daa7f16ae828a65ea2c550860c.webp"
                                     alt="Syncara.host"
                                     className="h-6 opacity-70 group-hover:opacity-100 transition-opacity"
                                 />
