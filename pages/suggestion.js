@@ -184,7 +184,7 @@ export default function Suggestion() {
 
             {/* Hero Section */}
             <section className="relative min-h-[50vh] flex items-center overflow-hidden pt-24">
-                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url("/vendor/bg.jpg")' }} />
+                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url("/vendor/bg.webp")' }} />
                 <div className="absolute inset-0 hero-gradient" />
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     <div className="particle particle-1" /><div className="particle particle-2" /><div className="particle particle-4" />

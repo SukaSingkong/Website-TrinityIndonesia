@@ -96,7 +96,7 @@ export default async function handler(req, res) {
         const reportedAvatarUrl = `https://mc-heads.net/avatar/${reportedPlayer}/64`
 
         // Server icon
-        const serverIconUrl = `https://trinityindonesia.cc/vendor/logo.png`
+        const serverIconUrl = `https://trinityindonesia.cc/vendor/logo.webp`
 
         // Get labels
         const gameModeLabel = gameModeLabels[gameMode] || 'Unknown'

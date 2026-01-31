@@ -142,7 +142,7 @@ export default function Home() {
 
 			{/* HERO */}
 			<section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-				<div className="absolute inset-0 bg-cover bg-center scale-105" style={{ backgroundImage: 'url("/vendor/bg.jpg")' }} />
+				<div className="absolute inset-0 bg-cover bg-center scale-105" style={{ backgroundImage: 'url("/vendor/bg.webp")' }} />
 				<div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-[var(--surface-900)]" />
 
 				{/* Animated Grid */}
