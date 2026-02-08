@@ -14,8 +14,8 @@ const products = [
         price: 'Rp 5.000',
         originalPrice: 'Rp 8.000',
         quantity: 5,
-        gradient: 'from-emerald-500 to-teal-500',
-        shadowColor: 'shadow-emerald-500/30',
+        gradient: 'from-red-600 to-red-500',
+        shadowColor: 'shadow-red-500/30',
         badge: '+67% BONUS',
         popular: false
     },
@@ -28,8 +28,8 @@ const products = [
         price: 'Rp 10.000',
         originalPrice: 'Rp 15.000',
         quantity: 10,
-        gradient: 'from-blue-500 to-indigo-500',
-        shadowColor: 'shadow-blue-500/30',
+        gradient: 'from-red-600 to-red-500',
+        shadowColor: 'shadow-red-500/30',
         badge: '+43% BONUS',
         popular: false
     },
@@ -42,8 +42,8 @@ const products = [
         price: 'Rp 25.000',
         originalPrice: 'Rp 40.000',
         quantity: 25,
-        gradient: 'from-violet-500 to-purple-500',
-        shadowColor: 'shadow-violet-500/30',
+        gradient: 'from-red-600 to-red-500',
+        shadowColor: 'shadow-red-500/30',
         badge: '+67% BONUS',
         popular: false
     },
@@ -56,8 +56,8 @@ const products = [
         price: 'Rp 50.000',
         originalPrice: 'Rp 100.000',
         quantity: 50,
-        gradient: 'from-rose-500 to-pink-500',
-        shadowColor: 'shadow-rose-500/30',
+        gradient: 'from-red-600 to-red-500',
+        shadowColor: 'shadow-red-500/30',
         badge: 'BEST VALUE',
         popular: true
     },
@@ -70,8 +70,8 @@ const products = [
         price: 'Rp 100.000',
         originalPrice: 'Rp 165.000',
         quantity: 100,
-        gradient: 'from-amber-500 to-orange-500',
-        shadowColor: 'shadow-amber-500/30',
+        gradient: 'from-red-600 to-red-500',
+        shadowColor: 'shadow-red-500/30',
         badge: '+67% BONUS',
         popular: false
     },
@@ -84,8 +84,8 @@ const products = [
         price: 'Rp 250.000',
         originalPrice: 'Rp 500.000',
         quantity: 250,
-        gradient: 'from-cyan-500 to-teal-500',
-        shadowColor: 'shadow-cyan-500/30',
+        gradient: 'from-red-600 to-red-500',
+        shadowColor: 'shadow-red-500/30',
         badge: '+100% BONUS',
         popular: false
     }
@@ -240,7 +240,11 @@ export default function Store() {
     const cleanUsername = savedUsername.replace(".", "")
 
     return (
-        <Wrapper seo={{ title: 'Beli Gems' }}>
+        <Wrapper seo={{ 
+            title: 'Beli Gems',
+            description: 'Beli Gems Trinity Indonesia untuk mendapatkan keuntungan in-game. Proses cepat, aman, dan berbagai pilihan paket menarik.',
+            path: '/store'
+        }}>
             {/* Toast */}
             <div className={`${toastVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95'} fixed right-6 bottom-6 z-50 glass-card px-6 py-4 rounded-2xl shadow-2xl transition-all duration-300 border border-emerald-500/30`}>
                 <div className="flex items-center gap-3">
@@ -406,22 +410,23 @@ export default function Store() {
             )}
 
             {/* Hero Section */}
-            <section className="relative min-h-[50vh] flex items-center overflow-hidden pt-24">
-                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url("/vendor/bg.webp")' }} />
-                <div className="absolute inset-0 hero-gradient" />
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="particle particle-1" /><div className="particle particle-2" /><div className="particle particle-4" />
-                </div>
+            <section className="relative min-h-[40vh] flex items-center pt-24 border-b border-red-900/30 bg-black overflow-hidden">
+                <div className="absolute inset-0 bg-grid opacity-20" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--surface-900)]"></div>
 
                 <div className="container relative z-10">
-                    <div className="max-w-3xl">
-                        <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20 mb-6">Trinity Webstore</span>
-                        <h1 className="text-4xl md:text-6xl font-black text-white uppercase mb-6">Beli <span className="gradient-text">Gems</span></h1>
-                        <p className="text-lg text-gray-300 mb-8">Support server dan dapatkan gems untuk berbagai keuntungan in-game!</p>
-                        <button onClick={() => navigator.clipboard?.writeText(config.serverIpAddress)} className="glow-button font-bold uppercase py-4 px-8 rounded-2xl inline-flex items-center gap-3 text-white">
-                            <Icons.ClipboardCopy className="h-5 w-5" />
-                            {config.serverIpAddress}
-                        </button>
+                    <div className="max-w-4xl mx-auto text-center">
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                            <div className="h-px w-8 bg-red-500"></div>
+                            <p className="text-xs font-mono text-red-500 uppercase tracking-[0.3em]">TRINITY WEBSTORE</p>
+                            <div className="h-px w-8 bg-red-500"></div>
+                        </div>
+                        <h1 className="text-5xl md:text-7xl font-black text-white uppercase mb-6 leading-none glitch-effect">
+                            BUY GEMS
+                        </h1>
+                        <p className="text-lg text-gray-500 font-mono max-w-2xl mx-auto">
+                            Support server dan dapatkan gems untuk berbagai keuntungan in-game!
+                        </p>
                     </div>
                 </div>
             </section>
@@ -558,44 +563,52 @@ export default function Store() {
                         {/* Products Grid */}
                         <div className="lg:col-span-3">
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                                {products.map((product) => (
+                            {products.map((product) => (
                                     <div
                                         key={product.id}
-                                        className={`group relative rounded-2xl overflow-hidden transition-all duration-300 border border-white/5 hover:border-white/15 hover:-translate-y-2 hover:shadow-2xl ${product.popular ? 'ring-1 ring-rose-500/30' : ''}`}
-                                        style={{ background: 'linear-gradient(145deg, rgba(26,26,38,0.95), rgba(18,18,26,0.98))' }}
+                                        className={`group relative overflow-hidden transition-all duration-300 border hover:border-red-500/50 hover:-translate-y-1 ${product.popular ? 'border-red-500/50 bg-red-900/10' : 'border-white/10 bg-black'}`}
                                     >
+                                        {/* Classified Header */}
+                                        <div className="bg-red-900/30 border-b border-red-900/50 px-4 py-2 flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                                                <span className="text-[10px] font-mono text-red-500 uppercase tracking-widest">PAKET #{String(product.id).padStart(3, '0')}</span>
+                                            </div>
+                                            <span className="text-[10px] font-mono text-red-400 uppercase px-2 py-0.5 border border-red-500/50 bg-red-900/20">
+                                                {product.badge}
+                                            </span>
+                                        </div>
+
                                         {/* Content */}
-                                        <div className="p-8">
-                                            {/* Header */}
-                                            <div className="flex items-center justify-between mb-6">
-                                                <h3 className="text-2xl font-bold text-white group-hover:text-rose-100 transition-colors">{product.totalGems} Gems</h3>
-                                                <span className={`px-3 py-1.5 rounded-full text-[11px] font-bold uppercase bg-gradient-to-r ${product.gradient} text-white opacity-90 group-hover:opacity-100 transition-opacity`}>
-                                                    {product.badge}
-                                                </span>
+                                        <div className="p-6">
+                                            {/* Gems Amount */}
+                                            <div className="text-center mb-6">
+                                                <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">TOTAL GEMS</p>
+                                                <h3 className="text-3xl font-black font-mono text-white uppercase tracking-tight">
+                                                    {product.totalGems} <span className="text-red-500">GEMS</span>
+                                                </h3>
                                             </div>
 
-                                            {/* Bonus Info */}
-                                            <div className="bg-white/5 rounded-xl p-4 mb-6 border border-white/5 group-hover:border-white/10 transition-colors">
-                                                <div className="flex items-center justify-between text-sm">
-                                                    <span className="text-gray-400">Base</span>
-                                                    <span className="text-white font-semibold">{product.baseGems} gems</span>
+                                            {/* Intel Data */}
+                                            <div className="border border-white/10 bg-white/5 mb-6">
+                                                <div className="border-b border-white/10 px-4 py-2 flex items-center justify-between">
+                                                    <span className="text-[10px] font-mono text-gray-500 uppercase">GEMS DASAR</span>
+                                                    <span className="text-sm font-mono text-white">{product.baseGems} GEMS</span>
                                                 </div>
-                                                <div className="flex items-center justify-between text-sm mt-2">
-                                                    <span className="text-gray-400">Bonus</span>
-                                                    <span className="text-emerald-400 font-bold">+{product.bonusGems} gems</span>
+                                                <div className="border-b border-white/10 px-4 py-2 flex items-center justify-between">
+                                                    <span className="text-[10px] font-mono text-gray-500 uppercase">BONUS</span>
+                                                    <span className="text-sm font-mono text-red-400">+{product.bonusGems} GEMS</span>
                                                 </div>
-                                                <div className="border-t border-white/10 mt-3 pt-3">
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-gray-400 text-sm">Total</span>
-                                                        <span className="text-white font-bold text-lg">{product.totalGems} gems</span>
-                                                    </div>
+                                                <div className="px-4 py-2 flex items-center justify-between bg-red-900/20">
+                                                    <span className="text-[10px] font-mono text-red-400 uppercase">TOTAL</span>
+                                                    <span className="text-sm font-mono text-white font-bold">{product.totalGems} GEMS</span>
                                                 </div>
                                             </div>
 
                                             {/* Price */}
-                                            <div className="text-center mb-6">
-                                                <p className="text-gray-500 line-through text-sm mb-1">{product.originalPrice}</p>
-                                                <p className={`text-3xl font-black bg-gradient-to-r ${product.gradient} bg-clip-text text-transparent`}>
+                                            <div className="text-center mb-6 border border-white/10 py-4 bg-black">
+                                                <p className="text-gray-600 line-through text-xs font-mono mb-1">{product.originalPrice}</p>
+                                                <p className="text-2xl font-black font-mono text-red-500">
                                                     {product.price}
                                                 </p>
                                             </div>
@@ -604,35 +617,42 @@ export default function Store() {
                                             <button
                                                 onClick={() => openPurchaseModal(product)}
                                                 disabled={!loggedIn}
-                                                className={`w-full py-4 rounded-xl font-bold uppercase text-sm text-white transition-all duration-300 ${loggedIn ? `bg-gradient-to-r ${product.gradient} hover:opacity-90 hover:shadow-lg group-hover:scale-[1.02]` : 'bg-gray-700 cursor-not-allowed'}`}
+                                                className={`w-full py-3 font-bold uppercase text-xs font-mono tracking-widest transition-all duration-300 border ${loggedIn ? 'bg-red-600 hover:bg-red-700 text-white border-red-500 hover:border-red-400 shadow-[0_0_10px_rgba(220,38,38,0.3)]' : 'bg-gray-900 text-gray-600 border-gray-700 cursor-not-allowed'}`}
                                             >
-                                                {loggedIn ? 'Beli Sekarang' : 'Login untuk Beli'}
+                                                {loggedIn ? '[ BELI SEKARANG ]' : '[ LOGIN DULU ]'}
                                             </button>
                                         </div>
+
+                                        {/* Scan line effect */}
+                                        <div className="absolute inset-0 pointer-events-none opacity-5 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.03)_2px,rgba(255,255,255,0.03)_4px)]"></div>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Discord Support Banner */}
-                            <div className="mt-12 glass-card rounded-3xl p-8 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                                        <Icons.Support className="h-7 w-7 text-indigo-400" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-white text-lg">Butuh Bantuan?</h3>
-                                        <p className="text-gray-400">Hubungi staff kami di Discord untuk bantuan</p>
-                                    </div>
+                            <div className="mt-12 border border-red-900/30 bg-black">
+                                <div className="bg-red-900/30 border-b border-red-900/50 px-4 py-2">
+                                    <span className="text-[10px] font-mono text-red-500 uppercase tracking-widest">BANTUAN</span>
                                 </div>
-                                <a
-                                    href="https://discord.gg/6pRQmvtSEW"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="px-8 py-4 rounded-xl font-bold uppercase text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 transition-all flex items-center gap-2"
-                                >
-                                    <Icons.ArrowRight className="h-5 w-5" />
-                                    Join Discord
-                                </a>
+                                <div className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 border border-red-500/30 bg-red-900/20 flex items-center justify-center">
+                                            <Icons.Support className="h-6 w-6 text-red-500" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold font-mono text-white uppercase">BUTUH BANTUAN?</h3>
+                                            <p className="text-gray-500 text-sm font-mono">Hubungi staff kami di Discord</p>
+                                        </div>
+                                    </div>
+                                    <a
+                                        href="https://discord.gg/6pRQmvtSEW"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="px-6 py-3 font-bold uppercase text-xs font-mono tracking-widest text-white bg-red-600 hover:bg-red-700 border border-red-500 hover:border-red-400 shadow-[0_0_10px_rgba(220,38,38,0.3)] transition-all flex items-center gap-2"
+                                    >
+                                        <Icons.ArrowRight className="h-4 w-4" />
+                                        [ JOIN DISCORD ]
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>

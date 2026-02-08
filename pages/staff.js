@@ -4,17 +4,17 @@ import { useState } from "react"
 import config from '@layer/theme.config'
 
 const staffMembers = [
-	{ name: 'LouYz_', position: 'Owner', role: 'owner', description: 'Pemilik dan pengelola utama server Trinity Indonesia.' },
-	{ name: 'Eikiiii', position: 'Developer', role: 'dev', description: 'Bertanggung jawab atas pengembangan fitur dan plugin server.' },
-	{ name: 'Arjuna', position: 'Admin Senior', role: 'admin', description: 'Tim administrasi senior yang menjaga ketertiban server.' },
-	{ name: 'BayuHD', position: 'Admin', role: 'admin', description: 'Tim administrasi yang membantu menjaga komunitas.' },
-	{ name: 'Arinus_ID', position: 'Admin', role: 'admin', description: 'Tim administrasi yang membantu menjaga komunitas.' },
+	{ name: 'LouYz_', position: 'Owner', role: 'owner', clearance: 'LEVEL 5', description: 'Pemilik server. Mengurus semua keputusan penting.' },
+	{ name: 'Eikiiii', position: 'Developer', role: 'dev', clearance: 'LEVEL 4', description: 'Developer utama. Membuat dan memelihara plugin.' },
+	{ name: 'Arjuna', position: 'Admin Senior', role: 'admin', clearance: 'LEVEL 3', description: 'Admin senior. Mengawasi komunitas server.' },
+	{ name: 'BayuHD', position: 'Admin', role: 'admin', clearance: 'LEVEL 3', description: 'Admin. Menjaga ketertiban dan keamanan server.' },
+	{ name: 'Arinus_ID', position: 'Admin', role: 'admin', clearance: 'LEVEL 3', description: 'Admin. Menjaga ketertiban dan keamanan server.' },
 ]
 
 const roleConfig = {
-	owner: { gradient: 'from-amber-500 to-orange-500', bg: 'from-amber-500/10 to-orange-500/10', glow: 'shadow-amber-500/20' },
-	dev: { gradient: 'from-violet-500 to-purple-500', bg: 'from-violet-500/10 to-purple-500/10', glow: 'shadow-violet-500/20' },
-	admin: { gradient: 'from-red-500 to-rose-500', bg: 'from-red-500/10 to-rose-500/10', glow: 'shadow-red-500/20' },
+	owner: { border: 'border-red-500', text: 'text-red-500', bg: 'bg-red-500/10' },
+	dev: { border: 'border-purple-500', text: 'text-purple-500', bg: 'bg-purple-500/10' },
+	admin: { border: 'border-blue-500', text: 'text-blue-500', bg: 'bg-blue-500/10' },
 }
 
 export default function Staff() {
@@ -22,44 +22,56 @@ export default function Staff() {
 	const [toastMsg, setToastMsg] = useState('');
 
 	function toast(msg, d = 2000) { setToastMsg(msg); setToastVisible(true); setTimeout(() => setToastVisible(false), d); }
-	function copyIpAddress(e) { e.preventDefault(); if (typeof window !== "undefined") navigator.clipboard.writeText(config.serverIpAddress); toast('IP server berhasil disalin!'); }
+	function copyIpAddress(e) { e.preventDefault(); if (typeof window !== "undefined") navigator.clipboard.writeText(config.serverIpAddress); toast('COPIED TO CLIPBOARD'); }
 
 	return (
-		<Wrapper seo={{ title: 'Tim Staf' }}>
-			<div className={`${toastVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'} fixed right-5 bottom-5 z-50 glass-card px-6 py-4 rounded-2xl shadow-2xl transition-all duration-300`}>
-				<p className="text-white font-semibold">{toastMsg}</p>
+		<Wrapper seo={{ 
+			title: 'Tim Staff',
+			description: 'Daftar staff resmi Trinity Indonesia yang bertanggung jawab menjaga server dan membantu komunitas pemain.',
+			path: '/staff'
+		}}>
+			{/* Toast */}
+			<div className={`${toastVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'} fixed right-6 bottom-6 z-50 cia-box px-6 py-4 bg-black border border-emerald-500 transition-all duration-300`}>
+				<div className="flex items-center gap-3">
+					<Icons.CheckCircle className="h-5 w-5 text-emerald-400 animate-pulse" />
+					<p className="text-white font-mono uppercase tracking-widest text-sm">{toastMsg}</p>
+				</div>
 			</div>
 
-			<section className="relative min-h-[50vh] flex items-center overflow-hidden pt-24">
-				<div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url("/vendor/bg.webp")' }} />
-				<div className="absolute inset-0 hero-gradient" />
-				<div className="absolute inset-0 overflow-hidden pointer-events-none">
-					<div className="particle particle-1" /><div className="particle particle-2" /><div className="particle particle-4" />
-				</div>
-
+			{/* HEADER */}
+			<section className="relative min-h-[40vh] flex flex-col justify-center pt-32 pb-12 border-b border-red-900/30 bg-black overflow-hidden">
+				<div className="absolute inset-0 bg-grid opacity-20" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--surface-900)]"></div>
+				
 				<div className="container relative z-10">
-					<div className="max-w-3xl">
-						<p className="text-sm font-bold text-rose-400 mb-4 uppercase tracking-widest">Tim Staf</p>
-						<h1 className="text-4xl md:text-6xl font-black text-white uppercase mb-6">Kenali <span className="gradient-text">Tim Kami</span></h1>
-						<p className="text-lg text-gray-300 mb-8">Orang-orang hebat di balik layar yang memastikan server tetap aman dan menyenangkan.</p>
-						<button onClick={copyIpAddress} className="glow-button font-bold uppercase py-4 px-8 rounded-2xl flex items-center gap-3 text-white">
-							<Icons.ClipboardCopy className="h-5 w-5" />
-							{config.serverIpAddress}
-						</button>
+					<div className="max-w-4xl mx-auto text-center">
+						<div className="flex items-center justify-center gap-3 mb-4">
+                            <div className="h-px w-8 bg-red-500"></div>
+						    <p className="text-xs font-mono text-red-500 uppercase tracking-[0.3em]">DAFTAR STAFF</p>
+                            <div className="h-px w-8 bg-red-500"></div>
+                        </div>
+						<h1 className="text-5xl md:text-7xl font-black text-white uppercase mb-6 leading-none glitch-effect">
+                            TIM STAFF
+                        </h1>
+						<p className="text-lg text-gray-500 mb-8 font-mono max-w-2xl mx-auto">
+                            Daftar staff yang bertanggung jawab menjaga server dan membantu komunitas.
+                        </p>
 					</div>
 				</div>
 			</section>
 
+            {/* ROSTER */}
 			<section className="py-24" style={{ background: 'var(--surface-900)' }}>
 				<div className="container">
-					<div className="text-center mb-16">
-						<p className="text-sm font-bold text-rose-400 mb-3 uppercase tracking-widest flex items-center justify-center gap-2">
-							<Icons.Sparkles className="h-4 w-4" />Tim Staf Kami<Icons.Sparkles className="h-4 w-4" />
-						</p>
-						<h2 className="text-4xl md:text-5xl font-black uppercase text-white mb-4">Kami Menjaga Server Tetap Aman!</h2>
-					</div>
+                    <div className="mb-12 flex items-end justify-between border-b border-red-900/30 pb-4">
+                        <h2 className="text-2xl font-bold uppercase text-white flex gap-3 items-center">
+                            <Icons.Users className="h-6 w-6 text-red-500" />
+                            DAFTAR STAFF
+                        </h2>
+                        <span className="text-xs font-mono text-red-500 animate-pulse">AKTIF</span>
+                    </div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
 						{staffMembers.map((member, i) => <StaffCard key={i} {...member} />)}
 					</div>
 				</div>
@@ -68,23 +80,38 @@ export default function Staff() {
 	)
 }
 
-const StaffCard = ({ name, position, role, description }) => {
-	const cfg = roleConfig[role]
+const StaffCard = ({ name, position, role, clearance, description }) => {
+	const cfg = roleConfig[role] || roleConfig.admin
 	return (
-		<div className={`glass-card p-6 rounded-2xl hover:shadow-2xl ${cfg.glow} transition-all duration-500 group`}>
-			<div className="flex items-start gap-5">
+		<div className={`cia-box p-1 group bg-black hover:bg-white/5 transition-all`}>
+            <div className="relative p-6 h-full flex items-start gap-6">
+                {/* Photo ID */}
 				<div className="relative flex-shrink-0">
-					<div className={`w-20 h-20 rounded-2xl overflow-hidden shadow-xl group-hover:shadow-2xl ${cfg.glow} transition-all duration-500`}>
-						<img src={`https://mc-heads.net/avatar/${name}`} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" alt={name} />
+                    <div className="absolute -top-1 -left-1 w-2 h-2 border-t border-l border-red-500"></div>
+                    <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b border-r border-red-500"></div>
+                    
+					<div className={`w-24 h-24 bg-gray-900 grayscale group-hover:grayscale-0 transition-all duration-500`}>
+						<img src={`https://mc-heads.net/avatar/${name}`} className="w-full h-full object-cover p-1" alt={name} />
 					</div>
-					<div className={`absolute -bottom-2 -right-2 w-8 h-8 rounded-lg bg-gradient-to-br ${cfg.gradient} flex items-center justify-center text-white shadow-lg`}>
-						<Icons.Star className="h-5 w-5" />
-					</div>
+                    <div className="mt-2 text-center">
+                        <span className={`text-[10px] font-mono border ${cfg.border} ${cfg.text} px-1`}>{clearance}</span>
+                    </div>
 				</div>
-				<div className="flex-1">
-					<h4 className="text-xl font-bold text-white mb-1">{name}</h4>
-					<div className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase bg-gradient-to-r ${cfg.gradient} text-white mb-3`}>{position}</div>
-					<p className="text-gray-400 text-sm">{description}</p>
+
+				<div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-2">
+					    <h4 className="text-2xl font-black text-white uppercase tracking-tight">{name}</h4>
+                        <Icons.CheckCircle className="h-4 w-4 text-emerald-500" />
+                    </div>
+                    
+                    <div className="mb-4">
+					    <span className={`inline-block mr-2 px-2 py-0.5 text-[10px] font-bold uppercase ${cfg.bg} ${cfg.text} border ${cfg.border} tracking-wider`}>
+                            {position}
+                        </span>
+                    </div>
+                    
+                    <div className="h-px w-full bg-gray-800 mb-4"></div>
+					<p className="text-gray-500 text-xs font-mono leading-relaxed uppercase">{description}</p>
 				</div>
 			</div>
 		</div>

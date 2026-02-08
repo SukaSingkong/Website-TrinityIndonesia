@@ -10,43 +10,43 @@ const SERVER_IP = 'trinityindonesia.cc'
 const solutions = [
     {
         name: 'Beranda',
-        description: 'Lihat informasi utama server Trinity Indonesia.',
+        description: 'Halaman Utama',
         href: '/',
         icon: Icons.Home,
     },
     {
         name: 'Tim Staf',
-        description: 'Kenali orang-orang yang menjaga komunitas.',
+        description: 'Daftar Staff',
         href: '/staff',
         icon: Icons.Users,
     },
     {
         name: 'Aturan Server',
-        description: 'Baca panduan bermain agar semua nyaman.',
+        description: 'Peraturan',
         href: '/rules',
         icon: Icons.Flag,
     },
     {
         name: 'Store',
-        description: 'Beli gems untuk keuntungan in-game.',
+        description: 'Toko Gems',
         href: '/store',
         icon: Icons.Gem,
     },
     {
         name: 'Kritik & Saran',
-        description: 'Sampaikan ide dan masukan untuk server.',
+        description: 'Masukan',
         href: '/suggestion',
         icon: Icons.Speakerphone,
     },
     {
         name: 'Bug Report',
-        description: 'Laporkan bug yang kamu temukan.',
+        description: 'Lapor Bug',
         href: '/bugreport',
         icon: Icons.Exclamation,
     },
     {
         name: 'Report Player',
-        description: 'Laporkan pemain yang melanggar aturan.',
+        description: 'Lapor Pemain',
         href: '/report',
         icon: Icons.Flag,
     },
@@ -73,64 +73,176 @@ export function Wrapper({ children, seo }) {
             <Head>
                 <title>{metaTitle}</title>
                 <meta name="title" content={metaTitle} />
-                <meta name="description" content={config.metaSiteDescription} />
-                <meta property="og:type" content="website" />
-                <meta property="og:url" content={config.metaSiteUrl} />
+                <meta name="description" content={seo?.description || config.metaSiteDescription} />
+                
+                {/* SEO Enhancements */}
+                <meta name="keywords" content="minecraft server indonesia, server minecraft, trinity indonesia, minecraft java, minecraft bedrock, oneblock minecraft, boxsmp, anarchy server, minecraft survival" />
+                <meta name="author" content="Trinity Indonesia" />
+                <meta name="robots" content="index, follow" />
+                <meta name="googlebot" content="index, follow" />
+                <meta httpEquiv="Content-Language" content="id" />
+                <meta name="language" content="Indonesian" />
+                <meta name="revisit-after" content="7 days" />
+                <meta name="geo.region" content="ID" />
+                <meta name="geo.placename" content="Indonesia" />
+                
+                {/* Canonical URL */}
+                <link rel="canonical" href={`${config.metaSiteUrl}${seo?.path || ''}`} />
+                
+                {/* Theme & Mobile */}
+                <meta name="theme-color" content="#dc2626" />
+                <meta name="msapplication-TileColor" content="#dc2626" />
+                <meta name="apple-mobile-web-app-capable" content="yes" />
+                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+                
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content={seo?.type || "website"} />
+                <meta property="og:url" content={`${config.metaSiteUrl}${seo?.path || ''}`} />
                 <meta property="og:title" content={metaTitle} />
-                <meta property="og:description" content={config.metaSiteDescription} />
-                <meta property="og:image" content={config.metaImage} />
+                <meta property="og:description" content={seo?.description || config.metaSiteDescription} />
+                <meta property="og:image" content={seo?.image || config.metaImage} />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:site_name" content={config.metaSiteName} />
+                <meta property="og:locale" content="id_ID" />
+                
+                {/* Twitter */}
                 <meta property="twitter:card" content="summary_large_image" />
-                <meta property="twitter:url" content={config.metaSiteUrl} />
+                <meta property="twitter:url" content={`${config.metaSiteUrl}${seo?.path || ''}`} />
                 <meta property="twitter:title" content={metaTitle} />
-                <meta property="twitter:description" content={config.metaSiteDescription} />
-                <meta property="twitter:image" content={config.metaImage} />
+                <meta property="twitter:description" content={seo?.description || config.metaSiteDescription} />
+                <meta property="twitter:image" content={seo?.image || config.metaImage} />
+                
+                {/* Structured Data - Organization */}
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "Organization",
+                            "name": "Trinity Indonesia",
+                            "url": config.metaSiteUrl,
+                            "logo": `${config.metaSiteUrl}/vendor/logo.webp`,
+                            "description": config.metaSiteDescription,
+                            "foundingDate": "2021",
+                            "areaServed": "Indonesia",
+                            "sameAs": []
+                        })
+                    }}
+                />
+                
+                {/* Structured Data - WebSite */}
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "WebSite",
+                            "name": config.metaSiteName,
+                            "url": config.metaSiteUrl,
+                            "description": config.metaSiteDescription,
+                            "inLanguage": "id-ID"
+                        })
+                    }}
+                />
+                
+                {/* Structured Data - Game Server */}
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "VideoGame",
+                            "name": "Trinity Indonesia Minecraft Server",
+                            "description": config.metaSiteDescription,
+                            "genre": ["Survival", "Anarchy", "Economy", "Multiplayer"],
+                            "gamePlatform": ["Java Edition", "Bedrock Edition"],
+                            "applicationCategory": "Game",
+                            "operatingSystem": "Windows, macOS, Linux, Android, iOS",
+                            "offers": {
+                                "@type": "Offer",
+                                "price": "0",
+                                "priceCurrency": "IDR",
+                                "availability": "https://schema.org/InStock"
+                            }
+                        })
+                    }}
+                />
             </Head>
-            <div className="min-h-screen" style={{ background: 'var(--surface-900)' }}>
+            <div className="min-h-screen relative" style={{ background: 'var(--surface-900)' }}>
                 {/* Sticky Navbar */}
-                <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'glass py-4' : 'py-6 bg-transparent'}`}>
+                {/* Sticky Navbar */}
+                <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out ${scrolled ? 'bg-black py-2 border-b border-white/10' : 'bg-gradient-to-b from-black/90 to-transparent py-6'}`}>
                     <div className="container">
-                        <div className="flex gap-12 items-center">
+                        <div className="flex gap-12 items-center justify-between">
                             <Link href="/">
-                                <div className="flex items-center gap-3 cursor-pointer group">
-                                    <img src="/vendor/logo.png" alt="Trinity Indonesia" className="h-10 w-10" />
-                                    <div className="text-xl font-bold uppercase">
-                                        <span className="text-white transition-all duration-300 group-hover:text-rose-100">{brandPrimary}</span>
-                                        {brandAccent && <span className="gradient-text transition-all duration-300"> {brandAccent}</span>}
+                                <div className="flex items-center gap-4 cursor-pointer group">
+                                    <div className="relative p-1 border border-white/10 bg-black/50 rounded-sm group-hover:border-red-500/50 transition-colors">
+                                        <div className="absolute inset-0 bg-red-500 blur-md opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                        <img src="/vendor/logo.webp" alt="Trinity Indonesia" className="h-10 w-10 relative z-10" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <div className="text-lg font-black uppercase font-mono tracking-tighter leading-none">
+                                            <span className="text-white group-hover:text-red-500 transition-colors">{brandPrimary}</span>
+                                            {brandAccent && <span className="text-red-600"> {brandAccent}</span>}
+                                        </div>
+                                        <span className="text-[10px] font-mono text-gray-500 tracking-[0.2em] group-hover:text-red-400 transition-colors">MINECRAFT SERVER</span>
                                     </div>
                                 </div>
                             </Link>
-                            <div className="hidden md:flex flex-grow justify-end items-center gap-8" data-apply="navbar">
-                                <Link href="/">Beranda</Link>
-                                <Link href="/staff">Tim Staf</Link>
-                                <Link href="/rules">Aturan</Link>
-                                <Link href="/bugreport">Bug Report</Link>
-                                <Link href="/report">Report Player</Link>
-                                <Link href="/suggestion">Kritik & Saran</Link>
-                                <Link href="/store">
-                                    <Icons.Gem className="h-4 w-4" />
-                                    Beli Gems
+                            <div className="hidden md:flex items-center gap-1 font-mono text-xs font-bold tracking-wider" data-apply="navbar">
+                                <Link href="/" className="nav-link group relative px-4 py-2 text-gray-400 uppercase overflow-hidden">
+                                    <span className="relative z-10 group-hover:text-red-500 transition-colors duration-300">[ BERANDA ]</span>
+                                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                                    <span className="absolute inset-0 bg-red-500/5 scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-200"></span>
+                                </Link>
+                                <Link href="/staff" className="nav-link group relative px-4 py-2 text-gray-400 uppercase overflow-hidden">
+                                    <span className="relative z-10 group-hover:text-red-500 transition-colors duration-300">[ STAF ]</span>
+                                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                                    <span className="absolute inset-0 bg-red-500/5 scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-200"></span>
+                                </Link>
+                                <Link href="/rules" className="nav-link group relative px-4 py-2 text-gray-400 uppercase overflow-hidden">
+                                    <span className="relative z-10 group-hover:text-red-500 transition-colors duration-300">[ ATURAN ]</span>
+                                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                                    <span className="absolute inset-0 bg-red-500/5 scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-200"></span>
+                                </Link>
+                                <Link href="/bugreport" className="nav-link group relative px-4 py-2 text-gray-400 uppercase overflow-hidden">
+                                    <span className="relative z-10 group-hover:text-red-500 transition-colors duration-300">[ BUG ]</span>
+                                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                                    <span className="absolute inset-0 bg-red-500/5 scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-200"></span>
+                                </Link>
+                                <Link href="/report" className="nav-link group relative px-4 py-2 text-gray-400 uppercase overflow-hidden">
+                                    <span className="relative z-10 group-hover:text-red-500 transition-colors duration-300">[ REPORT ]</span>
+                                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                                    <span className="absolute inset-0 bg-red-500/5 scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-200"></span>
+                                </Link>
+                                <div className="w-px h-6 bg-white/10 mx-2"></div>
+                                <Link href="/store" className="group relative bg-red-600 hover:bg-red-500 text-white px-5 py-2 border border-red-500 hover:border-red-400 shadow-[0_0_10px_rgba(220,38,38,0.3)] hover:shadow-[0_0_20px_rgba(220,38,38,0.5)] transition-all duration-300 flex items-center gap-2 overflow-hidden">
+                                    <span className="absolute inset-0 bg-gradient-to-r from-red-600 via-red-400 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer bg-[length:200%_100%]"></span>
+                                    <Icons.Gem className="h-3 w-3 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                                    <span className="relative z-10">STORE</span>
                                 </Link>
                             </div>
-                            <div className="flex md:hidden flex-grow justify-end items-center">
+                            <div className="flex md:hidden items-center">
                                 <Popover className="relative">
                                     {({ open }) => (
                                         <>
-                                            <Popover.Button className="p-2 rounded-lg glass transition-all duration-200 hover:bg-white/10">
-                                                {open ? <Icons.X className="h-6 w-6 text-white" /> : <Icons.Menu className="h-6 w-6 text-white" />}
+                                            <Popover.Button className="p-2 border border-red-500/50 bg-black text-red-500 hover:bg-red-500 hover:text-white transition-all">
+                                                {open ? <Icons.X className="h-6 w-6" /> : <Icons.Menu className="h-6 w-6" />}
                                             </Popover.Button>
-                                            <Transition as={Fragment} enter="transition ease-out duration-300" enterFrom="opacity-0 translate-y-4 scale-95" enterTo="opacity-100 translate-y-0 scale-100" leave="transition ease-in duration-200" leaveFrom="opacity-100 translate-y-0 scale-100" leaveTo="opacity-0 translate-y-4 scale-95">
+                                            <Transition as={Fragment} enter="transition ease-out duration-300" enterFrom="opacity-0 translate-y-4" enterTo="opacity-100 translate-y-0" leave="transition ease-in duration-200" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 translate-y-4">
                                                 <Popover.Panel className="absolute right-0 z-10 mt-4 w-screen max-w-sm -mr-4 px-4">
-                                                    <div className="overflow-hidden rounded-2xl glass-card shadow-2xl">
-                                                        <div className="relative grid gap-4 p-6">
+                                                    <div className="cia-box shadow-2xl bg-black">
+                                                        <div className="relative grid gap-1 p-2">
                                                             {solutions.map((item) => (
                                                                 <Link key={item.name} href={item.href}>
-                                                                    <div className="flex items-center rounded-xl p-4 transition-all duration-300 hover:bg-white/5 cursor-pointer group">
-                                                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-red-500/20 to-rose-500/20 text-rose-400 group-hover:from-red-500/30 group-hover:to-rose-500/30 transition-all duration-300">
-                                                                            <item.icon className="h-6 w-6" />
+                                                                    <div className="flex items-center p-4 transition-all duration-300 hover:bg-red-900/20 cursor-pointer group border-b border-white/5 last:border-0">
+                                                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-red-900/20 text-red-500 group-hover:bg-red-500 group-hover:text-white transition-all duration-300">
+                                                                            <item.icon className="h-5 w-5" />
                                                                         </div>
                                                                         <div className="ml-4">
-                                                                            <p className="text-sm font-semibold text-white uppercase">{item.name}</p>
-                                                                            <p className="text-sm text-gray-400 mt-1">{item.description}</p>
+                                                                            <p className="text-sm font-bold text-white uppercase font-mono">{item.name}</p>
+                                                                            <p className="text-[10px] text-gray-500 font-mono tracking-wider">{item.description}</p>
                                                                         </div>
                                                                     </div>
                                                                 </Link>
@@ -150,48 +262,53 @@ export function Wrapper({ children, seo }) {
                 <div>{children}</div>
 
                 {/* Footer */}
-                <footer className="relative">
-                    <div className="section-divider" />
+                <footer className="relative border-t border-red-900/30 bg-black">
                     <div className="container py-16">
                         {/* Main Footer Content */}
                         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 mb-12">
                             {/* Brand */}
                             <div className="lg:col-span-1">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <img src="/vendor/logo.png" alt="Trinity Indonesia" className="h-12 w-12" />
-                                    <h1 className="text-xl font-bold uppercase">
+                                    <div className="filter grayscale contrast-125">
+                                        <img src="/vendor/logo.webp" alt="Trinity Indonesia" className="h-12 w-12" />
+                                    </div>
+                                    <h1 className="text-xl font-bold uppercase font-mono">
                                         <span className="text-white">{brandPrimary}</span>
-                                        {brandAccent && <span className="gradient-text"> {brandAccent}</span>}
+                                        {brandAccent && <span className="text-red-600"> {brandAccent}</span>}
                                     </h1>
                                 </div>
-                                <p className="text-gray-500 text-sm mb-4">Server Minecraft Indonesia dengan berbagai mode seru: Survival, Skyblock, Lifesteal, dan Bedwars.</p>
+                                <p className="text-gray-500 text-xs font-mono leading-relaxed border-l border-red-900/50 pl-4">
+                                    Server Minecraft Indonesia.<br/>
+                                    Berdiri sejak 2021.<br/>
+                                    Asal: Indonesia.
+                                </p>
                             </div>
 
                             {/* Quick Links */}
                             <div className="lg:col-span-1">
-                                <h3 className="text-white font-bold uppercase text-sm mb-4">Menu</h3>
-                                <div className="flex flex-col gap-3" data-apply="footer-links">
-                                    <Link href="/">Beranda</Link>
-                                    <Link href="/staff">Tim Staf</Link>
-                                    <Link href="/rules">Aturan Server</Link>
-                                    <Link href="/store">Beli Gems</Link>
+                                <h3 className="text-red-500 font-bold uppercase text-xs tracking-widest mb-6 border-b border-red-900/30 pb-2 inline-block">NAVIGASI</h3>
+                                <div className="flex flex-col gap-3 font-mono text-sm" data-apply="footer-links">
+                                    <Link href="/" className="hover:pl-2 transition-all duration-300">{'>'} BERANDA</Link>
+                                    <Link href="/staff" className="hover:pl-2 transition-all duration-300">{'>'} TIM STAF</Link>
+                                    <Link href="/rules" className="hover:pl-2 transition-all duration-300">{'>'} ATURAN</Link>
+                                    <Link href="/store" className="hover:pl-2 transition-all duration-300">{'>'} STORE</Link>
                                 </div>
                             </div>
 
                             {/* Feedback */}
                             <div className="lg:col-span-1">
-                                <h3 className="text-white font-bold uppercase text-sm mb-4">Feedback</h3>
-                                <div className="flex flex-col gap-3" data-apply="footer-links">
-                                    <Link href="/suggestion">Kritik & Saran</Link>
-                                    <Link href="/bugreport">Bug Report</Link>
-                                    <Link href="/report">Report Player</Link>
+                                <h3 className="text-red-500 font-bold uppercase text-xs tracking-widest mb-6 border-b border-red-900/30 pb-2 inline-block">LAPORAN</h3>
+                                <div className="flex flex-col gap-3 font-mono text-sm" data-apply="footer-links">
+                                    <Link href="/suggestion" className="hover:pl-2 transition-all duration-300">{'>'} KRITIK & SARAN</Link>
+                                    <Link href="/bugreport" className="hover:pl-2 transition-all duration-300">{'>'} LAPOR BUG</Link>
+                                    <Link href="/report" className="hover:pl-2 transition-all duration-300">{'>'} LAPOR PEMAIN</Link>
                                 </div>
                             </div>
 
                             {/* Join Server */}
                             <div className="lg:col-span-1">
-                                <h3 className="text-white font-bold uppercase text-sm mb-4">Join Server</h3>
-                                <div className="flex flex-col gap-2">
+                                <h3 className="text-red-500 font-bold uppercase text-xs tracking-widest mb-6 border-b border-red-900/30 pb-2 inline-block">GABUNG SERVER</h3>
+                                <div className="flex flex-col gap-4">
                                     <button
                                         onClick={() => {
                                             navigator.clipboard?.writeText(SERVER_IP)
@@ -206,61 +323,46 @@ export function Wrapper({ children, seo }) {
                                                 }, 2000)
                                             }
                                         }}
-                                        className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-rose-500/10 to-transparent border border-rose-500/20 hover:border-rose-500/40 hover:bg-rose-500/10 transition-all cursor-pointer group"
+                                        className="cia-btn flex items-center justify-between !py-3 !px-4 hover:bg-red-900/20 group"
                                     >
-                                        <div className="w-8 h-8 rounded-md bg-rose-500/20 flex items-center justify-center flex-shrink-0">
-                                            <Icons.Server className="h-4 w-4 text-rose-400" />
+                                        <div className="text-left">
+                                            <p className="text-[10px] text-red-500 uppercase">SERVER ADDRESS</p>
+                                            <p className="text-white text-sm">{SERVER_IP}</p>
                                         </div>
-                                        <div className="min-w-0 flex-1 text-left">
-                                            <p className="text-gray-500 text-[10px] uppercase tracking-wider">Server IP</p>
-                                            <p className="text-white font-semibold text-sm truncate">{SERVER_IP}</p>
-                                        </div>
-                                        <div className="w-8 h-8 rounded-md bg-rose-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-rose-500/30 transition-colors">
-                                            <Icons.ClipboardCopy className="h-4 w-4 text-rose-400" />
-                                        </div>
+                                        <Icons.ClipboardCopy className="h-4 w-4 text-red-500 group-hover:scale-110 transition-transform" />
                                     </button>
-                                    <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-rose-500/10 to-transparent border border-rose-500/20 hover:border-rose-500/40 transition-all cursor-default">
-                                        <div className="w-8 h-8 rounded-md bg-rose-500/20 flex items-center justify-center flex-shrink-0">
-                                            <Icons.Cube className="h-4 w-4 text-rose-400" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <p className="text-gray-500 text-[10px] uppercase tracking-wider">Version</p>
-                                            <p className="text-white font-semibold text-sm">Java & Bedrock</p>
-                                        </div>
+                                    
+                                    <div className="border border-white/10 p-4 bg-white/5">
+                                        <p className="text-[10px] text-gray-500 uppercase mb-1">CLIENT COMPATIBILITY</p>
+                                        <p className="text-white font-mono text-sm">JAVA & BEDROCK</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Toast Notification */}
-                        <div id="footer-toast" className="fixed bottom-6 right-6 z-50 px-6 py-4 rounded-2xl glass-card border border-emerald-500/30 shadow-2xl opacity-0 translate-y-2 transition-all duration-300 pointer-events-none">
+                        <div id="footer-toast" className="fixed bottom-6 right-6 z-50 px-6 py-4 bg-black border border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)] opacity-0 translate-y-2 transition-all duration-300 pointer-events-none">
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                                    <Icons.CheckCircle className="h-5 w-5 text-emerald-400" />
-                                </div>
-                                <p className="text-white font-semibold">IP Server berhasil disalin!</p>
+                                <Icons.CheckCircle className="h-5 w-5 text-emerald-400" />
+                                <p className="text-white font-mono text-xs uppercase tracking-wider">COPIED TO CLIPBOARD</p>
                             </div>
                         </div>
 
                         {/* Bottom Section */}
-                        <div className="section-divider mb-8" />
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                            <p className="text-sm text-gray-600 font-medium">© 2026 Trinity Indonesia. All rights reserved.</p>
+                        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                            <p className="text-xs text-gray-600 font-mono">
+                                TRINITY INDONESIA // EST. 2021 // ALL RIGHTS RESERVED
+                            </p>
 
                             {/* Powered by Syncara */}
                             <a
                                 href="https://syncara.host"
                                 target="_blank"
                                 rel="noreferrer"
-                                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 group"
+                                className="flex items-center gap-3 opacity-50 hover:opacity-100 transition-opacity"
                             >
-                                <span className="text-gray-500 text-sm">Powered by & Part of</span>
-                                <img
-                                    src="https://panel.syncara.host/storage/assets/91006e750ec3e9daa7f16ae828a65ea2c550860c.webp"
-                                    alt="Syncara.host"
-                                    className="h-6 opacity-70 group-hover:opacity-100 transition-opacity"
-                                />
-                                <span className="text-white font-semibold group-hover:text-rose-400 transition-colors">Syncara.host</span>
+                                <span className="text-gray-600 text-[10px] uppercase tracking-widest">INFRASTRUCTURE BY</span>
+                                <span className="text-white font-bold font-mono text-xs">SYNCARA.HOST</span>
                             </a>
                         </div>
                     </div>

@@ -171,7 +171,7 @@ export default function Suggestion() {
     }
 
     return (
-        <Wrapper seo={{ title: 'Kritik & Saran' }}>
+        <Wrapper seo={{ title: 'Kritik & Saran', description: 'Kirimkan kritik dan saran untuk membantu meningkatkan kualitas server Trinity Indonesia.', path: '/suggestion' }}>
             {/* Toast */}
             <div className={`${toastVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95'} fixed right-6 bottom-6 z-50 glass-card px-6 py-4 rounded-2xl shadow-2xl transition-all duration-300 border border-emerald-500/30`}>
                 <div className="flex items-center gap-3">
@@ -183,18 +183,23 @@ export default function Suggestion() {
             </div>
 
             {/* Hero Section */}
-            <section className="relative min-h-[50vh] flex items-center overflow-hidden pt-24">
-                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url("/vendor/bg.webp")' }} />
-                <div className="absolute inset-0 hero-gradient" />
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="particle particle-1" /><div className="particle particle-2" /><div className="particle particle-4" />
-                </div>
+            <section className="relative min-h-[40vh] flex items-center pt-24 border-b border-red-900/30 bg-black overflow-hidden">
+                <div className="absolute inset-0 bg-grid opacity-20" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--surface-900)]"></div>
 
                 <div className="container relative z-10">
-                    <div className="max-w-3xl">
-                        <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20 mb-6">Feedback</span>
-                        <h1 className="text-4xl md:text-6xl font-black text-white uppercase mb-6">Kritik & <span className="gradient-text">Saran</span></h1>
-                        <p className="text-lg text-gray-300 mb-8">Bantu kami meningkatkan kualitas server dengan memberikan masukan berhargamu!</p>
+                    <div className="max-w-4xl mx-auto text-center">
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                            <div className="h-px w-8 bg-red-500"></div>
+                            <p className="text-xs font-mono text-red-500 uppercase tracking-[0.3em]">MASUKAN & SARAN</p>
+                            <div className="h-px w-8 bg-red-500"></div>
+                        </div>
+                        <h1 className="text-5xl md:text-7xl font-black text-white uppercase mb-6 leading-none glitch-effect">
+                            KRITIK & SARAN
+                        </h1>
+                        <p className="text-lg text-gray-500 mb-8 font-mono max-w-2xl mx-auto">
+                            Bantu kami meningkatkan kualitas server dengan memberikan masukan berhargamu!
+                        </p>
                     </div>
                 </div>
             </section>

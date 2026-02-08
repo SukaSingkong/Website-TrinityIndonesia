@@ -5,7 +5,7 @@ import config from '@layer/theme.config'
 import { Tab } from '@headlessui/react'
 
 const modeInfo = {
-	oneblock: { name: 'OneBlock', gradient: 'from-emerald-500 to-teal-500', cheatPolicy: 'DILARANG', toxicPolicy: 'DILARANG', description: 'Mode survival dengan aturan ketat untuk fair play' },
+	junktycoon: { name: 'Junk Tycoon', gradient: 'from-emerald-500 to-teal-500', cheatPolicy: 'DILARANG*', toxicPolicy: 'DILARANG', description: 'Mode tycoon dengan auto clicker diperbolehkan' },
 	boxsmp: { name: 'BoxSMP', gradient: 'from-blue-500 to-indigo-500', cheatPolicy: 'DILARANG', toxicPolicy: 'DILARANG', description: 'Mode SMP dengan komunitas ramah dan aturan' },
 	anarchy: { name: 'Anarchy Economy', gradient: 'from-red-500 to-rose-500', cheatPolicy: 'DIIZINKAN*', toxicPolicy: 'DIIZINKAN*', description: 'Mode bebas dengan minimal aturan' }
 }
@@ -99,61 +99,61 @@ const generalRules = [
 ]
 
 const modeRules = {
-	oneblock: [
+	junktycoon: [
 		{
-			title: 'Aturan Anti-Cheat OneBlock - WAJIB DIBACA DENGAN SEKSAMA',
+			title: 'Aturan Cheat & Auto Clicker Junk Tycoon - WAJIB DIBACA',
+			type: 'warning',
+			content: [
+				{ num: 'JT-A1', text: 'AUTO CLICKER DIPERBOLEHKAN di mode Junk Tycoon. Kamu bebas menggunakan auto clicker, macro, atau software otomatis untuk membantu gameplay.' },
+				{ num: 'JT-A2', text: 'HACK CLIENT TETAP DILARANG. Meskipun auto clicker diperbolehkan, penggunaan hack client seperti KillAura, Fly, Speed, ESP, Xray, dan modifikasi ilegal lainnya tetap DILARANG KERAS.' },
+				{ num: 'JT-A3', text: 'Dilarang menggunakan bot atau sistem automation yang membebani server secara berlebihan atau menyebabkan lag untuk pemain lain.' },
+				{ num: 'JT-A4', text: 'Mod yang DIPERBOLEHKAN: OptiFine/Sodium/Iris (shader dan optimization), Auto Clicker, Macro, Minimap, Armor/Status HUD, dan mod kosmetik.' },
+				{ num: 'JT-A5', text: 'Mod/Client yang DILARANG: Wurst, Impact, Future, Aristois, Meteor, Inertia, dan SEMUA hack client dengan fitur exploit.' },
+				{ num: 'JT-A6', text: 'SANKSI PELANGGARAN: Penggunaan hack client = Ban 30 hari pertama, Ban Permanen kedua. Penggunaan auto clicker = TIDAK ADA SANKSI.' }
+			]
+		},
+		{
+			title: 'Aturan Anti-Toxic dan Perilaku Junk Tycoon',
 			type: 'danger',
 			content: [
-				{ num: 'OB-A1', text: 'SEMUA BENTUK CHEAT, HACK, DAN MODIFIKASI KLIEN ILEGAL DILARANG KERAS TANPA PENGECUALIAN. Hal ini termasuk namun tidak terbatas pada: KillAura, Aimbot, Reach, Velocity, ESP/Wallhack, Fly, Speed, NoFall, Jesus (WaterWalk), AutoArmor, AutoTotem, Scaffold, Nuker, Xray, Freecam, ClickAura, Criticals, Fastbreak, Ghost Hand, dan semua modifikasi sejenis yang memberikan keuntungan tidak adil.' },
-				{ num: 'OB-A2', text: 'Dilarang menggunakan macro, auto-clicker, atau software/hardware yang mensimulasikan input otomatis. Butterfly clicking dan drag clicking DIPERBOLEHKAN dengan batas maksimal 20 CPS (Clicks Per Second). Jitter clicking diperbolehkan.' },
-				{ num: 'OB-A3', text: 'Dilarang menggunakan texture pack yang memberikan keuntungan tidak adil termasuk: Xray texture pack, fullbright yang memodifikasi lighting engine, texture pack yang membuat entitas/player lebih mudah terlihat (glow effect), atau texture pack yang mengubah ukuran/visibilitas hitbox.' },
-				{ num: 'OB-A4', text: 'Mod yang DIPERBOLEHKAN: OptiFine/Sodium/Iris (shader dan optimization), Minimap (TANPA cave finder dan entity radar), Armor/Status HUD, Schematica (TANPA printer mode), Replay Mod, Litematica (TANPA easy place), dan mod kosmetik murni seperti capes mod.' },
-				{ num: 'OB-A5', text: 'Mod/Client yang DILARANG: Badlion Client dengan fitur unfair enabled, Lunar Client dengan illegal modules, Wurst, Impact, Future, Aristois, Meteor, Inertia, dan SEMUA hack client atau utility mod dengan fitur cheat.' },
-				{ num: 'OB-A6', text: 'SANKSI PELANGGARAN CHEAT: Pelanggaran pertama = Ban 30 hari tanpa negosiasi. Pelanggaran kedua = Ban Permanen. Tidak ada toleransi, pengurangan sanksi, atau kesempatan kedua setelah ban permanen.' }
+				{ num: 'JT-B1', text: 'TOXIC BEHAVIOR DALAM SEGALA BENTUK DILARANG KERAS. Ini mencakup penggunaan kata-kata kasar, makian, hinaan pribadi, body shaming, atau bahasa yang menyinggung SARA (Suku, Agama, Ras, Antar-golongan) baik secara eksplisit maupun tersirat.' },
+				{ num: 'JT-B2', text: 'Dilarang melakukan bullying, harassment, intimidasi, stalking, atau target harassment terhadap pemain lain dalam bentuk apapun baik di dalam game, Discord, maupun platform terkait lainnya.' },
+				{ num: 'JT-B3', text: 'Dilarang spam chat (mengirim pesan yang sama/mirip berulang-ulang), flood chat (karakter atau pesan random), excessive caps lock (MENULIS DENGAN HURUF BESAR TERUS MENERUS), atau character spam.' },
+				{ num: 'JT-B4', text: 'Dilarang membahas topik sensitif dan kontroversial seperti politik praktis, debat agama, isu SARA, atau topik lain yang berpotensi memicu konflik, perpecahan, atau ketidaknyamanan dalam komunitas.' },
+				{ num: 'JT-B5', text: 'Dilarang keras membuat, mendistribusikan, atau menampilkan konten NSFW/dewasa dalam bentuk apapun termasuk melalui chat, build struktur, skin karakter, item name, book, sign, atau media lainnya.' },
+				{ num: 'JT-B6', text: 'SANKSI TOXIC: Mute 1 jam hingga 7 hari tergantung tingkat keparahan dan konteks. Pelanggaran berulang atau kasus berat dapat berujung pada ban temporary hingga permanent.' }
 			]
 		},
 		{
-			title: 'Aturan Anti-Toxic dan Perilaku OneBlock',
-			type: 'danger',
-			content: [
-				{ num: 'OB-B1', text: 'TOXIC BEHAVIOR DALAM SEGALA BENTUK DILARANG KERAS. Ini mencakup penggunaan kata-kata kasar, makian, hinaan pribadi, body shaming, atau bahasa yang menyinggung SARA (Suku, Agama, Ras, Antar-golongan) baik secara eksplisit maupun tersirat.' },
-				{ num: 'OB-B2', text: 'Dilarang melakukan bullying, harassment, intimidasi, stalking, atau target harassment terhadap pemain lain dalam bentuk apapun baik di dalam game, Discord, maupun platform terkait lainnya.' },
-				{ num: 'OB-B3', text: 'Dilarang spam chat (mengirim pesan yang sama/mirip berulang-ulang), flood chat (karakter atau pesan random), excessive caps lock (MENULIS DENGAN HURUF BESAR TERUS MENERUS), atau character spam.' },
-				{ num: 'OB-B4', text: 'Dilarang membahas topik sensitif dan kontroversial seperti politik praktis, debat agama, isu SARA, atau topik lain yang berpotensi memicu konflik, perpecahan, atau ketidaknyamanan dalam komunitas.' },
-				{ num: 'OB-B5', text: 'Dilarang keras membuat, mendistribusikan, atau menampilkan konten NSFW/dewasa dalam bentuk apapun termasuk melalui chat, build struktur, skin karakter, item name, book, sign, atau media lainnya.' },
-				{ num: 'OB-B6', text: 'SANKSI TOXIC: Mute 1 jam hingga 7 hari tergantung tingkat keparahan dan konteks. Pelanggaran berulang atau kasus berat dapat berujung pada ban temporary hingga permanent.' }
-			]
-		},
-		{
-			title: 'Aturan PvP dan Interaksi Pemain OneBlock',
+			title: 'Aturan Gameplay Junk Tycoon',
 			type: 'info',
 			content: [
-				{ num: 'OB-C1', text: 'PvP (Player vs Player) hanya diperbolehkan dan legal di area yang secara resmi ditandai dan didesain sebagai zona PvP, atau dengan persetujuan eksplisit dan jelas dari kedua belah pihak yang terlibat.' },
-				{ num: 'OB-C2', text: 'Dilarang keras melakukan spawn killing, spawn camping, atau menunggu di dekat spawn point untuk membunuh pemain yang baru spawn atau respawn.' },
-				{ num: 'OB-C3', text: 'Combat logging (disconnect/quit saat sedang dalam pertarungan PvP untuk menghindari kematian) akan mengakibatkan sistem mencatat kematian dan kehilangan item secara otomatis.' },
-				{ num: 'OB-C4', text: 'Dilarang memanfaatkan bug, glitch, atau eksploit untuk mendapatkan keuntungan dalam pertarungan PvP termasuk namun tidak terbatas pada ping abuse, block glitching, atau pearl glitching.' },
-				{ num: 'OB-C5', text: 'Trash talk ringan dan banter dalam konteks kompetisi yang sehat masih diperbolehkan, namun tidak boleh melampaui batas kesopanan yang ditentukan dalam aturan toxic behavior.' }
+				{ num: 'JT-C1', text: 'Mode Junk Tycoon adalah mode santai dimana kamu mengumpulkan sampah dan menjualnya untuk mendapatkan uang.' },
+				{ num: 'JT-C2', text: 'Gunakan uang untuk upgrade mesin, beli area baru, dan tingkatkan efisiensi bisnismu.' },
+				{ num: 'JT-C3', text: 'Leaderboard diupdate secara real-time. Bersainglah dengan pemain lain untuk menjadi yang terkaya!' },
+				{ num: 'JT-C4', text: 'Dilarang memanfaatkan bug, glitch, atau eksploit untuk mendapatkan keuntungan tidak sah. Laporkan bug yang ditemukan melalui tiket.' },
+				{ num: 'JT-C5', text: 'Progress akan di-reset setiap season. Pastikan untuk mengecek pengumuman season reset di Discord.' }
 			]
 		},
 		{
-			title: 'Aturan Trading dan Ekonomi OneBlock',
+			title: 'Aturan Trading dan Ekonomi Junk Tycoon',
 			type: 'info',
 			content: [
-				{ num: 'OB-D1', text: 'Scamming atau penipuan dalam bentuk apapun DILARANG KERAS. Selalu dokumentasikan setiap trading dengan screenshot sebagai bukti. Trading dilakukan dengan risiko masing-masing jika tidak ada bukti.' },
-				{ num: 'OB-D2', text: 'Trading item atau mata uang in-game dengan uang nyata (RMT) di luar sistem resmi bukan tanggung jawab server. Lakukan dengan risiko sendiri.' },
-				{ num: 'OB-D3', text: 'Mengeksploitasi bug ekonomi, duplication glitch, atau celah sistem untuk mendapatkan item/uang secara tidak sah adalah DILARANG. Pelaku akan di-ban dan seluruh aset hasil eksploitasi akan dihapus.' },
-				{ num: 'OB-D4', text: 'SANKSI SCAM: Pengembalian item korban (jika memungkinkan) + Ban 14 hari untuk pelanggaran pertama. Ban Permanen untuk pelanggaran kedua.' }
+				{ num: 'JT-D1', text: 'Scamming atau penipuan dalam bentuk apapun DILARANG KERAS. Selalu dokumentasikan setiap trading dengan screenshot sebagai bukti.' },
+				{ num: 'JT-D2', text: 'Trading item atau mata uang in-game dengan uang nyata (RMT) di luar sistem resmi bukan tanggung jawab server. Lakukan dengan risiko sendiri.' },
+				{ num: 'JT-D3', text: 'Mengeksploitasi bug ekonomi atau duplication glitch untuk mendapatkan item/uang secara tidak sah adalah DILARANG. Pelaku akan di-ban dan aset dihapus.' },
+				{ num: 'JT-D4', text: 'SANKSI SCAM: Pengembalian item korban (jika memungkinkan) + Ban 14 hari untuk pelanggaran pertama. Ban Permanen untuk pelanggaran kedua.' }
 			]
 		}
 	],
 	boxsmp: [
 		{
-			title: 'Aturan Anti-Cheat BoxSMP - IDENTIK DENGAN ONEBLOCK',
+			title: 'Aturan Anti-Cheat BoxSMP - WAJIB DIBACA',
 			type: 'danger',
 			content: [
-				{ num: 'BS-A1', text: 'Semua aturan anti-cheat yang berlaku di mode OneBlock (OB-A1 sampai OB-A6) BERLAKU SEPENUHNYA di mode BoxSMP tanpa modifikasi atau pengecualian.' },
-				{ num: 'BS-A2', text: 'Referensi lengkap: lihat bagian "Aturan Anti-Cheat OneBlock" untuk daftar lengkap mod yang dilarang dan diperbolehkan.' },
-				{ num: 'BS-A3', text: 'SANKSI: Identik dengan OneBlock - Ban 30 hari untuk pelanggaran pertama, Ban Permanen untuk pelanggaran kedua.' }
+				{ num: 'BS-A1', text: 'SEMUA BENTUK CHEAT, HACK, DAN MODIFIKASI KLIEN ILEGAL DILARANG KERAS. Termasuk KillAura, Aimbot, Reach, Fly, Speed, Xray, dan semua hack client.' },
+				{ num: 'BS-A2', text: 'Auto clicker dan macro DILARANG di mode BoxSMP. Butterfly clicking dan drag clicking diperbolehkan dengan batas 20 CPS.' },
+				{ num: 'BS-A3', text: 'SANKSI: Ban 30 hari untuk pelanggaran pertama, Ban Permanen untuk pelanggaran kedua.' }
 			]
 		},
 		{
@@ -230,19 +230,19 @@ function RuleAccordion({ title, content }) {
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (
-		<div className={`mb-4 rounded-xl overflow-hidden transition-all duration-300 ${isOpen ? 'bg-white/[0.03] ring-1 ring-rose-500/20' : 'bg-white/[0.02] hover:bg-white/[0.04]'}`}>
+		<div className={`mb-4 overflow-hidden transition-all duration-300 border ${isOpen ? 'bg-red-900/5 border-red-500/30' : 'bg-black border-white/10 hover:border-red-500/20'}`}>
 			<button
 				onClick={() => setIsOpen(!isOpen)}
 				className="w-full p-5 flex items-center gap-4 text-left"
 			>
-				<div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-rose-500/20 text-rose-400' : 'bg-white/5 text-gray-400'}`}>
+				<div className={`flex-shrink-0 w-10 h-10 flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-red-500/20 text-red-500' : 'bg-white/5 text-gray-500'}`}>
 					<Icons.Shield className="h-5 w-5" />
 				</div>
 				<div className="flex-1">
-					<h3 className={`font-semibold transition-colors duration-300 ${isOpen ? 'text-rose-100' : 'text-white'}`}>{title}</h3>
+					<h3 className={`font-mono font-bold uppercase text-sm transition-colors duration-300 ${isOpen ? 'text-red-400' : 'text-white'}`}>{title}</h3>
 				</div>
 				<div className={`flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
-					<Icons.ChevronDown className={`h-5 w-5 transition-colors duration-300 ${isOpen ? 'text-rose-400' : 'text-gray-500'}`} />
+					<Icons.ChevronDown className={`h-5 w-5 transition-colors duration-300 ${isOpen ? 'text-red-500' : 'text-gray-600'}`} />
 				</div>
 			</button>
 
@@ -251,10 +251,10 @@ function RuleAccordion({ title, content }) {
 			>
 				<div className="overflow-hidden">
 					<div className="px-5 pb-5 pt-0">
-						<div className="ml-14 space-y-3 border-l border-rose-500/20 pl-4">
+						<div className="ml-14 space-y-3 border-l-2 border-red-900/30 pl-4">
 							{content.map((item, i) => (
-								<div key={i} className="text-gray-300 text-sm leading-relaxed">
-									<span className="text-rose-400 font-mono font-semibold mr-2">{item.num}</span>
+								<div key={i} className="text-gray-400 text-xs font-mono leading-relaxed">
+									<span className="text-red-500 font-bold mr-2">[{item.num}]</span>
 									{item.text}
 								</div>
 							))}
@@ -269,36 +269,36 @@ function RuleAccordion({ title, content }) {
 function ModeRuleCard({ title, type, content }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const typeColors = {
-		danger: { ring: 'ring-red-500/20', icon: 'bg-red-500/20 text-red-400', text: 'text-red-400', chevron: 'text-red-400' },
-		warning: { ring: 'ring-yellow-500/20', icon: 'bg-yellow-500/20 text-yellow-400', text: 'text-yellow-400', chevron: 'text-yellow-400' },
-		info: { ring: 'ring-blue-500/20', icon: 'bg-blue-500/20 text-blue-400', text: 'text-blue-400', chevron: 'text-blue-400' }
+		danger: { border: 'border-red-500/30', icon: 'bg-red-500/20 text-red-500', text: 'text-red-500' },
+		warning: { border: 'border-yellow-500/30', icon: 'bg-yellow-500/20 text-yellow-500', text: 'text-yellow-500' },
+		info: { border: 'border-blue-500/30', icon: 'bg-blue-500/20 text-blue-500', text: 'text-blue-500' }
 	};
 	const colors = typeColors[type];
 
 	return (
-		<div className={`mb-4 rounded-xl overflow-hidden transition-all duration-300 ${isOpen ? `bg-white/[0.03] ring-1 ${colors.ring}` : 'bg-white/[0.02] hover:bg-white/[0.04]'}`}>
+		<div className={`mb-4 overflow-hidden transition-all duration-300 border ${isOpen ? `bg-white/[0.02] ${colors.border}` : 'bg-black border-white/10 hover:border-white/20'}`}>
 			<button
 				onClick={() => setIsOpen(!isOpen)}
 				className="w-full p-5 flex items-center gap-4 text-left"
 			>
-				<div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${isOpen ? colors.icon : 'bg-white/5 text-gray-400'}`}>
+				<div className={`flex-shrink-0 w-10 h-10 flex items-center justify-center transition-all duration-300 ${isOpen ? colors.icon : 'bg-white/5 text-gray-500'}`}>
 					<Icons.Shield className="h-5 w-5" />
 				</div>
 				<div className="flex-1">
-					<h3 className={`font-semibold transition-colors duration-300 ${isOpen ? 'text-white' : 'text-white'}`}>{title}</h3>
+					<h3 className="font-mono font-bold uppercase text-sm text-white">{title}</h3>
 				</div>
 				<div className={`flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
-					<Icons.ChevronDown className={`h-5 w-5 transition-colors duration-300 ${isOpen ? colors.chevron : 'text-gray-500'}`} />
+					<Icons.ChevronDown className={`h-5 w-5 transition-colors duration-300 ${isOpen ? colors.text : 'text-gray-600'}`} />
 				</div>
 			</button>
 
 			<div className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
 				<div className="overflow-hidden">
 					<div className="px-5 pb-5 pt-0">
-						<div className={`ml-14 space-y-3 border-l pl-4 ${type === 'danger' ? 'border-red-500/20' : type === 'warning' ? 'border-yellow-500/20' : 'border-blue-500/20'}`}>
+						<div className={`ml-14 space-y-3 border-l-2 pl-4 ${type === 'danger' ? 'border-red-900/50' : type === 'warning' ? 'border-yellow-900/50' : 'border-blue-900/50'}`}>
 							{content.map((item, i) => (
-								<div key={i} className="text-gray-300 text-sm leading-relaxed">
-									<span className={`font-mono font-semibold mr-2 ${colors.text}`}>{item.num}</span>
+								<div key={i} className="text-gray-400 text-xs font-mono leading-relaxed">
+									<span className={`font-bold mr-2 ${colors.text}`}>[{item.num}]</span>
 									{item.text}
 								</div>
 							))}
@@ -316,58 +316,70 @@ export default function Rules() {
 	const [activeTab, setActiveTab] = useState(0);
 
 	function toast(msg, d = 2000) { setToastMsg(msg); setToastVisible(true); setTimeout(() => setToastVisible(false), d); }
-	function copyIpAddress(e) { e.preventDefault(); if (typeof window !== "undefined") navigator.clipboard.writeText(config.serverIpAddress); toast('IP server berhasil disalin!'); }
+	function copyIpAddress(e) { e.preventDefault(); if (typeof window !== "undefined") navigator.clipboard.writeText(config.serverIpAddress); toast('COPIED TO CLIPBOARD'); }
 
 	return (
-		<Wrapper seo={{ title: 'Aturan Server' }}>
-			<div className={`${toastVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'} fixed right-5 bottom-5 z-50 glass-card px-6 py-4 rounded-2xl shadow-2xl transition-all duration-300`}>
-				<p className="text-white font-semibold">{toastMsg}</p>
+		<Wrapper seo={{ 
+			title: 'Aturan Server',
+			description: 'Aturan lengkap server Trinity Indonesia untuk semua mode: Junk Tycoon, BoxSMP, dan Anarchy. Baca sebelum bermain.',
+			path: '/rules'
+		}}>
+			<div className={`${toastVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'} fixed right-6 bottom-6 z-50 cia-box px-6 py-4 bg-black border border-emerald-500 transition-all duration-300`}>
+				<div className="flex items-center gap-3">
+					<Icons.CheckCircle className="h-5 w-5 text-emerald-400 animate-pulse" />
+					<p className="text-white font-mono uppercase tracking-widest text-sm">{toastMsg}</p>
+				</div>
 			</div>
 
 			{/* Hero */}
-			<section className="relative min-h-[50vh] flex items-center overflow-hidden pt-24">
-				<div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url("/vendor/bg.webp")' }} />
-				<div className="absolute inset-0 hero-gradient" />
-				<div className="absolute inset-0 overflow-hidden pointer-events-none">
-					<div className="particle particle-1" /><div className="particle particle-2" /><div className="particle particle-3" />
-				</div>
+			<section className="relative min-h-[40vh] flex flex-col justify-center pt-32 pb-12 border-b border-red-900/30 bg-black overflow-hidden">
+				<div className="absolute inset-0 bg-grid opacity-20" />
+				<div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--surface-900)]"></div>
 
 				<div className="container relative z-10">
-					<div className="max-w-3xl">
-						<span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20 mb-6">Aturan Server</span>
-						<h1 className="text-4xl md:text-6xl font-black text-white uppercase mb-6">Panduan <span className="gradient-text">Bermain</span></h1>
-						<p className="text-lg text-gray-300 mb-8">Setiap mode memiliki aturan berbeda. Baca dengan teliti sebelum bermain!</p>
-						<button onClick={copyIpAddress} className="glow-button font-bold uppercase py-4 px-8 rounded-2xl flex items-center gap-3 text-white">
-							<Icons.ClipboardCopy className="h-5 w-5" />
-							{config.serverIpAddress}
-						</button>
+					<div className="max-w-4xl mx-auto text-center">
+						<div className="flex items-center justify-center gap-3 mb-4">
+							<div className="h-px w-8 bg-red-500"></div>
+							<p className="text-xs font-mono text-red-500 uppercase tracking-[0.3em]">PERATURAN SERVER</p>
+							<div className="h-px w-8 bg-red-500"></div>
+						</div>
+						<h1 className="text-5xl md:text-7xl font-black text-white uppercase mb-6 leading-none glitch-effect">
+							ATURAN SERVER
+						</h1>
+						<p className="text-lg text-gray-500 mb-8 font-mono max-w-2xl mx-auto">
+							Setiap mode memiliki aturan berbeda. Baca dengan teliti sebelum bermain.
+						</p>
 					</div>
 				</div>
 			</section>
 
 			{/* Comparison */}
-			<section className="py-16" style={{ background: 'var(--surface-800)' }}>
+			<section className="py-16" style={{ background: 'var(--surface-900)' }}>
 				<div className="container">
-					<div className="text-center mb-12">
-						<h2 className="text-2xl font-bold text-white mb-2">Perbandingan Cepat</h2>
+					<div className="mb-12 flex flex-col items-center justify-center border-b border-red-900/30 pb-4 text-center">
+						<h2 className="text-2xl font-bold uppercase text-white flex gap-3 items-center font-mono justify-center">
+							<Icons.Shield className="h-6 w-6 text-red-500" />
+							RINGKASAN ATURAN
+						</h2>
+						<span className="text-xs font-mono text-red-500 animate-pulse mt-2">REFERENSI CEPAT</span>
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 						{Object.entries(modeInfo).map(([key, mode]) => (
-							<div key={key} className="glass-card p-6 rounded-2xl text-center">
-								<div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${mode.gradient} text-white mb-4`}>
-									<Icons.Cube className="h-6 w-6" />
+							<div key={key} className="cia-box p-6 bg-black hover:bg-white/5 transition-all">
+								<div className="flex items-center gap-3 mb-4">
+									<Icons.Cube className="h-5 w-5 text-red-500" />
+									<h3 className="text-lg font-bold text-white font-mono uppercase">{mode.name}</h3>
 								</div>
-								<h3 className="text-xl font-bold text-white mb-2">{mode.name}</h3>
-								<p className="text-gray-400 text-sm mb-4">{mode.description}</p>
-								<div className="space-y-2">
-									<div className="flex justify-between items-center py-2 border-t border-white/5">
-										<span className="text-gray-400 text-sm">Cheat</span>
-										<span className={`text-sm font-bold ${mode.cheatPolicy === 'DILARANG' ? 'text-red-400' : 'text-yellow-400'}`}>{mode.cheatPolicy}</span>
+								<p className="text-gray-500 text-xs font-mono mb-4 uppercase">{mode.description}</p>
+								<div className="space-y-2 border-t border-white/10 pt-4">
+									<div className="flex justify-between items-center py-2">
+										<span className="text-gray-500 text-xs font-mono uppercase">CHEAT</span>
+										<span className={`text-xs font-bold font-mono ${mode.cheatPolicy === 'DILARANG' ? 'text-red-500' : 'text-yellow-500'}`}>{mode.cheatPolicy}</span>
 									</div>
 									<div className="flex justify-between items-center py-2 border-t border-white/5">
-										<span className="text-gray-400 text-sm">Toxic</span>
-										<span className={`text-sm font-bold ${mode.toxicPolicy === 'DILARANG' ? 'text-red-400' : 'text-yellow-400'}`}>{mode.toxicPolicy}</span>
+										<span className="text-gray-500 text-xs font-mono uppercase">TOXIC</span>
+										<span className={`text-xs font-bold font-mono ${mode.toxicPolicy === 'DILARANG' ? 'text-red-500' : 'text-yellow-500'}`}>{mode.toxicPolicy}</span>
 									</div>
 								</div>
 							</div>
@@ -379,16 +391,18 @@ export default function Rules() {
 			{/* Mode Rules */}
 			<section className="py-24" style={{ background: 'var(--surface-900)' }}>
 				<div className="container">
-					<div className="text-center mb-12">
-						<span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20 mb-6">Aturan Per Mode</span>
-						<h2 className="text-4xl font-black uppercase text-white mb-4">Pilih Mode</h2>
+					<div className="mb-12 flex flex-col items-center justify-center border-b border-red-900/30 pb-4 text-center">
+						<h2 className="text-2xl font-bold uppercase text-white flex gap-3 items-center font-mono justify-center">
+							<Icons.Shield className="h-6 w-6 text-red-500" />
+							ATURAN TIAP MODE
+						</h2>
 					</div>
 
 					<Tab.Group selectedIndex={activeTab} onChange={setActiveTab}>
-						<Tab.List className="flex flex-wrap justify-center gap-4 mb-12">
+						<Tab.List className="flex flex-wrap justify-center gap-2 mb-12 border-b border-white/10 pb-4">
 							{Object.entries(modeInfo).map(([key, mode]) => (
-								<Tab key={key} className={({ selected }) => `px-6 py-3 rounded-xl font-bold uppercase transition-all duration-300 flex items-center gap-2 ${selected ? `bg-gradient-to-r ${mode.gradient} text-white shadow-lg` : 'glass text-gray-400 hover:text-white'}`}>
-									<Icons.Cube className="h-5 w-5" />
+								<Tab key={key} className={({ selected }) => `px-4 py-2 font-mono font-bold uppercase text-xs transition-all duration-300 flex items-center gap-2 border ${selected ? 'bg-red-500/10 text-red-500 border-red-500' : 'bg-transparent text-gray-500 border-white/10 hover:border-white/30 hover:text-white'}`}>
+									<Icons.Cube className="h-4 w-4" />
 									{mode.name}
 								</Tab>
 							))}
@@ -406,12 +420,14 @@ export default function Rules() {
 			</section>
 
 			{/* General Rules */}
-			<section className="py-24" style={{ background: 'var(--surface-800)' }}>
+			<section className="py-24" style={{ background: 'var(--surface-900)' }}>
 				<div className="container">
-					<div className="text-center mb-12">
-						<span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20 mb-6">Berlaku di Semua Mode</span>
-						<h2 className="text-4xl font-black uppercase text-white mb-4">Aturan Umum</h2>
-						<p className="text-gray-400 max-w-2xl mx-auto">8 Pasal aturan yang berlaku di semua game mode tanpa pengecualian</p>
+					<div className="mb-12 flex flex-col items-center justify-center border-b border-red-900/30 pb-4 text-center">
+						<h2 className="text-2xl font-bold uppercase text-white flex gap-3 items-center font-mono justify-center">
+							<Icons.Shield className="h-6 w-6 text-red-500" />
+							ATURAN UMUM
+						</h2>
+						<span className="text-xs font-mono text-gray-500 mt-2">8 PASAL</span>
 					</div>
 
 					<div className="max-w-4xl mx-auto">
