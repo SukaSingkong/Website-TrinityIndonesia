@@ -2,6 +2,7 @@ import '../styles/globals.css'
 import { Analytics } from "@vercel/analytics/next"
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
+import ComingSoon from '@layer/components/layout/ComingSoon'
 
 // Page Loading Progress Bar
 function LoadingBar() {
@@ -16,8 +17,14 @@ function LoadingBar() {
       setLoading(true)
       setProgress(0)
       progressInterval = setInterval(() => {
-        setProgress(prev => prev < 90 ? prev + 10 : prev)
-      }, 100)
+        setProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval)
+            return 90
+          }
+          return prev + Math.random() * 15
+        })
+      }, 200)
     }
 
     const handleComplete = () => {
@@ -26,7 +33,7 @@ function LoadingBar() {
       setTimeout(() => {
         setLoading(false)
         setProgress(0)
-      }, 200)
+      }, 300)
     }
 
     router.events.on('routeChangeStart', handleStart)
@@ -44,16 +51,49 @@ function LoadingBar() {
   if (!loading) return null
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[9999] h-1 bg-transparent">
+    <div className="fixed top-0 left-0 right-0 z-[100] h-1">
       <div
-        className="h-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-500 transition-all duration-200 ease-out shadow-lg shadow-rose-500/50"
-        style={{ width: `${progress}%` }}
+        className="h-full rounded-r-full transition-all duration-300 ease-out"
+        style={{
+          width: `${progress}%`,
+          background: 'linear-gradient(90deg, #FFB656, #E26E10)',
+          boxShadow: '0 0 15px rgba(255, 182, 86, 0.5)'
+        }}
       />
     </div>
   )
 }
 
-function MyApp({ Component, pageProps }) {
+// TARGET DATE: March 16, 2026, 12:00 WIB (+07:00)
+const TARGET_DATE = '2026-03-16T13:00:00+07:00'
+
+export default function App({ Component, pageProps }) {
+  const [isComingSoon, setIsComingSoon] = useState(true)
+
+  useEffect(() => {
+    // Check if current time is past the target date
+    const checkDate = () => {
+      const difference = +new Date(TARGET_DATE) - +new Date()
+      // If difference <= 0, the target date has passed, so don't show the overlay
+      setIsComingSoon(difference > 0)
+    }
+
+    checkDate()
+
+    // Periodically check just in case the client leaves the page open
+    const interval = setInterval(checkDate, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  if (isComingSoon) {
+    return (
+      <>
+        <ComingSoon targetDate={TARGET_DATE} />
+        <Analytics />
+      </>
+    )
+  }
+
   return (
     <>
       <LoadingBar />
@@ -62,5 +102,3 @@ function MyApp({ Component, pageProps }) {
     </>
   )
 }
-
-export default MyApp

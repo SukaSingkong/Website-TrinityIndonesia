@@ -7,42 +7,28 @@ module.exports = {
 	theme: {
 		extend: {
 			fontFamily: {
-				sans: ['Space Grotesk', 'Inter', 'sans-serif']
+				sans: ['Nunito', 'sans-serif']
 			},
 			colors: {
-				// Primary brand red - softer, more elegant
 				brand: {
-					50: '#fef2f2',
-					100: '#fee2e2',
-					200: '#fecaca',
-					300: '#fca5a5',
-					400: '#f87171',
-					500: '#ef4444',
-					600: '#dc2626',
-					700: '#b91c1c',
-					800: '#991b1b',
-					900: '#7f1d1d',
+					50: '#FFF8ED',
+					100: '#FFECD2',
+					200: '#FFD9A5',
+					300: '#FFC678',
+					400: '#FFB656',
+					500: '#F5A03D',
+					600: '#E26E10',
+					700: '#C25A0E',
+					800: '#9A480C',
+					900: '#7A3A0A',
 				},
-				// Accent - warm rose gold for highlights
-				accent: {
-					light: '#fda4af',
-					DEFAULT: '#fb7185',
-					dark: '#e11d48',
-				},
-				// Surface colors - warm slate for backgrounds
 				surface: {
-					900: '#0f172a',
-					800: '#1e293b',
-					700: '#334155',
-					600: '#475569',
+					body: '#e8e0f0',
+					card: '#ffffff',
+					dark: '#2d2640',
 				}
 			},
 		},
 	},
-	plugins: [
-		require("@tailwindcss/forms")({
-			strategy: 'class'
-		}),
-		require('@tailwindcss/typography'),
-	],
+	plugins: [],
 }

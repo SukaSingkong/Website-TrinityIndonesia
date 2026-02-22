@@ -1,0 +1,51 @@
+[
+    {
+        "month": "MARET 2026",
+        "logs": [
+            {
+                "title": "2026.03.V1",
+                "content": [
+                    {
+                        "num": "+",
+                        "text": "Trinity Indonesia Season 8 sudah rilis!."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "month": "FEBRUARI 2026",
+        "logs": [
+            {
+                "title": "2026.02.V2CA",
+                "content": [
+                    {
+                        "num": "-",
+                        "text": "Playerwarp sudah dihapus dari server."
+                    }
+                ]
+            },
+            {
+                "title": "2026.02.V1CA",
+                "content": [
+                    {
+                        "num": "+",
+                        "text": "Perubahan sistem autentikasi server dengan menggunakan API baru."
+                    },
+                    {
+                        "num": "+",
+                        "text": "Perubahan sistem pembayaran dengan menggunakan API baru."
+                    },
+                    {
+                        "num": "-",
+                        "text": "BoxSMP dan JunkTycoon sudah dihapus dari list server."
+                    },
+                    {
+                        "num": "-",
+                        "text": "Proxy dan Anarchy Economy sudah memasuki End of Life."
+                    }
+                ]
+            }
+        ]
+    }
+]

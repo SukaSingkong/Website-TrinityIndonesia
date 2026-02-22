@@ -10,5 +10,5 @@ export default {
     // The description of the site as it appears in a social embed
     metaSiteDescription: 'Trinity Indonesia adalah server Minecraft dengan 3 mode: OneBlock, BoxSMP, dan Anarchy Economy. Bergabung sekarang!',
     metaSiteUrl: 'https://www.trinityindonesia.cc/', // The URL of your website when it's uploaded to a web host
-    metaImage: '/vendor/bg.jpg' // The image of the site as it appears in a social embed
+    metaImage: '/vendor/metaImage.png' // The image of the site as it appears in a social embed
 }
