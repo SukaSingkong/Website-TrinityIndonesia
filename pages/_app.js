@@ -73,6 +73,18 @@ export default function App({ Component, pageProps }) {
   useEffect(() => {
     // Check if current time is past the target date
     const checkDate = () => {
+      // Check for bypass token in URL or localStorage
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.has('blockbypass') || urlParams.get('blockbypass') === 'true') {
+        localStorage.setItem('blockbypass', 'true')
+      }
+      const isBypass = localStorage.getItem('blockbypass') === 'true'
+
+      if (isBypass) {
+        setIsComingSoon(false)
+        return
+      }
+
       const difference = +new Date(TARGET_DATE) - +new Date()
       // If difference <= 0, the target date has passed, so don't show the overlay
       setIsComingSoon(difference > 0)
