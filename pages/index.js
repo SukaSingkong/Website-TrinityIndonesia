@@ -187,7 +187,7 @@ export default function Home() {
 				style={{
 					backgroundImage: 'url(/vendor/floatingisland2.webp)',
 					backgroundSize: 'contain',
-					backgroundPosition: '-5% center', // Geser gambar pulau lebih ke kiri (sebelumnya left center)
+					backgroundPosition: '5% center', // Geser gambar pulau lebih ke kanan agar tidak terpotong
 					backgroundRepeat: 'no-repeat',
 					backgroundColor: 'var(--bg-secondary)',
 				}}
@@ -245,7 +245,7 @@ export default function Home() {
 						Punya pertanyaan tentang server? Temukan jawabannya di bawah ini.
 					</p>
 				</div>
-				<div className="flex flex-col max-w-4xl mx-auto">
+				<div className="flex flex-col w-full">
 					{faqData.map((faq, i) => (
 						<FaqAccordion key={i} question={faq.question} answer={faq.answer} />
 					))}
