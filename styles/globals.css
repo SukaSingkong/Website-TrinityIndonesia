@@ -396,8 +396,13 @@ footer {
 }
 
 @keyframes marquee {
-	0% { transform: translateX(0); }
-	100% { transform: translateX(-50%); }
+	0% {
+		transform: translateX(0);
+	}
+
+	100% {
+		transform: translateX(-50%);
+	}
 }
 
 .feature-card-loop {
@@ -464,4 +469,10 @@ footer {
 
 .page-wrapper main {
 	flex: 1;
+}
+
+/* ==================== SMOOTH MASK ==================== */
+.mask-smooth {
+	-webkit-mask-image: radial-gradient(ellipse 100% 100% at center, black 40%, transparent 80%);
+	mask-image: radial-gradient(ellipse 100% 100% at center, black 40%, transparent 80%);
 }

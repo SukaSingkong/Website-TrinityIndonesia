@@ -94,6 +94,37 @@ export default function Store() {
     const [successData, setSuccessData] = useState(null)
     const router = useRouter()
 
+    // Countdown State
+    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+    const [isStoreOpen, setIsStoreOpen] = useState(false)
+
+    useEffect(() => {
+        // Target Date: March 16, 2026 13:00 WIB (GMT+7)
+        // Note: Months in JavaScript Date are 0-indexed (0 = Jan, 1 = Feb, 2 = Mar)
+        const targetDate = new Date(Date.UTC(2026, 2, 16, 6, 0, 0)).getTime(); // 13:00 WIB = 06:00 UTC
+
+        const timer = setInterval(() => {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            if (difference > 0) {
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                setTimeLeft({ days, hours, minutes, seconds });
+                setIsStoreOpen(false);
+            } else {
+                setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                setIsStoreOpen(true);
+                clearInterval(timer);
+            }
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, []);
+
     useEffect(() => {
         const stored = localStorage.getItem("mcUsername")
         if (stored) {
@@ -392,239 +423,293 @@ export default function Store() {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {/* Sidebar - Login/Profile */}
-                <div className="lg:col-span-1">
-                    <div className="sticky top-8">
-                        {!loggedIn ? (
-                            /* Login Card */
-                            <div className="mc-card p-6">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(226, 110, 16, 0.1)' }}>
-                                        <Icons.Lock className="h-6 w-6" style={{ color: 'var(--brand-secondary)' }} />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-extrabold" style={{ color: 'var(--text-primary)' }}>Login</h3>
-                                        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Masukkan username</p>
-                                    </div>
+            <div className={`grid grid-cols-1 lg:grid-cols-4 gap-6 relative ${!isStoreOpen ? 'h-[750px]' : ''}`}>
+                {/* Store Closed Overlay */}
+                {!isStoreOpen && (
+                    <div className="absolute -inset-x-8 -top-8 bottom-0 z-40 bg-[var(--bg-primary)]/80 backdrop-blur-xl flex flex-col items-center justify-center rounded-[3rem] p-8 text-center mask-smooth">
+                        <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: 'rgba(226, 110, 16, 0.1)' }}>
+                            <Icons.Clock className="w-10 h-10" style={{ color: 'var(--brand-secondary)' }} />
+                        </div>
+                        <h2 className="text-3xl md:text-5xl font-black mb-4" style={{ color: 'var(--text-primary)' }}>
+                            Store Segera Dibuka
+                        </h2>
+                        <p className="text-lg md:text-xl mb-8" style={{ color: 'var(--text-secondary)' }}>
+                            Pointshop akan resmi dibuka pada 16 Maret 2026 pukul 13:00 WIB.
+                        </p>
+
+                        <div className="flex gap-4 md:gap-6 justify-center">
+                            {/* Days */}
+                            <div className="flex flex-col items-center">
+                                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-2xl md:text-4xl font-black shadow-lg" style={{ background: 'var(--brand-secondary)', color: 'white' }}>
+                                    {timeLeft.days}
                                 </div>
-
-                                {error && (
-                                    <div className="mb-4 p-4 rounded-xl" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
-                                        <p className="text-sm" style={{ color: '#dc2626' }}>{error}</p>
-                                    </div>
-                                )}
-
-                                <form onSubmit={handleLogin} className="space-y-4">
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            placeholder="Username"
-                                            value={username}
-                                            onChange={(e) => setUsername(e.target.value)}
-                                            required
-                                            className="mc-input"
-                                        />
-                                        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                                            <span className="text-xs font-bold px-2 py-1 rounded-lg"
-                                                style={platform === 'java'
-                                                    ? { background: '#dcfce7', color: '#16a34a' }
-                                                    : { background: '#dbeafe', color: '#2563eb' }
-                                                }
-                                            >
-                                                {platform === 'java' ? 'Java' : 'Bedrock'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Platform Toggle */}
-                                    <div className="flex p-1 rounded-xl w-full" style={{ background: '#f5f3f8', border: '1px solid #e8e0f0' }}>
-                                        <button
-                                            type="button"
-                                            onClick={() => setPlatform('java')}
-                                            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${platform === 'java' ? 'shadow-md shadow-black/10' : 'hover:bg-black/5'}`}
-                                            style={platform === 'java' ? { background: '#16a34a', color: 'white' } : { color: 'var(--text-secondary)' }}
-                                        >
-                                            Java
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setPlatform('bedrock')}
-                                            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${platform === 'bedrock' ? 'shadow-md shadow-black/10' : 'hover:bg-black/5'}`}
-                                            style={platform === 'bedrock' ? { background: '#2563eb', color: 'white' } : { color: 'var(--text-secondary)' }}
-                                        >
-                                            Bedrock
-                                        </button>
-                                    </div>
-
-                                    {/* Referral Input */}
-                                    <input
-                                        type="text"
-                                        placeholder="Referral Code (Opsional)"
-                                        value={referral}
-                                        onChange={(e) => setReferral(e.target.value)}
-                                        className="mc-input"
-                                    />
-
-                                    {/* Submit Button */}
-                                    <button
-                                        type="submit"
-                                        disabled={isLoading}
-                                        className="w-full glow-button font-extrabold py-4 rounded-xl text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {isLoading ? 'Memproses...' : 'Login'}
-                                    </button>
-                                </form>
-
-                                <p className="mt-4 text-xs text-center" style={{ color: 'var(--text-muted)' }}>
-                                    Dengan login, kamu menyetujui <a href="https://blog.trinityindonesia.cc/2025/03/term-and-condition.html" className="hover:underline" style={{ color: 'var(--brand-secondary)' }}>Syarat & Ketentuan</a>
-                                </p>
+                                <span className="text-xs md:text-sm font-bold mt-2 tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>Hari</span>
                             </div>
-                        ) : (
-                            /* Profile Card */
-                            <div className="mc-card p-6">
-                                <div className="text-center">
-                                    <div className="relative inline-block mb-4">
-                                        <img
-                                            src={`https://mc-heads.net/avatar/${cleanUsername}/80`}
-                                            alt="Player Head"
-                                            className="w-20 h-20 rounded-xl"
-                                            style={{ border: '2px solid var(--brand-secondary)' }}
-                                        />
-                                        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center" style={{ background: '#16a34a', border: '2px solid white' }}>
-                                            <Icons.CheckCircle className="h-3 w-3 text-white" />
-                                        </div>
-                                    </div>
-                                    <h3 className="font-extrabold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>{savedUsername}</h3>
-                                    <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>Logged in</p>
-                                    <button
-                                        onClick={logout}
-                                        className="w-full py-3 px-4 rounded-xl font-bold transition-all"
-                                        style={{ background: '#f5f3f8', color: 'var(--text-secondary)', border: '1px solid #e8e0f0' }}
-                                    >
-                                        Logout
-                                    </button>
+                            <div className="text-2xl md:text-4xl font-black mt-3 md:mt-4" style={{ color: 'var(--text-muted)' }}>:</div>
+
+                            {/* Hours */}
+                            <div className="flex flex-col items-center">
+                                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-2xl md:text-4xl font-black shadow-lg" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+                                    {timeLeft.hours.toString().padStart(2, '0')}
                                 </div>
+                                <span className="text-xs md:text-sm font-bold mt-2 tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>Jam</span>
                             </div>
-                        )}
+                            <div className="text-2xl md:text-4xl font-black mt-3 md:mt-4" style={{ color: 'var(--text-muted)' }}>:</div>
 
-                        {/* Info Card */}
-                        <div className="mc-card p-6 mt-4">
-                            <h4 className="font-extrabold mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                                <Icons.Sparkles className="h-5 w-5" style={{ color: 'var(--brand-secondary)' }} />
-                                Info Penting
-                            </h4>
-                            <ul className="space-y-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                                <li className="flex items-start gap-2">
-                                    <Icons.CheckCircle className="h-4 w-4 mt-0.5 shrink-0" style={{ color: '#16a34a' }} />
-                                    <span>Points akan dikirim otomatis setelah pembayaran</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <Icons.CheckCircle className="h-4 w-4 mt-0.5 shrink-0" style={{ color: '#16a34a' }} />
-                                    <span>Pastikan username benar sebelum membeli</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <Icons.CheckCircle className="h-4 w-4 mt-0.5 shrink-0" style={{ color: '#16a34a' }} />
-                                    <span>Hubungi staff jika ada masalah</span>
-                                </li>
-                            </ul>
+                            {/* Minutes */}
+                            <div className="flex flex-col items-center">
+                                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-2xl md:text-4xl font-black shadow-lg" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+                                    {timeLeft.minutes.toString().padStart(2, '0')}
+                                </div>
+                                <span className="text-xs md:text-sm font-bold mt-2 tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>Menit</span>
+                            </div>
+                            <div className="text-2xl md:text-4xl font-black mt-3 md:mt-4" style={{ color: 'var(--text-muted)' }}>:</div>
+
+                            {/* Seconds */}
+                            <div className="flex flex-col items-center">
+                                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-2xl md:text-4xl font-black shadow-lg" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+                                    {timeLeft.seconds.toString().padStart(2, '0')}
+                                </div>
+                                <span className="text-xs md:text-sm font-bold mt-2 tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>Detik</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
-                {/* Products Grid */}
-                <div className="lg:col-span-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                        {products.map((product) => (
-                            <div
-                                key={product.id}
-                                className={`mc-card relative overflow-hidden transition-all duration-300 hover:-translate-y-1 ${product.popular ? '' : ''}`}
-                                style={product.popular ? { border: '2px solid var(--brand-secondary)' } : {}}
-                            >
-                                {/* Badge */}
-                                {product.badge && (
-                                    <div
-                                        className="absolute top-0 right-0 font-black text-[10px] tracking-wider py-1.5 px-4 z-10"
-                                        style={product.popular
-                                            ? { background: 'var(--brand-secondary)', color: 'white', borderBottomLeftRadius: '12px' }
-                                            : { background: '#f5f3f8', color: 'var(--text-muted)', borderBottomLeftRadius: '12px' }
-                                        }
-                                    >
-                                        {product.badge}
+                <div className={`col-span-1 lg:col-span-4 grid grid-cols-1 lg:grid-cols-4 gap-6 ${!isStoreOpen ? 'opacity-20 pointer-events-none filter blur-sm transition-all duration-300' : ''}`}>
+                    {/* Sidebar - Login/Profile */}
+                    <div className="lg:col-span-1">
+                        <div className="sticky top-8">
+                            {!loggedIn ? (
+                                /* Login Card */
+                                <div className="mc-card p-6">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(226, 110, 16, 0.1)' }}>
+                                            <Icons.Lock className="h-6 w-6" style={{ color: 'var(--brand-secondary)' }} />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-extrabold" style={{ color: 'var(--text-primary)' }}>Login</h3>
+                                            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Masukkan username</p>
+                                        </div>
                                     </div>
-                                )}
 
-                                {/* Content */}
-                                <div className="p-6 flex flex-col items-center">
-                                    {/* Image */}
-                                    <div className="mb-4 w-32 h-32 relative flex items-center justify-center">
-                                        <img
-                                            src={product.image}
-                                            alt={product.name}
-                                            className="w-full h-full object-contain drop-shadow-xl"
-                                            style={product.imageStyle}
+                                    {error && (
+                                        <div className="mb-4 p-4 rounded-xl" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
+                                            <p className="text-sm" style={{ color: '#dc2626' }}>{error}</p>
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleLogin} className="space-y-4">
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="Username"
+                                                value={username}
+                                                onChange={(e) => setUsername(e.target.value)}
+                                                required
+                                                className="mc-input"
+                                            />
+                                            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                                <span className="text-xs font-bold px-2 py-1 rounded-lg"
+                                                    style={platform === 'java'
+                                                        ? { background: '#dcfce7', color: '#16a34a' }
+                                                        : { background: '#dbeafe', color: '#2563eb' }
+                                                    }
+                                                >
+                                                    {platform === 'java' ? 'Java' : 'Bedrock'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Platform Toggle */}
+                                        <div className="flex p-1 rounded-xl w-full" style={{ background: '#f5f3f8', border: '1px solid #e8e0f0' }}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setPlatform('java')}
+                                                className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${platform === 'java' ? 'shadow-md shadow-black/10' : 'hover:bg-black/5'}`}
+                                                style={platform === 'java' ? { background: '#16a34a', color: 'white' } : { color: 'var(--text-secondary)' }}
+                                            >
+                                                Java
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setPlatform('bedrock')}
+                                                className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${platform === 'bedrock' ? 'shadow-md shadow-black/10' : 'hover:bg-black/5'}`}
+                                                style={platform === 'bedrock' ? { background: '#2563eb', color: 'white' } : { color: 'var(--text-secondary)' }}
+                                            >
+                                                Bedrock
+                                            </button>
+                                        </div>
+
+                                        {/* Referral Input */}
+                                        <input
+                                            type="text"
+                                            placeholder="Referral Code (Opsional)"
+                                            value={referral}
+                                            onChange={(e) => setReferral(e.target.value)}
+                                            className="mc-input"
                                         />
-                                    </div>
 
-                                    {/* Points Amount */}
-                                    <div className="text-center mb-5">
-                                        <h3 className="text-3xl font-black" style={{ color: 'var(--text-primary)' }}>
-                                            {product.points === 500 ? (
-                                                <>
-                                                    {product.points.toLocaleString('id-ID')}
-                                                    <br />
-                                                    <span style={{ color: 'var(--brand-secondary)' }}>POINTS</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {product.points.toLocaleString('id-ID')} <span style={{ color: 'var(--brand-secondary)' }}>POINTS</span>
-                                                </>
-                                            )}
-                                        </h3>
-                                    </div>
+                                        {/* Submit Button */}
+                                        <button
+                                            type="submit"
+                                            disabled={isLoading}
+                                            className="w-full glow-button font-extrabold py-4 rounded-xl text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {isLoading ? 'Memproses...' : 'Login'}
+                                        </button>
+                                    </form>
 
-                                    {/* Price */}
-                                    <div className="text-center mb-5 w-full p-3 rounded-xl" style={{ background: '#f5f3f8' }}>
-                                        <p className="text-2xl font-black" style={{ color: 'var(--brand-secondary)' }}>
-                                            {product.price}
-                                        </p>
-                                    </div>
-
-                                    {/* Buy Button */}
-                                    <button
-                                        onClick={() => openPurchaseModal(product)}
-                                        disabled={!loggedIn}
-                                        className={`w-full py-3 rounded-xl font-extrabold text-sm transition-all duration-300 ${loggedIn ? 'text-white glow-button hover:shadow-lg' : 'cursor-not-allowed'}`}
-                                        style={!loggedIn ? { background: '#e8e0f0', color: 'var(--text-muted)' } : {}}
-                                    >
-                                        {loggedIn ? 'BELI SEKARANG' : 'LOGIN DULU'}
-                                    </button>
+                                    <p className="mt-4 text-xs text-center" style={{ color: 'var(--text-muted)' }}>
+                                        Dengan login, kamu menyetujui <a href="https://blog.trinityindonesia.cc/2025/03/term-and-condition.html" className="hover:underline" style={{ color: 'var(--brand-secondary)' }}>Syarat & Ketentuan</a>
+                                    </p>
                                 </div>
+                            ) : (
+                                /* Profile Card */
+                                <div className="mc-card p-6">
+                                    <div className="text-center">
+                                        <div className="relative inline-block mb-4">
+                                            <img
+                                                src={`https://mc-heads.net/avatar/${cleanUsername}/80`}
+                                                alt="Player Head"
+                                                className="w-20 h-20 rounded-xl"
+                                                style={{ border: '2px solid var(--brand-secondary)' }}
+                                            />
+                                            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center" style={{ background: '#16a34a', border: '2px solid white' }}>
+                                                <Icons.CheckCircle className="h-3 w-3 text-white" />
+                                            </div>
+                                        </div>
+                                        <h3 className="font-extrabold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>{savedUsername}</h3>
+                                        <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>Logged in</p>
+                                        <button
+                                            onClick={logout}
+                                            className="w-full py-3 px-4 rounded-xl font-bold transition-all"
+                                            style={{ background: '#f5f3f8', color: 'var(--text-secondary)', border: '1px solid #e8e0f0' }}
+                                        >
+                                            Logout
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Info Card */}
+                            <div className="mc-card p-6 mt-4">
+                                <h4 className="font-extrabold mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                                    <Icons.Sparkles className="h-5 w-5" style={{ color: 'var(--brand-secondary)' }} />
+                                    Info Penting
+                                </h4>
+                                <ul className="space-y-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                                    <li className="flex items-start gap-2">
+                                        <Icons.CheckCircle className="h-4 w-4 mt-0.5 shrink-0" style={{ color: '#16a34a' }} />
+                                        <span>Points akan dikirim otomatis setelah pembayaran</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <Icons.CheckCircle className="h-4 w-4 mt-0.5 shrink-0" style={{ color: '#16a34a' }} />
+                                        <span>Pastikan username benar sebelum membeli</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <Icons.CheckCircle className="h-4 w-4 mt-0.5 shrink-0" style={{ color: '#16a34a' }} />
+                                        <span>Hubungi staff jika ada masalah</span>
+                                    </li>
+                                </ul>
                             </div>
-                        ))}
+                        </div>
                     </div>
 
-                    {/* Help Card */}
-                    <div className="mc-card mt-8 mb-12 overflow-hidden">
-                        <div className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(226, 110, 16, 0.1)' }}>
-                                    <Icons.Support className="h-6 w-6" style={{ color: 'var(--brand-secondary)' }} />
+                    {/* Products Grid */}
+                    <div className="lg:col-span-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {products.map((product) => (
+                                <div
+                                    key={product.id}
+                                    className={`mc-card relative overflow-hidden transition-all duration-300 hover:-translate-y-1 ${product.popular ? '' : ''}`}
+                                    style={product.popular ? { border: '2px solid var(--brand-secondary)' } : {}}
+                                >
+                                    {/* Badge */}
+                                    {product.badge && (
+                                        <div
+                                            className="absolute top-0 right-0 font-black text-[10px] tracking-wider py-1.5 px-4 z-10"
+                                            style={product.popular
+                                                ? { background: 'var(--brand-secondary)', color: 'white', borderBottomLeftRadius: '12px' }
+                                                : { background: '#f5f3f8', color: 'var(--text-muted)', borderBottomLeftRadius: '12px' }
+                                            }
+                                        >
+                                            {product.badge}
+                                        </div>
+                                    )}
+
+                                    {/* Content */}
+                                    <div className="p-6 flex flex-col items-center">
+                                        {/* Image */}
+                                        <div className="mb-4 w-32 h-32 relative flex items-center justify-center">
+                                            <img
+                                                src={product.image}
+                                                alt={product.name}
+                                                className="w-full h-full object-contain drop-shadow-xl"
+                                                style={product.imageStyle}
+                                            />
+                                        </div>
+
+                                        {/* Points Amount */}
+                                        <div className="text-center mb-5">
+                                            <h3 className="text-3xl font-black" style={{ color: 'var(--text-primary)' }}>
+                                                {product.points === 500 ? (
+                                                    <>
+                                                        {product.points.toLocaleString('id-ID')}
+                                                        <br />
+                                                        <span style={{ color: 'var(--brand-secondary)' }}>POINTS</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        {product.points.toLocaleString('id-ID')} <span style={{ color: 'var(--brand-secondary)' }}>POINTS</span>
+                                                    </>
+                                                )}
+                                            </h3>
+                                        </div>
+
+                                        {/* Price */}
+                                        <div className="text-center mb-5 w-full p-3 rounded-xl" style={{ background: '#f5f3f8' }}>
+                                            <p className="text-2xl font-black" style={{ color: 'var(--brand-secondary)' }}>
+                                                {product.price}
+                                            </p>
+                                        </div>
+
+                                        {/* Buy Button */}
+                                        <button
+                                            onClick={() => openPurchaseModal(product)}
+                                            disabled={!loggedIn}
+                                            className={`w-full py-3 rounded-xl font-extrabold text-sm transition-all duration-300 ${loggedIn ? 'text-white glow-button hover:shadow-lg' : 'cursor-not-allowed'}`}
+                                            style={!loggedIn ? { background: '#e8e0f0', color: 'var(--text-muted)' } : {}}
+                                        >
+                                            {loggedIn ? 'BELI SEKARANG' : 'LOGIN DULU'}
+                                        </button>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="font-extrabold" style={{ color: 'var(--text-primary)' }}>BUTUH BANTUAN?</h3>
-                                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Hubungi staff kami di Discord</p>
+                            ))}
+                        </div>
+
+                        {/* Help Card */}
+                        <div className="mc-card mt-8 mb-12 overflow-hidden">
+                            <div className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(226, 110, 16, 0.1)' }}>
+                                        <Icons.Support className="h-6 w-6" style={{ color: 'var(--brand-secondary)' }} />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-extrabold" style={{ color: 'var(--text-primary)' }}>BUTUH BANTUAN?</h3>
+                                        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Hubungi staff kami di Discord</p>
+                                    </div>
                                 </div>
+                                <a
+                                    href="https://discord.gg/6pRQmvtSEW"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="mc-btn mc-btn-primary"
+                                >
+                                    <Icons.ArrowRight className="h-4 w-4" />
+                                    JOIN DISCORD
+                                </a>
                             </div>
-                            <a
-                                href="https://discord.gg/6pRQmvtSEW"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="mc-btn mc-btn-primary"
-                            >
-                                <Icons.ArrowRight className="h-4 w-4" />
-                                JOIN DISCORD
-                            </a>
                         </div>
                     </div>
                 </div>

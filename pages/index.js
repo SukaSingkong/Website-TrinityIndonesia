@@ -31,6 +31,66 @@ const features = [
 	{ icon: Icons.Heart, title: 'Global Quests', description: 'Kerjakan quest komunitas bersama, top 3 pemain dapatkan rewards' },
 ]
 
+const faqData = [
+	{
+		question: 'Apa IP Server Trinity Indonesia?',
+		answer: 'IP Server kami adalah trinityindonesia.cc (Java) dan Port 19132 (Bedrock).'
+	},
+	{
+		question: 'Apakah server ini bisa dimainkan di HP (Bedrock/MCPE)?',
+		answer: 'Tentu saja! Server kami mendukung cross-play. Kamu bisa bermain menggunakan Minecraft Java (PC) maupun Bedrock Edition (HP, Xbox, PlayStation).'
+	},
+	{
+		question: 'Versi Minecraft berapa yang didukung?',
+		answer: 'Semua versi Minecraft bisa bergabung ke server kami. Namun, kami sangat merekomendasikan menggunakan versi 1.21.11 untuk pengalaman bermain terbaik.'
+	},
+	{
+		question: 'Apa itu Anarchy RPG?',
+		answer: 'Di server ini, Griefing, Raiding, Stealing, dan PvP sepenuhnya legal (Anarchy). Tidak ada claim land! Namun, gameplay diperkaya dengan elemen RPG seperti Skills, Leveling, Custom Enchants, dan Custom Items yang imbang.'
+	},
+	{
+		question: 'Bagaimana cara mendapatkan uang di server?',
+		answer: 'Kamu bisa mendapatkan uang melalui Player Jobs (Mining, Farming, Fishing, dll), menjual item hasil farming atau memancing ke Server Shop via /shop, atau dengan mengikuti event dan Chat Games.'
+	}
+]
+
+function FaqAccordion({ question, answer }) {
+	const [isOpen, setIsOpen] = useState(false);
+
+	return (
+		<div className={`mc-accordion ${isOpen ? 'open' : ''} mb-4`}>
+			<button
+				onClick={() => setIsOpen(!isOpen)}
+				className="w-full p-5 flex items-center gap-4 text-left"
+			>
+				<div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300"
+					style={{ background: isOpen ? 'var(--brand-secondary)' : 'rgba(255,255,255,0.05)', color: isOpen ? '#fff' : 'var(--text-muted)' }}
+				>
+					<Icons.Sparkles className="h-5 w-5" />
+				</div>
+				<div className="flex-1">
+					<h3 className="font-bold text-base" style={{ color: isOpen ? 'var(--brand-secondary)' : 'var(--text-primary)' }}>
+						{question}
+					</h3>
+				</div>
+				<div className={`flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+					<Icons.ChevronDown className="h-5 w-5" style={{ color: isOpen ? 'var(--brand-secondary)' : 'var(--text-muted)' }} />
+				</div>
+			</button>
+
+			<div className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+				<div className="overflow-hidden">
+					<div className="px-5 pb-5 pt-0">
+						<div className="ml-14 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+							{answer}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export default function Home() {
 	const carouselRef = useRef(null)
 	const [isVideoPlaying, setIsVideoPlaying] = useState(false)
@@ -174,6 +234,24 @@ export default function Home() {
 					)}
 				</div>
 			</div>
+
+			{/* FAQ Section */}
+			<div className="mb-12 mt-24">
+				<div className="text-center mb-10">
+					<h2 className="text-3xl font-extrabold mb-4" style={{ color: 'var(--text-primary)' }}>
+						Pertanyaan yang Sering Diajukan
+					</h2>
+					<p className="text-base" style={{ color: 'var(--text-secondary)' }}>
+						Punya pertanyaan tentang server? Temukan jawabannya di bawah ini.
+					</p>
+				</div>
+				<div className="flex flex-col max-w-4xl mx-auto">
+					{faqData.map((faq, i) => (
+						<FaqAccordion key={i} question={faq.question} answer={faq.answer} />
+					))}
+				</div>
+			</div>
+
 			{/* Bottom CTA Section */}
 			<div className="mb-12 p-8 md:p-12 lg:p-16 flex flex-col md:flex-row items-center justify-between gap-8 mc-content-card">
 				<div className="flex-1 text-center md:text-left">

@@ -2,7 +2,6 @@ import '../styles/globals.css'
 import { Analytics } from "@vercel/analytics/next"
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import ComingSoon from '@layer/components/layout/ComingSoon'
 
 // Page Loading Progress Bar
 function LoadingBar() {
@@ -64,36 +63,7 @@ function LoadingBar() {
   )
 }
 
-// TARGET DATE: March 16, 2026, 12:00 WIB (+07:00)
-const TARGET_DATE = '2026-03-16T13:00:00+07:00'
-
 export default function App({ Component, pageProps }) {
-  const [isComingSoon, setIsComingSoon] = useState(true)
-
-  useEffect(() => {
-    // Check if current time is past the target date
-    const checkDate = () => {
-      const difference = +new Date(TARGET_DATE) - +new Date()
-      // If difference <= 0, the target date has passed, so don't show the overlay
-      setIsComingSoon(difference > 0)
-    }
-
-    checkDate()
-
-    // Periodically check just in case the client leaves the page open
-    const interval = setInterval(checkDate, 1000)
-    return () => clearInterval(interval)
-  }, [])
-
-  if (isComingSoon) {
-    return (
-      <>
-        <ComingSoon targetDate={TARGET_DATE} />
-        <Analytics />
-      </>
-    )
-  }
-
   return (
     <>
       <LoadingBar />
