@@ -1,15 +1,57 @@
 import { Wrapper } from '@layer/components/layout/Wrapper.jsx'
 import { Icons } from '@layer/components/elements/Icons.jsx'
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 
 export default function Punishments() {
     const [punishments, setPunishments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
+    const [cooldown, setCooldown] = useState(0);
+    const cooldownRef = useRef(null);
     const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
 
-    const fetchPunishments = async (page = 1) => {
+    const COOLDOWN_KEY = 'punishments_refresh_cooldown';
+    const COOLDOWN_DURATION = 60;
+
+    const startCooldownTimer = useCallback((remaining) => {
+        setCooldown(remaining);
+        if (cooldownRef.current) clearInterval(cooldownRef.current);
+        cooldownRef.current = setInterval(() => {
+            setCooldown(prev => {
+                if (prev <= 1) {
+                    clearInterval(cooldownRef.current);
+                    cooldownRef.current = null;
+                    localStorage.removeItem(COOLDOWN_KEY);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    }, []);
+
+    const startCooldown = useCallback(() => {
+        const endTime = Date.now() + COOLDOWN_DURATION * 1000;
+        localStorage.setItem(COOLDOWN_KEY, endTime.toString());
+        startCooldownTimer(COOLDOWN_DURATION);
+    }, [startCooldownTimer]);
+
+    useEffect(() => {
+        const saved = localStorage.getItem(COOLDOWN_KEY);
+        if (saved) {
+            const remaining = Math.ceil((parseInt(saved) - Date.now()) / 1000);
+            if (remaining > 0) {
+                startCooldownTimer(remaining);
+            } else {
+                localStorage.removeItem(COOLDOWN_KEY);
+            }
+        }
+        return () => {
+            if (cooldownRef.current) clearInterval(cooldownRef.current);
+        };
+    }, [startCooldownTimer]);
+
+    const fetchPunishments = async (page = 1, isManual = false) => {
         setRefreshing(true);
         setLoading(true);
         setError(null);
@@ -19,6 +61,7 @@ export default function Punishments() {
             const result = await res.json();
             setPunishments(result.data);
             setPagination(result.pagination);
+            if (isManual) startCooldown();
         } catch (err) {
             setError(err.message);
         } finally {
@@ -87,12 +130,13 @@ export default function Punishments() {
                     </p>
                 </div>
                 <button
-                    onClick={() => fetchPunishments(pagination.page)}
-                    disabled={refreshing}
+                    onClick={() => fetchPunishments(pagination.page, true)}
+                    disabled={refreshing || cooldown > 0}
                     className="mc-btn mc-btn-outline flex items-center gap-2 text-sm px-4 py-2"
+                    style={{ opacity: cooldown > 0 ? 0.6 : 1 }}
                 >
                     <Icons.Refresh className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                    {refreshing ? 'Memuat...' : 'Refresh'}
+                    {refreshing ? 'Memuat...' : cooldown > 0 ? `Tunggu ${cooldown}s` : 'Refresh'}
                 </button>
             </div>
 

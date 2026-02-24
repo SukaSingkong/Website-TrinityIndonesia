@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Wrapper } from '@layer/components/layout/Wrapper.jsx';
 import { Icons } from '@layer/components/elements/Icons.jsx';
 import Link from 'next/link';
@@ -16,6 +16,11 @@ export default function Leaderboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
+    const [cooldown, setCooldown] = useState(0);
+    const cooldownRef = useRef(null);
+
+    const COOLDOWN_KEY = 'leaderboard_refresh_cooldown';
+    const COOLDOWN_DURATION = 60;
 
     const CATEGORY_MAP = {
         'money': 'Balance',
@@ -24,15 +29,56 @@ export default function Leaderboard() {
         'level': 'Level' // Keeping level here just in case it populates later
     };
 
-    async function fetchStats() {
+    const startCooldownTimer = useCallback((remaining) => {
+        setCooldown(remaining);
+        if (cooldownRef.current) clearInterval(cooldownRef.current);
+        cooldownRef.current = setInterval(() => {
+            setCooldown(prev => {
+                if (prev <= 1) {
+                    clearInterval(cooldownRef.current);
+                    cooldownRef.current = null;
+                    localStorage.removeItem(COOLDOWN_KEY);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    }, []);
+
+    const startCooldown = useCallback(() => {
+        const endTime = Date.now() + COOLDOWN_DURATION * 1000;
+        localStorage.setItem(COOLDOWN_KEY, endTime.toString());
+        startCooldownTimer(COOLDOWN_DURATION);
+    }, [startCooldownTimer]);
+
+    useEffect(() => {
+        const saved = localStorage.getItem(COOLDOWN_KEY);
+        if (saved) {
+            const remaining = Math.ceil((parseInt(saved) - Date.now()) / 1000);
+            if (remaining > 0) {
+                startCooldownTimer(remaining);
+            } else {
+                localStorage.removeItem(COOLDOWN_KEY);
+            }
+        }
+        return () => {
+            if (cooldownRef.current) clearInterval(cooldownRef.current);
+        };
+    }, [startCooldownTimer]);
+
+    async function fetchStats(isManual = false) {
         try {
             setRefreshing(true);
-            setLoading(true); // Also set loading to true for any fetch, not just initial
-            const res = await fetch('/api/stats');
+            setLoading(true);
+            const res = await fetch(`/api/stats?t=${Date.now()}`, {
+                cache: 'no-store',
+                headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
+            });
             if (!res.ok) throw new Error('Failed to fetch data');
             const data = await res.json();
             setStats(data);
             setError(null);
+            if (isManual) startCooldown();
         } catch (err) {
             console.error(err);
             setError('Gagal memuat data leaderboard.');
@@ -107,12 +153,13 @@ export default function Leaderboard() {
                     </p>
                 </div>
                 <button
-                    onClick={fetchStats}
-                    disabled={refreshing}
+                    onClick={() => fetchStats(true)}
+                    disabled={refreshing || cooldown > 0}
                     className="mc-btn mc-btn-outline flex items-center gap-2 text-sm px-4 py-2"
+                    style={{ opacity: cooldown > 0 ? 0.6 : 1 }}
                 >
                     <Icons.Refresh className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                    {refreshing ? 'Memuat...' : 'Refresh'}
+                    {refreshing ? 'Memuat...' : cooldown > 0 ? `Tunggu ${cooldown}s` : 'Refresh'}
                 </button>
             </div>
 

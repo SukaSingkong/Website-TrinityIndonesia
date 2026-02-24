@@ -1,9 +1,15 @@
 export default async function handler(req, res) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     try {
-        const response = await fetch('http://160.187.210.22:30069/stats.json', {
+        const response = await fetch(`http://160.187.210.22:30069/stats.json?t=${new Date().getTime()}`, {
             headers: {
                 'Accept': 'application/json',
-            }
+                'Cache-Control': 'no-cache'
+            },
+            cache: 'no-store'
         });
 
         if (!response.ok) {
