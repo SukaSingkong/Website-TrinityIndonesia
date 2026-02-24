@@ -14,7 +14,6 @@ const features = [
 	{ icon: Icons.Book, title: 'Server Guide', description: 'Buka SMP Menu via /menu, /tutorial atau /help untuk info server' },
 	{ icon: Icons.Chat, title: 'Chat Games', description: 'Ikuti Chat Games dan dapatkan Premium Points untuk menyelesaikannya' },
 	{ icon: Icons.Star, title: 'Night Market', description: 'Beli item rare dengan harga acak yang berganti setiap hari' },
-	{ icon: Icons.Shield, title: 'Custom Punishment', description: 'Sistem punishment yang bersih dan mudah digunakan oleh staff' },
 	{ icon: Icons.Coins, title: 'Server Shop', description: 'Beli item atau material yang kamu butuhkan di /shop' },
 	{ icon: Icons.Cube, title: 'Clean Holograms', description: 'Hologram & NPC modern dan bersih dengan FancyHolograms' },
 	{ icon: Icons.Speakerphone, title: 'Chat Announcements', description: 'Pengumuman chat: info server, Discord, promosi, dan lainnya' },
@@ -253,15 +252,15 @@ export default function Home() {
 			</div>
 
 			{/* Bottom CTA Section */}
-			<div className="mb-12 p-8 md:p-12 lg:p-16 flex flex-col md:flex-row items-center justify-between gap-8 mc-content-card">
-				<div className="flex-1 text-center md:text-left">
+			<div className="mb-12 p-8 md:p-12 lg:p-16 flex flex-col items-center justify-center gap-6 mc-content-card text-center">
+				<div className="flex flex-col items-center max-w-3xl">
 					<h2 className="text-3xl md:text-5xl font-black mb-6 leading-tight" style={{ color: 'var(--text-primary)' }}>
 						Siap Untuk Petualangan Baru?
 					</h2>
-					<p className="mb-8 text-base md:text-xl leading-relaxed max-w-2xl" style={{ color: 'var(--text-secondary)' }}>
+					<p className="mb-8 text-base md:text-xl leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
 						Bergabunglah dengan ribuan pemain lainnya di Trinity Indonesia. Dapatkan pengalaman bermain Minecraft Anarchy RPG terbaik yang belum pernah kamu rasakan sebelumnya.
 					</p>
-					<div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2">
+					<div className="flex flex-col sm:flex-row items-center justify-center gap-4">
 						<a href="/connect" className="mc-btn mc-btn-primary px-8 py-4 text-xl shadow-xl hover:scale-105 transition-transform">
 							<Icons.Server className="w-6 h-6" />
 							Mulai Bermain Kalian
@@ -271,9 +270,6 @@ export default function Home() {
 							Komunitas Discord
 						</a>
 					</div>
-				</div>
-				<div className="flex-shrink-0 w-full md:w-1/3 lg:w-1/4 flex justify-center mt-8 md:mt-0">
-					<img src="/vendor/mascot.webp" alt="Trinity Indonesia Mascot" className="w-40 md:w-56 lg:w-[85%] object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500" />
 				</div>
 			</div>
 		</Wrapper>

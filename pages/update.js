@@ -1,8 +1,9 @@
 import { Wrapper } from '@layer/components/layout/Wrapper.jsx'
 import { Icons } from '@layer/components/elements/Icons.jsx'
+import Image from 'next/image'
+import config from '@layer/theme.config'
+import updatesData from '@layer/settings/updates.json'
 import { useState } from "react"
-
-import updates from '../updates.json'
 
 function UpdateAccordion({ title, content, type }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -88,7 +89,7 @@ export default function Update() {
 
             {/* Update Logs Grouped by Month */}
             <div className="flex flex-col mb-12 space-y-8">
-                {updates.map((monthGroup, i) => (
+                {updatesData.map((monthGroup, i) => (
                     <div key={i} className="space-y-4">
                         {/* Month Separator */}
                         <div className="flex items-center gap-4">

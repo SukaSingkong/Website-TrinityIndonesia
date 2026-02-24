@@ -1,0 +1,8 @@
+{
+    "store": {
+        "event": "Idul Fitri",
+        "discountEnabled": false,
+        "basePricePer500Points": 5000,
+        "discountedPricePer500Points": 4000
+    }
+}

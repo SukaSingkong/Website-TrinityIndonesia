@@ -9,7 +9,9 @@ import { useRouter } from 'next/router'
 const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'Connect', href: '/connect' },
+    { name: 'Leaderboard', href: '/leaderboard' },
     { name: 'Update', href: '/update' },
+    { name: 'Punishments', href: '/punishments' },
     { name: 'Rules', href: '/rules' },
 ]
 
@@ -51,7 +53,7 @@ function SiteHeader() {
     return (
         <div className="mc-header pb-4 sm:pb-0 overflow-hidden">
             {/* Center row: badge - logo - badge */}
-            <div className="relative z-10 flex items-center justify-center gap-2 sm:gap-6 pt-10 pb-4 sm:py-8 px-2 w-full max-w-4xl mx-auto min-h-[140px]">
+            <div className="relative z-10 flex items-center justify-center gap-4 sm:gap-12 lg:gap-[200px] pt-10 pb-4 sm:py-8 px-2 w-full max-w-[1200px] mx-auto min-h-[140px]">
                 {/* Online Badge - left */}
                 <div
                     onClick={handleCopyIp}
@@ -59,15 +61,12 @@ function SiteHeader() {
                     title="Klik untuk menyalin IP"
                 >
                     <Icons.Cube className="w-3 h-3 sm:w-5 sm:h-5" />
-                    <div className="text-left hidden sm:block">
+                    <div className="text-left">
                         <div className="text-xs sm:text-sm font-extrabold leading-none">
                             {copied ? "IP COPIED!" : (players !== null ? `${players} ONLINE` : 'ONLINE')}
                         </div>
                         <div className="text-[10px] sm:text-xs opacity-80">Online Players</div>
                     </div>
-                    <span className="text-[10px] font-extrabold sm:hidden ml-1">
-                        {copied ? "COPIED!" : (players !== null ? `${players} ONLINE` : 'ONLINE')}
-                    </span>
                 </div>
 
                 {/* Logo */}
@@ -80,15 +79,12 @@ function SiteHeader() {
                 {/* Discord Badge - right */}
                 <a href="https://discord.trinityindonesia.cc" target="_blank" rel="noopener noreferrer" className="mc-badge mc-badge-discord flex-shrink-0 flex items-center px-2 py-1.5 sm:px-6 sm:py-3 hover:opacity-90 transition-opacity">
                     <Icons.Discord className="w-3 h-3 sm:w-5 sm:h-5" />
-                    <div className="text-left hidden sm:block">
+                    <div className="text-left">
                         <div className="text-xs sm:text-sm font-extrabold leading-none">
                             {discordOnline !== null ? `${discordOnline} ONLINE` : 'DISCORD'}
                         </div>
                         <div className="text-[10px] sm:text-xs opacity-80">Join Server</div>
                     </div>
-                    <span className="text-[10px] font-extrabold sm:hidden ml-1">
-                        {discordOnline !== null ? `${discordOnline} ONLINE` : 'DISCORD'}
-                    </span>
                 </a>
             </div>
         </div>
@@ -193,7 +189,7 @@ function Footer() {
                     <div className="flex items-center gap-3">
                         <Link href="/store" className="mc-btn mc-btn-store text-xs">
                             <Icons.ShoppingBag className="w-3 h-3" />
-                            Beli Gems
+                            Beli Points
                         </Link>
                         <button
                             onClick={scrollToTop}
