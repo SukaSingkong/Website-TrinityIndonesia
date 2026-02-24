@@ -83,7 +83,7 @@ export default function Punishments() {
                         Daftar Hukuman
                     </h2>
                     <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                        Catatan pemain yang telah menerima sanksi dari staff server.
+                        Daftar riwayat pemain yang telah menerima sanksi (warn, mute, ban) dari staff server.
                     </p>
                 </div>
                 <button
@@ -241,8 +241,8 @@ export default function Punishments() {
                                     key={pageNum}
                                     onClick={() => handlePageChange(pageNum)}
                                     className={`relative flex items-center justify-center w-8 h-8 rounded-lg text-sm font-extrabold transition-all duration-300 mx-0.5 ${isCurrent
-                                            ? 'scale-110 shadow-sm z-10'
-                                            : 'hover:bg-gray-100 hover:scale-105 active:scale-95 text-gray-500'
+                                        ? 'scale-110 shadow-sm z-10'
+                                        : 'hover:bg-gray-100 hover:scale-105 active:scale-95 text-gray-500'
                                         }`}
                                     style={isCurrent ? {
                                         backgroundColor: 'var(--brand-secondary)',
