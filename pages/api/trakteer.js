@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
         const pool = await getDbConnection();
         // Cari produk berdasarkan quantity (karena Store mengirim quantity ke Trakteer)
-        const [products] = await pool.query('SELECT id FROM store_products WHERE quantity = ? LIMIT 1', [quantity]);
+        const [products] = await pool.query('SELECT id, name, points FROM store_products WHERE quantity = ? LIMIT 1', [quantity]);
 
         if (products.length === 0) {
             console.error(`No product found for quantity: ${quantity}`);
@@ -42,8 +42,8 @@ export default async function handler(req, res) {
 
         if (panelUrl && apiKey && serverId) {
             for (const row of commands) {
-                // Replace {name} dengan Nickname Player yang diinput di Trakteer
-                const finalCommand = row.command.replace(/{name}/g, supporterName);
+                // Replace {player} dengan Nickname Player yang diinput di Trakteer
+                const finalCommand = row.command.replace(/{player}/g, supporterName);
 
                 const ptData = await fetch(`${panelUrl.replace(/\/$/, '')}/api/client/servers/${serverId}/command`, {
                     method: 'POST',
@@ -64,6 +64,18 @@ export default async function handler(req, res) {
         } else {
             console.error("Missing Pterodactyl Environment Variables (.env variables: PTERODACTYL_PANEL_URL, PTERODACTYL_API_KEY, PTERODACTYL_SERVER_ID)");
             return res.status(500).json({ message: 'Missing panel credentials configuration' });
+        }
+
+        if (executedCommands.length > 0) {
+            // Log successful purchase
+            try {
+                await pool.query(`
+                    INSERT INTO store_purchases (player_name, product_name, points_purchased, commands_executed, status)
+                    VALUES (?, ?, ?, ?, ?)
+                `, [supporterName, products[0].name || `Product ID ${productId}`, quantity * (products[0].points || 0), JSON.stringify(executedCommands), 'success']);
+            } catch (logErr) {
+                console.error("Failed to log purchase to DB:", logErr);
+            }
         }
 
         return res.status(200).json({ success: true, executed: executedCommands });

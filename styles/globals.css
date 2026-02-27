@@ -179,14 +179,14 @@ body {
 }
 
 .mc-btn-store {
-	background: var(--brand-primary);
-	color: var(--text-primary);
+	background: var(--brand-secondary);
+	color: #fff;
 	font-weight: 800;
-	box-shadow: 0 4px 12px rgba(255, 182, 86, 0.3);
+	box-shadow: 0 4px 12px rgba(226, 110, 16, 0.3);
 }
 
 .mc-btn-store:hover {
-	background: #f0a847;
+	background: #c55e0d;
 	transform: translateY(-1px);
 }
 
@@ -208,9 +208,9 @@ body {
 }
 
 .mc-badge-discord {
-	background: var(--brand-primary);
-	color: var(--text-primary);
-	box-shadow: 0 4px 16px rgba(255, 182, 86, 0.3);
+	background: var(--brand-secondary);
+	color: #fff;
+	box-shadow: 0 4px 16px rgba(226, 110, 16, 0.3);
 }
 
 /* ==================== CONTENT CARD (welcome section) ==================== */
@@ -437,7 +437,7 @@ footer {
 .glow-button {
 	position: relative;
 	overflow: hidden;
-	background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+	background: var(--brand-secondary);
 	border-radius: 0.75rem;
 	transition: all 0.3s ease;
 }

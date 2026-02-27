@@ -15,9 +15,28 @@ export default async function handler(req, res) {
                 event_name VARCHAR(100) DEFAULT '',
                 discount_enabled BOOLEAN DEFAULT false,
                 base_price_per_500 INT DEFAULT 5000,
-                discounted_price_per_500 INT DEFAULT 4000
+                discounted_price_per_500 INT DEFAULT 4000,
+                popup_bg_image VARCHAR(500) DEFAULT '',
+                popup_title VARCHAR(200) DEFAULT '',
+                popup_subtitle VARCHAR(500) DEFAULT '',
+                popup_discount_text VARCHAR(200) DEFAULT '20%'
             )
         `);
+
+        // Add popup columns if they don't exist (migration for existing tables)
+        const columnsToAdd = [
+            { name: 'popup_bg_image', type: "VARCHAR(500) DEFAULT ''" },
+            { name: 'popup_title', type: "VARCHAR(200) DEFAULT ''" },
+            { name: 'popup_subtitle', type: "VARCHAR(500) DEFAULT ''" },
+            { name: 'popup_discount_text', type: "VARCHAR(200) DEFAULT '20%'" },
+        ];
+        for (const col of columnsToAdd) {
+            try {
+                await pool.query(`ALTER TABLE store_settings ADD COLUMN ${col.name} ${col.type}`);
+            } catch (e) {
+                // Column likely already exists, ignore
+            }
+        }
 
         // Insert default setting if empty
         const [settingsRows] = await pool.query('SELECT COUNT(*) as count FROM store_settings');
@@ -52,6 +71,19 @@ export default async function handler(req, res) {
             )
         `);
 
+        // Create Purchases Log table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS store_purchases (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                player_name VARCHAR(100),
+                product_name VARCHAR(100),
+                points_purchased INT,
+                commands_executed TEXT,
+                status VARCHAR(50) DEFAULT 'success',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         // Insert default products if empty
         const [productRows] = await pool.query('SELECT COUNT(*) as count FROM store_products');
         if (productRows[0].count === 0) {
@@ -76,7 +108,7 @@ export default async function handler(req, res) {
                 await pool.query(`
                     INSERT INTO store_product_commands (product_id, command)
                     VALUES (?, ?)
-                `, [result.insertId, `points add {name} ${p.points}`]);
+                `, [result.insertId, `points give {player} ${p.points}`]);
             }
         }
 
