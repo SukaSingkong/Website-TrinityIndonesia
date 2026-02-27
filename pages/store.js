@@ -60,7 +60,9 @@ export async function getServerSideProps() {
                 storeSettings: JSON.parse(JSON.stringify(dbSettings)),
                 storeProducts: JSON.parse(JSON.stringify(products)),
                 topSupporter: topSupporterRows.length > 0 ? topSupporterRows[0].player_name : null,
+                topSupporterPoints: topSupporterRows.length > 0 ? topSupporterRows[0].total_points : null,
                 topSupporterAllTime: topSupporterAllTimeRows.length > 0 ? topSupporterAllTimeRows[0].player_name : null,
+                topSupporterAllTimePoints: topSupporterAllTimeRows.length > 0 ? topSupporterAllTimeRows[0].total_points : null,
                 recentPayments: recentPaymentRows.map(r => r.player_name)
             }
         }
@@ -71,14 +73,16 @@ export async function getServerSideProps() {
                 storeSettings: { event_name: 'Error', discount_enabled: 0 },
                 storeProducts: [],
                 topSupporter: null,
+                topSupporterPoints: null,
                 topSupporterAllTime: null,
+                topSupporterAllTimePoints: null,
                 recentPayments: []
             }
         }
     }
 }
 
-export default function Store({ storeSettings, storeProducts, topSupporter, topSupporterAllTime, recentPayments }) {
+export default function Store({ storeSettings, storeProducts, topSupporter, topSupporterPoints, topSupporterAllTime, topSupporterAllTimePoints, recentPayments }) {
     const { event_name: event, discount_enabled: discountEnabled } = storeSettings || {};
     const products = storeProducts || [];
     const [username, setUsername] = useState('')
@@ -570,17 +574,18 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
 
                         {topSupporter ? (
                             <div className="flex items-center gap-4 px-2 mt-2 relative z-10">
-                                <div className="w-16 h-24 relative flex-shrink-0 flex items-start justify-center pl-1 overflow-hidden rounded-lg" style={{ background: '#f5f3f8' }}>
+                                <div className="w-16 h-24 relative flex-shrink-0 flex items-start justify-center pl-1 overflow-hidden rounded-lg">
                                     <img src={`https://mc-heads.net/body/${topSupporter}/100`} alt={topSupporter} className="max-w-none h-[140%] object-top drop-shadow-xl absolute top-0 left-1/2 -translate-x-1/2" />
                                 </div>
                                 <div className="flex flex-col py-2 self-start mt-2">
                                     <h3 className="text-xl font-black tracking-tight truncate max-w-[120px]" style={{ color: 'var(--brand-secondary)' }} title={topSupporter}>{topSupporter}</h3>
-                                    <p className="text-[12px] font-bold mt-1 leading-snug" style={{ color: 'var(--text-muted)' }}>Spent the most this month</p>
+                                    <p className="text-[12px] font-bold mt-1 leading-snug" style={{ color: 'var(--text-muted)' }}>Top supporter bulan ini</p>
+                                    <p className="text-[10px] font-black tracking-wide mt-1 uppercase" style={{ color: 'var(--brand-secondary)' }}>{topSupporterPoints?.toLocaleString('id-ID')} Points</p>
                                 </div>
                             </div>
                         ) : (
                             <div className="py-8 text-center relative z-10">
-                                <p className="text-sm font-bold" style={{ color: 'var(--text-muted)' }}>Belum ada donatur bulan ini.</p>
+                                <p className="text-sm font-bold" style={{ color: 'var(--text-muted)' }}>Belum ada supporter bulan ini.</p>
                             </div>
                         )}
 
@@ -625,17 +630,18 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
 
                         {topSupporterAllTime ? (
                             <div className="flex items-center gap-4 px-2 mt-2 relative z-10">
-                                <div className="w-16 h-24 relative flex-shrink-0 flex items-start justify-center pl-1 overflow-hidden rounded-lg" style={{ background: '#f5f3f8' }}>
+                                <div className="w-16 h-24 relative flex-shrink-0 flex items-start justify-center pl-1 overflow-hidden rounded-lg">
                                     <img src={`https://mc-heads.net/body/${topSupporterAllTime}/100`} alt={topSupporterAllTime} className="max-w-none h-[140%] object-top drop-shadow-xl absolute top-0 left-1/2 -translate-x-1/2" />
                                 </div>
                                 <div className="flex flex-col py-2 self-start mt-2">
                                     <h3 className="text-xl font-black tracking-tight truncate max-w-[120px]" style={{ color: 'var(--brand-secondary)' }} title={topSupporterAllTime}>{topSupporterAllTime}</h3>
-                                    <p className="text-[12px] font-bold mt-1 leading-snug" style={{ color: 'var(--text-muted)' }}>Spent the most all time</p>
+                                    <p className="text-[12px] font-bold mt-1 leading-snug" style={{ color: 'var(--text-muted)' }}>Top supporter sepanjang masa</p>
+                                    <p className="text-[10px] font-black tracking-wide mt-1 uppercase" style={{ color: 'var(--brand-secondary)' }}>{topSupporterAllTimePoints?.toLocaleString('id-ID')} Points</p>
                                 </div>
                             </div>
                         ) : (
                             <div className="py-8 text-center relative z-10">
-                                <p className="text-sm font-bold" style={{ color: 'var(--text-muted)' }}>Belum ada donatur.</p>
+                                <p className="text-sm font-bold" style={{ color: 'var(--text-muted)' }}>Belum ada supporter.</p>
                             </div>
                         )}
                     </div>

@@ -65,7 +65,7 @@ export default function AdminPurchases() {
                                 <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Waktu</th>
                                 <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Player</th>
                                 <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Produk</th>
-                                <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Points</th>
+                                <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Pemasukan</th>
                                 <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Command Logs</th>
                                 <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Status</th>
                                 <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Aksi</th>
@@ -91,7 +91,7 @@ export default function AdminPurchases() {
                                     </td>
                                     <td className="p-5 font-bold" style={{ color: 'var(--text-secondary)' }}>{log.product_name}</td>
                                     <td className="p-5 font-black" style={{ color: 'var(--brand-secondary)', background: 'rgba(226,110,16,0.05)' }}>
-                                        +{log.points_purchased}
+                                        + Rp {log.rupiah_value?.toLocaleString('id-ID')}
                                     </td>
                                     <td className="p-5">
                                         <div className="max-w-[200px] sm:max-w-[400px] max-h-24 overflow-y-auto p-3 rounded-xl text-xs font-mono border" style={{ background: 'rgba(232,224,240,0.5)', color: 'var(--text-secondary)', borderColor: 'var(--bg-body)' }}>

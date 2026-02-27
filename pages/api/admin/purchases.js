@@ -10,8 +10,15 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
         try {
+            const [settingsRows] = await pool.query('SELECT discount_enabled, base_price_per_500, discounted_price_per_500 FROM store_settings LIMIT 1')
+            const settings = settingsRows[0] || {}
+            const discount_enabled = settings.discount_enabled === 1 || settings.discount_enabled === true
+            const price_per_500 = discount_enabled ? (settings.discounted_price_per_500 || 4000) : (settings.base_price_per_500 || 5000)
+            const pricePerPoint = price_per_500 / 500
+
             const [rows] = await pool.query('SELECT * FROM store_purchases ORDER BY created_at DESC LIMIT 100');
-            return res.status(200).json(rows);
+            const data = rows.map(r => ({ ...r, rupiah_value: r.points_purchased * pricePerPoint }));
+            return res.status(200).json(data);
         } catch (error) {
             return res.status(500).json({ error: error.message });
         }

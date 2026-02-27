@@ -72,7 +72,7 @@ export default async function handler(req, res) {
                 await pool.query(`
                     INSERT INTO store_purchases (player_name, product_name, points_purchased, commands_executed, status)
                     VALUES (?, ?, ?, ?, ?)
-                `, [supporterName, products[0].name || `Product ID ${productId}`, quantity * (products[0].points || 0), JSON.stringify(executedCommands), 'success']);
+                `, [supporterName, products[0].name || `Product ID ${productId}`, products[0].points || 0, JSON.stringify(executedCommands), 'success']);
             } catch (logErr) {
                 console.error("Failed to log purchase to DB:", logErr);
             }

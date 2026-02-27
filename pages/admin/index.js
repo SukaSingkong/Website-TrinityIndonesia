@@ -28,7 +28,7 @@ function SalesChart({ data }) {
                             style={{ background: 'rgba(42,30,58,0.95)', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
                             <span className="font-extrabold">{d.total_transactions}</span> transaksi
                             <br />
-                            <span className="font-extrabold" style={{ color: '#E26E10' }}>{d.total_points?.toLocaleString('id-ID')}</span> points
+                            <span className="font-extrabold" style={{ color: '#E26E10' }}>Rp {d.rupiah_value?.toLocaleString('id-ID')}</span>
                         </div>
                         {/* Bar */}
                         <div
@@ -57,6 +57,10 @@ export default function AdminDashboard() {
     const [stats, setStats] = useState({ products: 0, purchases: 0, loading: true })
     const [analytics, setAnalytics] = useState(null)
     const [analyticsLoading, setAnalyticsLoading] = useState(true)
+    const [graphRange, setGraphRange] = useState('14d')
+    const [donatorRange, setDonatorRange] = useState('all')
+    const [productRange, setProductRange] = useState('14d')
+    const [recentRange, setRecentRange] = useState('14d')
 
     useEffect(() => {
         // Fetch basic stats
@@ -70,16 +74,18 @@ export default function AdminDashboard() {
                 loading: false
             })
         }).catch(() => setStats(s => ({ ...s, loading: false })))
+    }, [])
 
-        // Fetch analytics
-        fetch('/api/admin/analytics')
+    useEffect(() => {
+        setAnalyticsLoading(true)
+        fetch(`/api/admin/analytics?graphRange=${graphRange}&donatorRange=${donatorRange}&productRange=${productRange}&recentRange=${recentRange}`)
             .then(res => res.json())
             .then(data => {
                 setAnalytics(data)
                 setAnalyticsLoading(false)
             })
             .catch(() => setAnalyticsLoading(false))
-    }, [])
+    }, [graphRange, donatorRange, productRange, recentRange])
 
     return (
         <AdminLayout title="Dashboard Overview">
@@ -148,14 +154,26 @@ export default function AdminDashboard() {
                 {/* Sales Chart - 2 cols wide */}
                 <div className="xl:col-span-2 mc-card p-6 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-48 h-48 opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" style={{ background: 'var(--brand-secondary)' }}></div>
-                    <div className="flex items-center justify-between mb-6 relative z-10">
+                    <div className="flex items-center justify-between mb-6 relative z-10 flex-wrap gap-4">
                         <div>
-                            <h3 className="text-lg font-black" style={{ color: 'var(--text-primary)' }}>Grafik Penjualan</h3>
-                            <p className="text-xs font-bold mt-1" style={{ color: 'var(--text-muted)' }}>14 hari terakhir</p>
+                            <div className="flex items-center gap-3">
+                                <h3 className="text-lg font-black" style={{ color: 'var(--text-primary)' }}>Grafik Penjualan</h3>
+                            </div>
+                            <div className="flex items-center gap-1 mt-2 bg-black/5 p-1 rounded-lg w-fit">
+                                {['14d', '30d', '365d', 'all'].map(val => (
+                                    <button
+                                        key={val}
+                                        onClick={() => setGraphRange(val)}
+                                        className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${graphRange === val ? 'bg-white shadow-sm text-[#E26E10]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                                    >
+                                        {val === '14d' ? '14H' : val === '30d' ? '1B' : val === '365d' ? '1T' : 'All'}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-extrabold" style={{ background: 'rgba(226,110,16,0.08)', color: '#E26E10' }}>
                             <Icons.Coins className="w-3.5 h-3.5" />
-                            {analyticsLoading ? '...' : (analytics?.totals?.total_points?.toLocaleString('id-ID') || 0)} total points
+                            Rp {analyticsLoading ? '...' : (analytics?.totals?.rupiah_value?.toLocaleString('id-ID') || 0)} total
                         </div>
                     </div>
                     <div className="relative z-10">
@@ -172,11 +190,24 @@ export default function AdminDashboard() {
                 {/* Top Donators */}
                 <div className="mc-card p-6 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" style={{ background: 'var(--brand-primary)' }}></div>
-                    <h3 className="text-lg font-black mb-4 relative z-10 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                        <Icons.Trophy className="w-5 h-5 text-[#d97706]" />
-                        Top Donators
-                    </h3>
-                    <div className="space-y-2.5 relative z-10">
+                    <div className="flex items-center justify-between mb-4 relative z-10">
+                        <h3 className="text-lg font-black flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                            <Icons.Trophy className="w-5 h-5 text-[#d97706]" />
+                            Top Donators
+                        </h3>
+                        <div className="flex items-center gap-1 bg-black/5 p-1 rounded-lg">
+                            {['14d', '30d', '365d', 'all'].map(val => (
+                                <button
+                                    key={val}
+                                    onClick={() => setDonatorRange(val)}
+                                    className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${donatorRange === val ? 'bg-white shadow-sm text-[#E26E10]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                                >
+                                    {val === '14d' ? '14H' : val === '30d' ? '1B' : val === '365d' ? '1T' : 'All'}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="space-y-2.5 relative z-10 max-h-[300px] overflow-y-auto pr-2">
                         {analyticsLoading ? (
                             <div className="flex items-center justify-center h-40">
                                 <div className="w-8 h-8 border-3 rounded-full animate-spin border-t-[#E26E10] border-r-transparent border-b-transparent border-l-transparent"></div>
@@ -200,7 +231,7 @@ export default function AdminDashboard() {
                                     </div>
                                     {/* Points */}
                                     <span className="text-xs font-black flex-shrink-0" style={{ color: '#E26E10' }}>
-                                        {donor.total_points?.toLocaleString('id-ID')} pts
+                                        Rp {donor.rupiah_value?.toLocaleString('id-ID')}
                                     </span>
                                 </div>
                             ))
@@ -216,11 +247,24 @@ export default function AdminDashboard() {
                 {/* Popular Products */}
                 <div className="mc-card p-6 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" style={{ background: 'var(--brand-secondary)' }}></div>
-                    <h3 className="text-lg font-black mb-4 relative z-10 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                        <Icons.Fire className="w-5 h-5 text-[#ef4444]" />
-                        Produk Terlaris
-                    </h3>
-                    <div className="space-y-3 relative z-10">
+                    <div className="flex items-start justify-between mb-4 relative z-10">
+                        <h3 className="text-lg font-black flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                            <Icons.Fire className="w-5 h-5 text-[#ef4444]" />
+                            Produk Terlaris
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-1 bg-black/5 p-1 rounded-lg">
+                            {['14d', '30d', '365d', 'all'].map(val => (
+                                <button
+                                    key={val}
+                                    onClick={() => setProductRange(val)}
+                                    className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${productRange === val ? 'bg-white shadow-sm text-[#E26E10]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                                >
+                                    {val === '14d' ? '14H' : val === '30d' ? '1B' : val === '365d' ? '1T' : 'All'}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="space-y-3 relative z-10 max-h-[300px] overflow-y-auto pr-2">
                         {analyticsLoading ? (
                             <div className="flex items-center justify-center h-32">
                                 <div className="w-8 h-8 border-3 rounded-full animate-spin border-t-[#E26E10] border-r-transparent border-b-transparent border-l-transparent"></div>
@@ -251,11 +295,24 @@ export default function AdminDashboard() {
                 {/* Recent Purchases */}
                 <div className="mc-card p-6 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" style={{ background: 'var(--brand-primary)' }}></div>
-                    <h3 className="text-lg font-black mb-4 relative z-10 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                        <Icons.Clock className="w-5 h-5 text-[#6366f1]" />
-                        Transaksi Terbaru
-                    </h3>
-                    <div className="space-y-2.5 relative z-10">
+                    <div className="flex items-start justify-between mb-4 relative z-10">
+                        <h3 className="text-lg font-black flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                            <Icons.Clock className="w-5 h-5 text-[#6366f1]" />
+                            Transaksi Terbaru
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-1 bg-black/5 p-1 rounded-lg">
+                            {['14d', '30d', '365d', 'all'].map(val => (
+                                <button
+                                    key={val}
+                                    onClick={() => setRecentRange(val)}
+                                    className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${recentRange === val ? 'bg-white shadow-sm text-[#E26E10]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                                >
+                                    {val === '14d' ? '14H' : val === '30d' ? '1B' : val === '365d' ? '1T' : 'All'}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="space-y-2.5 relative z-10 max-h-[300px] overflow-y-auto pr-2">
                         {analyticsLoading ? (
                             <div className="flex items-center justify-center h-32">
                                 <div className="w-8 h-8 border-3 rounded-full animate-spin border-t-[#E26E10] border-r-transparent border-b-transparent border-l-transparent"></div>
@@ -273,7 +330,7 @@ export default function AdminDashboard() {
                                         </p>
                                     </div>
                                     <span className="px-2.5 py-1 rounded-lg text-xs font-black flex-shrink-0" style={{ background: 'rgba(226,110,16,0.1)', color: '#E26E10' }}>
-                                        +{purchase.points_purchased?.toLocaleString('id-ID')} pts
+                                        + Rp {purchase.rupiah_value?.toLocaleString('id-ID')}
                                     </span>
                                 </div>
                             ))
