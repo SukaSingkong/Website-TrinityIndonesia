@@ -5,6 +5,51 @@ import { useRouter } from 'next/router'
 import config from '@layer/theme.config'
 import { getDbConnection } from '@layer/lib/db'
 
+function CountdownTimer({ targetDate }) {
+    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+        if (!targetDate) return;
+        const target = new Date(targetDate).getTime();
+
+        const updateTimer = () => {
+            const now = new Date().getTime();
+            const difference = target - now;
+            if (difference <= 0) {
+                setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                return;
+            }
+            setTimeLeft({
+                days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+                hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+                seconds: Math.floor((difference % (1000 * 60)) / 1000)
+            });
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+    }, [targetDate]);
+
+    if (!targetDate || !isClient) return null;
+    const f = (n) => n.toString().padStart(2, '0');
+
+    return (
+        <div className="inline-flex items-center gap-2.5 mt-4 px-4 py-2 rounded-xl backdrop-blur-md shadow-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <Icons.Clock className="w-5 h-5 text-white drop-shadow-md" />
+            <div className="flex items-center font-mono font-black text-white tracking-wider text-base md:text-lg" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                {timeLeft.days > 0 && <span className="flex items-baseline">{f(timeLeft.days)}<span className="text-white/70 text-xs ml-1 mr-2.5 font-sans font-bold tracking-normal uppercase">Hari</span></span>}
+                <span className="flex items-baseline w-7 justify-center">{f(timeLeft.hours)}</span><span className="text-white/40 pb-0.5 mx-0.5">:</span>
+                <span className="flex items-baseline w-7 justify-center">{f(timeLeft.minutes)}</span><span className="text-white/40 pb-0.5 mx-0.5">:</span>
+                <span className="flex items-baseline w-7 justify-center">{f(timeLeft.seconds)}</span>
+            </div>
+        </div>
+    );
+}
+
 export async function getServerSideProps() {
     try {
         const pool = await getDbConnection();
@@ -530,6 +575,7 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
                                         <>Nikmati diskon eksklusif sebesar <strong className="text-[#FFE066] font-black bg-black/20 px-2 py-1 rounded-md shadow-inner">{storeSettings.popup_discount_text || '20%'}</strong> untuk semua pembelian Points selama event berlangsung.</>
                                     )}
                                 </p>
+                                {storeSettings.discount_timer && <CountdownTimer targetDate={storeSettings.discount_timer} />}
                             </div>
                             <div className="flex-shrink-0">
                                 <img

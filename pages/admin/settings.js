@@ -11,7 +11,8 @@ export default function AdminSettings() {
         popup_bg_image: '',
         popup_title: '',
         popup_subtitle: '',
-        popup_discount_text: '20%'
+        popup_discount_text: '20%',
+        discount_timer: ''
     })
     const [isLoading, setIsLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
@@ -34,7 +35,8 @@ export default function AdminSettings() {
                         popup_bg_image: data.popup_bg_image || '',
                         popup_title: data.popup_title || '',
                         popup_subtitle: data.popup_subtitle || '',
-                        popup_discount_text: data.popup_discount_text || '20%'
+                        popup_discount_text: data.popup_discount_text || '20%',
+                        discount_timer: data.discount_timer || ''
                     }
                     setSettings(loaded)
                     savedSettingsRef.current = loaded
@@ -217,6 +219,19 @@ export default function AdminSettings() {
                                 className="w-full p-4 rounded-xl border-2 focus:bg-white focus:outline-none transition-all font-bold"
                                 style={{ borderColor: 'var(--bg-body)', background: 'rgba(232,224,240,0.3)', color: 'var(--text-primary)' }}
                                 placeholder="20%"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-extrabold mb-2" style={{ color: 'var(--text-secondary)' }}>
+                                Timer Selesai <span className="text-xs font-bold opacity-60">(Opsional, Target Waktu)</span>
+                            </label>
+                            <input
+                                type="datetime-local"
+                                value={settings.discount_timer}
+                                onChange={(e) => setSettings({ ...settings, discount_timer: e.target.value })}
+                                className="w-full p-4 rounded-xl border-2 focus:bg-white focus:outline-none transition-all font-bold"
+                                style={{ borderColor: 'var(--bg-body)', background: 'rgba(232,224,240,0.3)', color: 'var(--text-primary)' }}
                             />
                         </div>
                     </div>

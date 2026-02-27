@@ -18,6 +18,8 @@ export default function AdminProducts() {
     const [isLoading, setIsLoading] = useState(true)
     const [newCommand, setNewCommand] = useState('')
     const [activeProductId, setActiveProductId] = useState(null)
+    const [editingBadgeId, setEditingBadgeId] = useState(null)
+    const [editBadgeText, setEditBadgeText] = useState('')
 
     // Pagination
     const PRODUCTS_PER_PAGE = 4
@@ -80,8 +82,20 @@ export default function AdminProducts() {
         await fetch('/api/admin/products', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productId, image_filter: filter })
+            body: JSON.stringify({ action: 'randomize_hue', productId, image_filter: filter })
         })
+        fetchProducts()
+    }
+
+    async function handleEditBadge(e, productId) {
+        e.preventDefault()
+        await fetch('/api/admin/products', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'edit_badge', productId, badge: editBadgeText.trim() })
+        })
+        setEditingBadgeId(null)
+        setEditBadgeText('')
         fetchProducts()
     }
 
@@ -256,9 +270,34 @@ export default function AdminProducts() {
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h3 className="font-extrabold text-xl" style={{ color: 'var(--text-primary)' }}>{product.name}</h3>
-                                <p className="text-sm font-bold mt-1" style={{ color: 'var(--text-muted)' }}>
+                                <p className="text-sm font-bold mt-1 flex items-center gap-2" style={{ color: 'var(--text-muted)' }}>
                                     <span style={{ color: 'var(--text-secondary)' }}>Qty:</span> {product.quantity}x &bull; <span style={{ color: 'var(--brand-secondary)' }}>{product.points} Points</span>
-                                    {product.badge && <span className="ml-2 px-2 py-0.5 rounded-md text-[10px] font-black" style={{ background: 'var(--brand-primary)', color: 'var(--text-primary)' }}>{product.badge}</span>}
+                                    {editingBadgeId === product.id ? (
+                                        <form onSubmit={(e) => handleEditBadge(e, product.id)} className="inline-flex items-center gap-1 ml-1">
+                                            <input
+                                                type="text"
+                                                autoFocus
+                                                value={editBadgeText}
+                                                onChange={(e) => setEditBadgeText(e.target.value)}
+                                                placeholder="Kosongkan u/ hapus"
+                                                className="px-2 py-0.5 rounded-md text-[10px] font-black outline-none border w-32"
+                                                style={{ background: 'white', color: 'var(--text-primary)', borderColor: 'var(--brand-secondary)' }}
+                                            />
+                                            <button type="submit" className="text-green-600 hover:text-green-700 p-1" title="Simpan Badge"><Icons.Check className="w-3 h-3" /></button>
+                                            <button type="button" onClick={() => setEditingBadgeId(null)} className="text-red-500 hover:text-red-600 p-1" title="Batal"><Icons.X className="w-3 h-3" /></button>
+                                        </form>
+                                    ) : (
+                                        <span className="flex items-center gap-1 group/badge ml-1 relative">
+                                            {product.badge && <span className="px-2 py-0.5 rounded-md text-[10px] font-black" style={{ background: 'var(--brand-primary)', color: 'var(--text-primary)' }}>{product.badge}</span>}
+                                            <button
+                                                onClick={() => { setEditingBadgeId(product.id); setEditBadgeText(product.badge || '') }}
+                                                className={`p-1 text-gray-400 hover:text-[var(--brand-secondary)] transition-all ${product.badge ? 'opacity-0 group-hover/badge:opacity-100 absolute -right-6' : ''}`}
+                                                title="Edit Badge"
+                                            >
+                                                <Icons.Pencil className="w-3 h-3" />
+                                            </button>
+                                        </span>
+                                    )}
                                 </p>
                             </div>
                             <div className="flex gap-2">

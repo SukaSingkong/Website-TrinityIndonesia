@@ -1,6 +1,7 @@
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Head from 'next/head'
 import { useEffect } from 'react'
 import { Icons } from '../elements/Icons'
 
@@ -38,6 +39,9 @@ export default function AdminLayout({ children, title }) {
 
     return (
         <div className="min-h-screen flex text-[#1c1917]" style={{ background: 'var(--bg-body)' }}>
+            <Head>
+                <title>{title} | Trinity Admin</title>
+            </Head>
             {/* Sidebar */}
             <div className="w-72 m-4 mr-0 rounded-2xl flex flex-col shadow-xl overflow-hidden relative" style={{ background: 'var(--bg-card)' }}>
                 {/* Decorative background blobs */}
