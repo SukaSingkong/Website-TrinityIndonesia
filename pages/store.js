@@ -3,104 +3,51 @@ import { Icons } from '@layer/components/elements/Icons.jsx'
 import { useEffect, useState } from "react"
 import { useRouter } from 'next/router'
 import config from '@layer/theme.config'
-import settings from '@layer/settings/settings.json'
+import { getDbConnection } from '@layer/lib/db'
 
-const { event, discountEnabled, basePricePer500Points, discountedPricePer500Points } = settings.store;
+export async function getServerSideProps() {
+    try {
+        const pool = await getDbConnection();
+        const [settingsRows] = await pool.query('SELECT * FROM store_settings LIMIT 1');
+        const [productRows] = await pool.query('SELECT * FROM store_products ORDER BY id ASC');
 
-const products = [
-    {
-        id: 1,
-        name: '500 Points',
-        points: 500,
-        quantity: 1,
-        badge: '',
-        popular: false,
-        image: '/vendor/gift1.webp',
-        imageStyle: {}
-    },
-    {
-        id: 2,
-        name: '1000 Points',
-        points: 1000,
-        quantity: 2,
-        badge: '',
-        popular: false,
-        image: '/vendor/gift2.webp',
-        imageStyle: {}
-    },
-    {
-        id: 3,
-        name: '2000 Points',
-        points: 2000,
-        quantity: 4,
-        badge: '',
-        popular: false,
-        image: '/vendor/gift3.webp',
-        imageStyle: {}
-    },
-    {
-        id: 4,
-        name: '3000 Points',
-        points: 3000,
-        quantity: 6,
-        badge: '',
-        popular: false,
-        image: '/vendor/gift1.webp',
-        imageStyle: { filter: 'hue-rotate(90deg)' }
-    },
-    {
-        id: 5,
-        name: '4000 Points',
-        points: 4000,
-        quantity: 8,
-        badge: 'PALING LARIS!',
-        popular: true,
-        image: '/vendor/gift3.webp',
-        imageStyle: { filter: 'hue-rotate(90deg)' }
-    },
-    {
-        id: 6,
-        name: '5000 Points',
-        points: 5000,
-        quantity: 10,
-        badge: '',
-        popular: false,
-        image: '/vendor/gift1.webp',
-        imageStyle: { filter: 'hue-rotate(270deg)' }
-    },
-    {
-        id: 7,
-        name: '6000 Points',
-        points: 6000,
-        quantity: 12,
-        badge: '',
-        popular: false,
-        image: '/vendor/gift3.webp',
-        imageStyle: { filter: 'invert(10%) sepia(80%) saturate(1500%) hue-rotate(300deg)' }
-    },
-    {
-        id: 8,
-        name: '7000 Points',
-        points: 7000,
-        quantity: 14,
-        badge: '',
-        popular: false,
-        image: '/vendor/gift1.webp',
-        imageStyle: { filter: 'hue-rotate(45deg)' }
+        const dbSettings = settingsRows[0] || {
+            event_name: 'Store', discount_enabled: 0,
+            base_price_per_500: 5000, discounted_price_per_500: 4000
+        };
+
+        const products = productRows.map(p => {
+            const basePrice = p.quantity * dbSettings.base_price_per_500;
+            const currentPrice = dbSettings.discount_enabled ? (p.quantity * dbSettings.discounted_price_per_500) : basePrice;
+
+            return {
+                ...p,
+                imageStyle: { filter: p.image_filter || '' },
+                originalPrice: `Rp ${basePrice.toLocaleString('id-ID')}`,
+                price: `Rp ${currentPrice.toLocaleString('id-ID')}`
+            };
+        });
+
+        return {
+            props: {
+                storeSettings: JSON.parse(JSON.stringify(dbSettings)),
+                storeProducts: JSON.parse(JSON.stringify(products))
+            }
+        }
+    } catch (e) {
+        console.error(e)
+        return {
+            props: {
+                storeSettings: { event_name: 'Error', discount_enabled: 0 },
+                storeProducts: []
+            }
+        }
     }
-].map(product => {
-    // Menghitung harga asli dan harga diskon berdasarkan quantity (banyaknya per 500 points)
-    const basePrice = product.quantity * basePricePer500Points;
-    const currentPrice = discountEnabled ? (product.quantity * discountedPricePer500Points) : basePrice;
+}
 
-    return {
-        ...product,
-        originalPrice: `Rp ${basePrice.toLocaleString('id-ID')}`,
-        price: `Rp ${currentPrice.toLocaleString('id-ID')}`
-    };
-});
-
-export default function Store() {
+export default function Store({ storeSettings, storeProducts }) {
+    const { event_name: event, discount_enabled: discountEnabled } = storeSettings || {};
+    const products = storeProducts || [];
     const [username, setUsername] = useState('')
     const [referral, setReferral] = useState('')
     const [platform, setPlatform] = useState('java')
@@ -512,7 +459,7 @@ export default function Store() {
 
                     {/* Store Header */}
                     <div className="flex flex-col gap-4 mb-8">
-                        {discountEnabled && event && (
+                        {Boolean(discountEnabled) && event && (
                             <div className="mc-card p-6 sm:p-8 overflow-hidden relative" style={{ background: 'linear-gradient(135deg, var(--brand-primary), var(--brand-secondary))', border: 'none' }}>
                                 {/* Background Effects */}
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-black opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
