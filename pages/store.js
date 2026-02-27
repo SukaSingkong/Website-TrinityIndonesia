@@ -170,10 +170,10 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
         }
 
         try {
-            const response = await fetch("https://trinityid-data.vercel.app/validate", {
+            const response = await fetch("/api/validate-player", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: finalUsername, platform })
+                body: JSON.stringify({ username: finalUsername })
             })
             const data = await response.json()
 

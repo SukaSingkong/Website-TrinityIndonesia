@@ -1,4 +1,4 @@
-import { getDbConnection } from '../../lib/db';
+import { getLbDbConnection } from '../../lib/lbdb';
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const db = await getDbConnection();
+        const db = await getLbDbConnection();
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
