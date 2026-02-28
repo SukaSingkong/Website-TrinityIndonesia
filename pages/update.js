@@ -1,9 +1,8 @@
 import { Wrapper } from '@layer/components/layout/Wrapper.jsx'
 import { Icons } from '@layer/components/elements/Icons.jsx'
-import Image from 'next/image'
 import config from '@layer/theme.config'
-import updatesData from '@layer/settings/updates.json'
 import { useState } from "react"
+import { getDbConnection } from '@layer/lib/db'
 
 function UpdateAccordion({ title, content, type }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +17,13 @@ function UpdateAccordion({ title, content, type }) {
     const accentColor = style ? style.color : 'var(--brand-secondary)';
     const iconBg = style && isOpen ? style.bg : (isOpen ? 'var(--brand-secondary)' : '#f0edf4');
     const iconColor = style && isOpen ? style.color : (isOpen ? '#fff' : 'var(--text-muted)');
+
+    let parsedContent = [];
+    try {
+        parsedContent = typeof content === 'string' ? JSON.parse(content) : content;
+    } catch (e) {
+        parsedContent = content || [];
+    }
 
     return (
         <div className={`mc-accordion ${isOpen ? 'open' : ''}`}
@@ -46,7 +52,7 @@ function UpdateAccordion({ title, content, type }) {
                 <div className="overflow-hidden">
                     <div className="px-5 pb-5 pt-0">
                         <div className="ml-14 space-y-3 border-l-2 pl-4" style={{ borderColor: style ? style.border : 'rgba(226, 110, 16, 0.2)' }}>
-                            {content.map((item, i) => {
+                            {Array.isArray(parsedContent) ? parsedContent.map((item, i) => {
                                 // Dynamic coloring for the symbol (+, -, *, dll)
                                 let symbolColor = accentColor;
                                 if (item.num === '+') symbolColor = '#16a34a'; // Green for added
@@ -61,7 +67,7 @@ function UpdateAccordion({ title, content, type }) {
                                         <span>{item.text}</span>
                                     </div>
                                 )
-                            })}
+                            }) : null}
                         </div>
                     </div>
                 </div>
@@ -70,7 +76,7 @@ function UpdateAccordion({ title, content, type }) {
     );
 }
 
-export default function Update() {
+export default function Update({ groupedUpdates }) {
     return (
         <Wrapper
             title="Update & Patch Notes"
@@ -89,7 +95,7 @@ export default function Update() {
 
             {/* Update Logs Grouped by Month */}
             <div className="flex flex-col mb-12 space-y-8">
-                {updatesData.map((monthGroup, i) => (
+                {groupedUpdates.length > 0 ? groupedUpdates.map((monthGroup, i) => (
                     <div key={i} className="space-y-4">
                         {/* Month Separator */}
                         <div className="flex items-center gap-4">
@@ -106,8 +112,47 @@ export default function Update() {
                             ))}
                         </div>
                     </div>
-                ))}
+                )) : (
+                    <div className="text-center p-8 mc-card" style={{ background: 'rgba(232,224,240,0.5)' }}>
+                        <p className="font-bold text-sm" style={{ color: 'var(--text-muted)' }}>Belum ada log patch notes saat ini.</p>
+                    </div>
+                )}
             </div>
         </Wrapper>
     )
+}
+
+export async function getServerSideProps() {
+    try {
+        const pool = await getDbConnection()
+        const [rows] = await pool.query('SELECT * FROM store_updates ORDER BY created_at DESC')
+
+        // Serialize output for NextJS 
+        const stringifiedRows = rows.map(r => ({
+            ...r,
+            content: typeof r.content === 'string' ? JSON.parse(r.content) : r.content,
+            created_at: r.created_at.toISOString()
+        }))
+
+        // Group by month
+        const groups = {};
+        for (const item of stringifiedRows) {
+            if (!groups[item.month_group]) groups[item.month_group] = [];
+            groups[item.month_group].push(item);
+        }
+
+        const groupedArray = Object.keys(groups).map(k => ({
+            month: k,
+            logs: groups[k]
+        }))
+
+        return {
+            props: { groupedUpdates: groupedArray }
+        }
+    } catch (e) {
+        console.error("Failed fetching updates:", e)
+        return {
+            props: { groupedUpdates: [] }
+        }
+    }
 }

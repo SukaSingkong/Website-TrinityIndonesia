@@ -1,6 +1,32 @@
+// Store rate limit data in memory. Since this is a simple API route, 
+// a global Map is sufficient for basic protection against spamming.
+const rateLimitCache = new Map();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 5; // Max 5 checkout attempts per IP per minute
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' })
+    }
+
+    // Basic Rate Limiting check based on IP Address
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown';
+    const currentTime = Date.now();
+
+    if (rateLimitCache.has(ip)) {
+        const data = rateLimitCache.get(ip);
+        if (currentTime - data.timestamp < RATE_LIMIT_WINDOW_MS) {
+            if (data.count >= MAX_REQUESTS_PER_WINDOW) {
+                return res.status(429).json({ message: 'Terlalu banyak permintaan. Silakan tunggu beberapa saat lagi.' });
+            }
+            data.count += 1;
+            rateLimitCache.set(ip, data);
+        } else {
+            // Reset counter if window has passed
+            rateLimitCache.set(ip, { count: 1, timestamp: currentTime });
+        }
+    } else {
+        rateLimitCache.set(ip, { count: 1, timestamp: currentTime });
     }
 
     const apiKey = process.env.TAKO_API_KEY;

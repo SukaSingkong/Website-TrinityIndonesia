@@ -112,6 +112,18 @@ export default async function handler(req, res) {
             }
         }
 
+        // Create Updates table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS store_updates (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                month_group VARCHAR(100),
+                title VARCHAR(200),
+                type VARCHAR(50),
+                content JSON,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         res.status(200).json({ message: 'Database Setup Complete!' })
     } catch (e) {
         console.error(e)

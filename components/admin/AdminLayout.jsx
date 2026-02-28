@@ -9,6 +9,7 @@ const navItems = [
     { name: 'Dashboard', path: '/admin', icon: 'Home' },
     { name: 'Purchase Logs', path: '/admin/purchases', icon: 'Clipboard' },
     { name: 'Products & Commands', path: '/admin/products', icon: 'ShoppingBag' },
+    { name: 'Server Updates', path: '/admin/updates', icon: 'Sparkles' },
     { name: 'Store Settings', path: '/admin/settings', icon: 'Cog' },
 ]
 
@@ -16,6 +17,7 @@ const pageIcons = {
     '/admin': Icons.Home,
     '/admin/products': Icons.ShoppingBag,
     '/admin/purchases': Icons.Clipboard,
+    '/admin/updates': Icons.Sparkles,
     '/admin/settings': Icons.Cog,
 }
 

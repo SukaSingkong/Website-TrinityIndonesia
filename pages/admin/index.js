@@ -13,16 +13,16 @@ function SalesChart({ data }) {
         )
     }
 
-    const maxVal = Math.max(...data.map(d => d.total_transactions), 1)
+    const maxVal = Math.max(...data.map(d => d.rupiah_value), 1)
 
     return (
         <div className="flex items-end gap-1.5 h-52 pt-4">
             {data.map((d, i) => {
-                const h = Math.max((d.total_transactions / maxVal) * 100, 4)
+                const h = Math.max((d.rupiah_value / maxVal) * 100, 4)
                 const dateObj = new Date(d.date)
                 const dayLabel = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
                 return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
+                    <div key={i} className="flex-1 flex flex-col items-center justify-end gap-1 group relative h-full">
                         {/* Tooltip */}
                         <div className="absolute -top-16 left-1/2 -translate-x-1/2 px-3 py-2 rounded-lg text-xs font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10"
                             style={{ background: 'rgba(42,30,58,0.95)', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
