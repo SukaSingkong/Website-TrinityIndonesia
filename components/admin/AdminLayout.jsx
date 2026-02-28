@@ -11,6 +11,7 @@ const navItems = [
     { name: 'Products & Commands', path: '/admin/products', icon: 'ShoppingBag' },
     { name: 'Server Updates', path: '/admin/updates', icon: 'Sparkles' },
     { name: 'Store Settings', path: '/admin/settings', icon: 'Cog' },
+    { name: 'Withdrawal', path: 'https://tako.id/c/TrinityIndonesia/withdrawal', icon: 'Cash', isExternal: true },
 ]
 
 const pageIcons = {
@@ -70,18 +71,35 @@ export default function AdminLayout({ children, title }) {
                         {navItems.map((item) => {
                             const isActive = router.pathname === item.path
                             const IconComp = Icons[item.icon]
+                            const commonClasses = `flex items-center gap-3 px-4 py-3 text-sm font-extrabold rounded-xl transition-all duration-300 ${isActive
+                                ? 'text-white shadow-md'
+                                : 'hover:bg-[#ece8f2] hover:text-[#1c1917]'
+                                }`
+                            const commonStyles = isActive
+                                ? { background: '#E26E10', color: '#fff', boxShadow: '0 4px 14px rgba(226,110,16,0.35)' }
+                                : { color: '#6b5e7b' }
+
+                            if (item.isExternal) {
+                                return (
+                                    <a
+                                        key={item.name}
+                                        href={item.path}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={commonClasses}
+                                        style={commonStyles}
+                                    >
+                                        <span style={{ color: isActive ? '#fff' : '#9b8fb0' }}><IconComp className="w-[18px] h-[18px] flex-shrink-0" /></span>
+                                        {item.name}
+                                    </a>
+                                )
+                            }
                             return (
                                 <Link
                                     key={item.path}
                                     href={item.path}
-                                    className={`flex items-center gap-3 px-4 py-3 text-sm font-extrabold rounded-xl transition-all duration-300 ${isActive
-                                        ? 'text-white shadow-md'
-                                        : 'hover:bg-[#ece8f2] hover:text-[#1c1917]'
-                                        }`}
-                                    style={isActive
-                                        ? { background: '#E26E10', color: '#fff', boxShadow: '0 4px 14px rgba(226,110,16,0.35)' }
-                                        : { color: '#6b5e7b' }
-                                    }
+                                    className={commonClasses}
+                                    style={commonStyles}
                                 >
                                     <span style={{ color: isActive ? '#fff' : '#9b8fb0' }}><IconComp className="w-[18px] h-[18px] flex-shrink-0" /></span>
                                     {item.name}
