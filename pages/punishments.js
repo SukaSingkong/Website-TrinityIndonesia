@@ -154,9 +154,49 @@ export default function Punishments() {
             {/* Content Card */}
             <div className="mc-content-card">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--brand-secondary)' }}></div>
-                        <p className="mt-4 font-bold" style={{ color: 'var(--text-muted)' }}>Memuat data hukuman...</p>
+                    <div className="w-full rounded-xl flex flex-col pt-2 animate-pulse">
+                        <table className="w-full text-left border-collapse table-fixed">
+                            <thead>
+                                <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                                    <th className="px-5 py-4 w-[20%]">
+                                        <div className="h-3 bg-gray-200 rounded w-16"></div>
+                                    </th>
+                                    <th className="px-5 py-4 w-[18%]">
+                                        <div className="h-3 bg-gray-200 rounded w-16"></div>
+                                    </th>
+                                    <th className="px-5 py-4 w-[42%]">
+                                        <div className="h-3 bg-gray-200 rounded w-16"></div>
+                                    </th>
+                                    <th className="px-5 py-4 w-[20%]">
+                                        <div className="h-3 bg-gray-200 rounded w-20 ml-auto"></div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 bg-white">
+                                {[...Array(6)].map((_, i) => (
+                                    <tr key={i}>
+                                        <td className="px-5 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-9 h-9 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                                                <div className="h-4 bg-gray-200 rounded w-20"></div>
+                                            </div>
+                                        </td>
+                                        <td className="px-5 py-4">
+                                            <div className="h-3 bg-gray-200 rounded w-24"></div>
+                                        </td>
+                                        <td className="px-5 py-4">
+                                            <div className="h-3 bg-gray-200 rounded w-full max-w-[200px]"></div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col items-end gap-1.5">
+                                                <div className="h-4 bg-gray-200 rounded w-24"></div>
+                                                <div className="h-3 bg-gray-200 rounded w-16"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 ) : punishments.length === 0 && !error ? (
                     <div className="py-12 text-center rounded-xl" style={{ backgroundColor: '#f9fafb', border: '1px dashed #e5e7eb' }}>

@@ -3,7 +3,6 @@ import { Icons } from '@layer/components/elements/Icons.jsx'
 import { useEffect, useState } from "react"
 import { useRouter } from 'next/router'
 import config from '@layer/theme.config'
-import { getDbConnection } from '@layer/lib/db'
 
 function CountdownTimer({ targetDate }) {
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -50,92 +49,20 @@ function CountdownTimer({ targetDate }) {
     );
 }
 
-export async function getServerSideProps() {
-    try {
-        const pool = await getDbConnection();
-        const [settingsRows] = await pool.query('SELECT * FROM store_settings LIMIT 1');
-        const [productRows] = await pool.query('SELECT * FROM store_products ORDER BY id ASC');
+export default function Store() {
+    const [storeData, setStoreData] = useState(null)
+    const [isFetching, setIsFetching] = useState(true)
 
-        const [topSupporterRows] = await pool.query(`
-            SELECT player_name, SUM(points_purchased) as total_points
-            FROM store_purchases
-            WHERE status = 'success' AND MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())
-            GROUP BY player_name
-            ORDER BY total_points DESC
-            LIMIT 1
-        `);
-
-        const [topSupporterAllTimeRows] = await pool.query(`
-            SELECT player_name, SUM(points_purchased) as total_points
-            FROM store_purchases
-            WHERE status = 'success'
-            GROUP BY player_name
-            ORDER BY total_points DESC
-            LIMIT 1
-        `);
-
-        const [recentPaymentRows] = await pool.query(`
-            SELECT player_name, MAX(created_at) as latest_purchase
-            FROM store_purchases
-            WHERE status = 'success'
-            GROUP BY player_name
-            ORDER BY latest_purchase DESC
-            LIMIT 10
-        `);
-
-        const dbSettings = settingsRows[0] || {
-            event_name: 'Store', discount_enabled: 0,
-            base_price_per_500: 5000, discounted_price_per_500: 4000
-        };
-
-        const products = productRows.map(p => {
-            const basePrice = p.quantity * dbSettings.base_price_per_500;
-            const currentPrice = dbSettings.discount_enabled ? (p.quantity * dbSettings.discounted_price_per_500) : basePrice;
-
-            return {
-                ...p,
-                imageStyle: { filter: p.image_filter || '' },
-                originalPrice: `Rp ${basePrice.toLocaleString('id-ID')}`,
-                price: `Rp ${currentPrice.toLocaleString('id-ID')}`
-            };
-        });
-
-        return {
-            props: {
-                storeSettings: JSON.parse(JSON.stringify(dbSettings)),
-                storeProducts: JSON.parse(JSON.stringify(products)),
-                topSupporter: topSupporterRows.length > 0 ? topSupporterRows[0].player_name : null,
-                topSupporterPoints: topSupporterRows.length > 0 ? topSupporterRows[0].total_points : null,
-                topSupporterAllTime: topSupporterAllTimeRows.length > 0 ? topSupporterAllTimeRows[0].player_name : null,
-                topSupporterAllTimePoints: topSupporterAllTimeRows.length > 0 ? topSupporterAllTimeRows[0].total_points : null,
-                recentPayments: recentPaymentRows.map(r => r.player_name)
-            }
-        }
-    } catch (e) {
-        console.error(e)
-        return {
-            props: {
-                storeSettings: { event_name: 'Error', discount_enabled: 0 },
-                storeProducts: [],
-                topSupporter: null,
-                topSupporterPoints: null,
-                topSupporterAllTime: null,
-                topSupporterAllTimePoints: null,
-                recentPayments: []
-            }
-        }
-    }
-}
-
-export default function Store({ storeSettings, storeProducts, topSupporter, topSupporterPoints, topSupporterAllTime, topSupporterAllTimePoints, recentPayments }) {
+    const { storeSettings, storeProducts, topSupporter, topSupporterPoints, topSupporterAllTime, topSupporterAllTimePoints, recentPayments } = storeData || {};
     const { event_name: event, discount_enabled: discountEnabled } = storeSettings || {};
     const products = storeProducts || [];
+
     const [username, setUsername] = useState('')
     const [referral, setReferral] = useState('')
     const [platform, setPlatform] = useState('java')
     const [loggedIn, setLoggedIn] = useState(false)
     const [savedUsername, setSavedUsername] = useState('')
-    const [isLoading, setIsLoading] = useState(true)
+    const [isProcessing, setIsProcessing] = useState(false)
     const [error, setError] = useState('')
     const [toastVisible, setToastVisible] = useState(false)
     const [toastMsg, setToastMsg] = useState('')
@@ -165,7 +92,19 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
             setSavedUsername(stored)
             setLoggedIn(true)
         }
-        setTimeout(() => setIsLoading(false), 500)
+
+        async function fetchStore() {
+            try {
+                const res = await fetch('/api/store')
+                const data = await res.json()
+                setStoreData(data)
+            } catch (err) {
+                console.error("Failed to load store data", err)
+            } finally {
+                setIsFetching(false)
+            }
+        }
+        fetchStore()
 
         if (router.query.status === 'success') {
             const merchantRef = router.query.tripay_merchant_ref || ''
@@ -189,12 +128,12 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
     async function handleLogin(e) {
         e.preventDefault()
         setError('')
-        setIsLoading(true)
+        setIsProcessing(true)
 
         let finalUsername = username.trim()
         if (finalUsername.includes(".")) {
             setError("Username tidak boleh mengandung karakter titik (.)")
-            setIsLoading(false)
+            setIsProcessing(false)
             return
         }
 
@@ -209,12 +148,12 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
                 const refData = await refResponse.json()
                 if (!refData.success) {
                     setError("Kode referral tidak ditemukan.")
-                    setIsLoading(false)
+                    setIsProcessing(false)
                     return
                 }
             } catch {
                 setError("Gagal memverifikasi referral code. Coba lagi nanti.")
-                setIsLoading(false)
+                setIsProcessing(false)
                 return
             }
         }
@@ -262,7 +201,7 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
             return
         }
 
-        setIsLoading(true)
+        setIsProcessing(true)
 
         // Hitung harga sebenarnya
         const quantity = selectedProduct.quantity
@@ -292,7 +231,7 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
         } catch (error) {
             toast("Terjadi kesalahan sistem saat memproses pembayaran.");
         } finally {
-            setIsLoading(false)
+            setIsProcessing(false)
         }
     }
 
@@ -320,8 +259,7 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
                 </div>
             </div>
 
-            {/* Loading Overlay */}
-            {isLoading && (
+            {isProcessing && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm">
                     <div className="w-12 h-12 border-4 rounded-full animate-spin" style={{ borderColor: 'rgba(226, 110, 16, 0.2)', borderTopColor: 'var(--brand-secondary)' }} />
                 </div>
@@ -463,10 +401,10 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
                                         {/* Submit Button */}
                                         <button
                                             type="submit"
-                                            disabled={isLoading}
+                                            disabled={isProcessing}
                                             className="w-full glow-button font-extrabold py-4 rounded-xl text-white disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            {isLoading ? 'Memproses...' : 'Login & Lanjutkan'}
+                                            {isProcessing ? 'Memproses...' : 'Login & Lanjutkan'}
                                         </button>
                                     </form>
                                     <p className="mt-4 text-xs text-center" style={{ color: 'var(--text-muted)' }}>
@@ -600,273 +538,314 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
                 </div>
             )}
 
-            {/* Store Header - Full Width */}
-            <div className="flex flex-col gap-4 mb-6">
-
-
-                {Boolean(discountEnabled) && event && (
-                    <div
-                        className="mc-card p-6 sm:p-8 overflow-hidden relative"
-                        style={{
-                            background: 'var(--brand-secondary)',
-                            backgroundImage: storeSettings.popup_bg_image ? `url(${storeSettings.popup_bg_image})` : 'none',
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            border: 'none'
-                        }}
-                    >
-                        {/* Overlay for readability when using bg image */}
-                        {storeSettings.popup_bg_image && (
-                            <div className="absolute inset-0 bg-black/40"></div>
-                        )}
-                        {/* Background Effects */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-black opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
-                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-black opacity-10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4"></div>
-
-                        <div className="relative z-10 flex flex-row items-center justify-between gap-6">
-                            <div className="flex-1">
-                                <h2 className="text-3xl md:text-5xl font-black text-white mb-3" style={{ textShadow: '0 4px 12px rgba(0,0,0,0.4)' }}>
-                                    {storeSettings.popup_title || `SPESIAL EVENT ${event.toUpperCase()}!`}
-                                </h2>
-                                <p className="text-white font-bold text-sm md:text-lg leading-relaxed" style={{ textShadow: '0 2px 6px rgba(0,0,0,0.4)' }}>
-                                    {storeSettings.popup_subtitle || (
-                                        <>Nikmati diskon eksklusif sebesar <strong className="text-[#FFE066] font-black bg-black/20 px-2 py-1 rounded-md shadow-inner">{storeSettings.popup_discount_text || '20%'}</strong> untuk semua pembelian Points selama event berlangsung.</>
-                                    )}
-                                </p>
-                                {storeSettings.discount_timer && <CountdownTimer targetDate={storeSettings.discount_timer} />}
-                            </div>
-                            <div className="flex-shrink-0">
-                                <img
-                                    src="/vendor/mascot.webp"
-                                    alt="Event Mascot"
-                                    className="h-24 sm:h-40 object-contain hover:scale-110 transition-transform duration-300"
-                                    style={{ filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.5))' }}
-                                />
+            {isFetching ? (
+                <>
+                    {/* Skeleton Banner */}
+                    <div className="flex flex-col gap-4 mb-6">
+                        <div className="mc-card p-6 sm:p-8 h-48 md:h-56 overflow-hidden relative" style={{ background: '#f5f3f8' }}>
+                            <div className="animate-pulse w-full h-full flex flex-row items-center justify-between">
+                                <div className="flex-1 space-y-4 max-w-md">
+                                    <div className="h-10 bg-gray-200 rounded-lg w-3/4"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                                    <div className="h-10 bg-gray-200 rounded-lg w-48 mt-8"></div>
+                                </div>
+                                <div className="w-32 h-32 md:w-40 md:h-40 bg-gray-200 rounded-full flex-shrink-0 ml-6 hidden sm:block"></div>
                             </div>
                         </div>
                     </div>
-                )}
 
-                <div className="mc-content-card">
-                    <h2 className="text-2xl font-extrabold mb-2" style={{ color: 'var(--text-primary)' }}>
-                        Dukung Server Kami
-                    </h2>
-                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                        Semua hasil pembelian di store akan digunakan untuk biaya sewa server, maintanance,
-                        dan juga pengembangan server agar menjadi tempat bermain yang lebih baik untuk kita semua.
-                        Terima kasih atas dukunganmu!
-                    </p>
-                </div>
-            </div>
-
-            {/* Main Grid: Left Sidebar + Products */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 xl:gap-8 relative items-start">
-
-                {/* Left Sidebar (Top Supporter Monthly & Recent Payments + All Time) */}
-                <div className="lg:col-span-1 flex flex-col gap-6 order-2 lg:order-1">
-                    <div className="mc-card p-5 flex flex-col gap-5 relative overflow-hidden" style={{ background: 'var(--bg-card)' }}>
-                        {/* Decorative glow */}
-                        <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" style={{ background: 'var(--brand-secondary)', opacity: 0.07 }}></div>
-
-                        {/* Top Supporter Pill */}
-                        <div className="rounded-xl py-3 px-4 flex items-center justify-center gap-3 relative z-10 mx-1" style={{ background: 'var(--brand-secondary)' }}>
-                            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21h18M5 18l-1-12 5 3 3-6 3 6 5-3-1 12H5z" />
-                            </svg>
-                            <span className="text-white font-extrabold text-sm tracking-widest uppercase mt-[2px] text-center">Top Supporter<br /><span className="text-[10px] opacity-80">(Monthly)</span></span>
+                    {/* Skeleton Main Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 xl:gap-8 relative items-start animate-pulse mb-8">
+                        <div className="lg:col-span-1 flex flex-col gap-6 order-2 lg:order-1">
+                            <div className="mc-card h-[280px] bg-[#f5f3f8]"></div>
+                            <div className="mc-card h-[240px] bg-[#f5f3f8]"></div>
                         </div>
-
-                        {topSupporter ? (
-                            <div className="flex items-center gap-4 px-2 mt-2 relative z-10">
-                                <div className="w-16 h-24 relative flex-shrink-0 flex items-start justify-center pl-1 overflow-hidden rounded-lg">
-                                    <img src={`https://mc-heads.net/body/${topSupporter}/100`} alt={topSupporter} className="max-w-none h-[140%] object-top drop-shadow-xl absolute top-0 left-1/2 -translate-x-1/2" />
-                                </div>
-                                <div className="flex flex-col py-2 self-start mt-2">
-                                    <h3 className="text-xl font-black tracking-tight truncate max-w-[120px]" style={{ color: 'var(--brand-secondary)' }} title={topSupporter}>{topSupporter}</h3>
-                                    <p className="text-[12px] font-bold mt-1 leading-snug" style={{ color: 'var(--text-muted)' }}>Top supporter bulan ini</p>
-                                    <p className="text-[10px] font-black tracking-wide mt-1 uppercase" style={{ color: 'var(--brand-secondary)' }}>{topSupporterPoints?.toLocaleString('id-ID')} Points</p>
-                                </div>
+                        <div className="lg:col-span-3 order-1 lg:order-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {[...Array(6)].map((_, i) => (
+                                    <div key={i} className="mc-card h-[380px] bg-[#f5f3f8] border-0 flex flex-col p-6 items-center">
+                                        <div className="w-32 h-32 bg-gray-200 rounded-xl mb-6 mt-4"></div>
+                                        <div className="h-8 w-24 bg-gray-200 rounded-lg mb-3"></div>
+                                        <div className="h-6 w-32 bg-gray-200 rounded mb-6"></div>
+                                        <div className="w-full h-12 bg-gray-200 rounded-xl mt-auto"></div>
+                                    </div>
+                                ))}
                             </div>
-                        ) : (
-                            <div className="py-8 text-center relative z-10">
-                                <p className="text-sm font-bold" style={{ color: 'var(--text-muted)' }}>Belum ada supporter bulan ini.</p>
+                        </div>
+                    </div>
+                </>
+            ) : (
+                <>
+                    {/* Store Header - Full Width */}
+                    <div className="flex flex-col gap-4 mb-6">
+
+
+                        {Boolean(discountEnabled) && event && (
+                            <div
+                                className="mc-card p-6 sm:p-8 overflow-hidden relative"
+                                style={{
+                                    background: 'var(--brand-secondary)',
+                                    backgroundImage: storeSettings.popup_bg_image ? `url(${storeSettings.popup_bg_image})` : 'none',
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    border: 'none'
+                                }}
+                            >
+                                {/* Overlay for readability when using bg image */}
+                                {storeSettings.popup_bg_image && (
+                                    <div className="absolute inset-0 bg-black/40"></div>
+                                )}
+                                {/* Background Effects */}
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-black opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
+                                <div className="absolute bottom-0 left-0 w-48 h-48 bg-black opacity-10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4"></div>
+
+                                <div className="relative z-10 flex flex-row items-center justify-between gap-6">
+                                    <div className="flex-1">
+                                        <h2 className="text-3xl md:text-5xl font-black text-white mb-3" style={{ textShadow: '0 4px 12px rgba(0,0,0,0.4)' }}>
+                                            {storeSettings.popup_title || `SPESIAL EVENT ${event.toUpperCase()}!`}
+                                        </h2>
+                                        <p className="text-white font-bold text-sm md:text-lg leading-relaxed" style={{ textShadow: '0 2px 6px rgba(0,0,0,0.4)' }}>
+                                            {storeSettings.popup_subtitle || (
+                                                <>Nikmati diskon eksklusif sebesar <strong className="text-[#FFE066] font-black bg-black/20 px-2 py-1 rounded-md shadow-inner">{storeSettings.popup_discount_text || '20%'}</strong> untuk semua pembelian Points selama event berlangsung.</>
+                                            )}
+                                        </p>
+                                        {storeSettings.discount_timer && <CountdownTimer targetDate={storeSettings.discount_timer} />}
+                                    </div>
+                                    <div className="flex-shrink-0">
+                                        <img
+                                            src="/vendor/mascot.webp"
+                                            alt="Event Mascot"
+                                            className="h-24 sm:h-40 object-contain hover:scale-110 transition-transform duration-300"
+                                            style={{ filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.5))' }}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         )}
 
-                        {/* Recent Payments Pill */}
-                        <div className="rounded-xl py-3 px-4 flex items-center justify-center gap-2 mt-1 relative z-10 mx-1" style={{ background: 'var(--brand-secondary)' }}>
-                            <svg className="w-5 h-5 text-white opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span className="text-white font-extrabold text-sm tracking-wide">Recent Payments</span>
+                        <div className="mc-content-card">
+                            <h2 className="text-2xl font-extrabold mb-2" style={{ color: 'var(--text-primary)' }}>
+                                Dukung Server Kami
+                            </h2>
+                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                                Semua hasil pembelian di store akan digunakan untuk biaya sewa server, maintanance,
+                                dan juga pengembangan server agar menjadi tempat bermain yang lebih baik untuk kita semua.
+                                Terima kasih atas dukunganmu!
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Main Grid: Left Sidebar + Products */}
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 xl:gap-8 relative items-start">
+
+                        {/* Left Sidebar (Top Supporter Monthly & Recent Payments + All Time) */}
+                        <div className="lg:col-span-1 flex flex-col gap-6 order-2 lg:order-1">
+                            <div className="mc-card p-5 flex flex-col gap-5 relative overflow-hidden" style={{ background: 'var(--bg-card)' }}>
+                                {/* Decorative glow */}
+                                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" style={{ background: 'var(--brand-secondary)', opacity: 0.07 }}></div>
+
+                                {/* Top Supporter Pill */}
+                                <div className="rounded-xl py-3 px-4 flex items-center justify-center gap-3 relative z-10 mx-1" style={{ background: 'var(--brand-secondary)' }}>
+                                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21h18M5 18l-1-12 5 3 3-6 3 6 5-3-1 12H5z" />
+                                    </svg>
+                                    <span className="text-white font-extrabold text-sm tracking-widest uppercase mt-[2px] text-center">Top Supporter<br /><span className="text-[10px] opacity-80">(Monthly)</span></span>
+                                </div>
+
+                                {topSupporter ? (
+                                    <div className="flex items-center gap-4 px-2 mt-2 relative z-10">
+                                        <div className="w-16 h-24 relative flex-shrink-0 flex items-start justify-center pl-1 overflow-hidden rounded-lg">
+                                            <img src={`https://mc-heads.net/body/${topSupporter}/100`} alt={topSupporter} className="max-w-none h-[140%] object-top drop-shadow-xl absolute top-0 left-1/2 -translate-x-1/2" />
+                                        </div>
+                                        <div className="flex flex-col py-2 self-start mt-2">
+                                            <h3 className="text-xl font-black tracking-tight truncate max-w-[120px]" style={{ color: 'var(--brand-secondary)' }} title={topSupporter}>{topSupporter}</h3>
+                                            <p className="text-[12px] font-bold mt-1 leading-snug" style={{ color: 'var(--text-muted)' }}>Top supporter bulan ini</p>
+                                            <p className="text-[10px] font-black tracking-wide mt-1 uppercase" style={{ color: 'var(--brand-secondary)' }}>{topSupporterPoints?.toLocaleString('id-ID')} Points</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="py-8 text-center relative z-10">
+                                        <p className="text-sm font-bold" style={{ color: 'var(--text-muted)' }}>Belum ada supporter bulan ini.</p>
+                                    </div>
+                                )}
+
+                                {/* Recent Payments Pill */}
+                                <div className="rounded-xl py-3 px-4 flex items-center justify-center gap-2 mt-1 relative z-10 mx-1" style={{ background: 'var(--brand-secondary)' }}>
+                                    <svg className="w-5 h-5 text-white opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span className="text-white font-extrabold text-sm tracking-wide">Recent Payments</span>
+                                </div>
+
+                                {/* Recent Payment Heads Grid */}
+                                <div className="grid grid-cols-5 gap-2.5 px-2 pb-1 relative z-10">
+                                    {recentPayments && recentPayments.length > 0 ? recentPayments.map((player, idx) => (
+                                        <div key={idx} className="relative group cursor-pointer z-10 hover:z-50">
+                                            <div className="aspect-square rounded-[10px] overflow-hidden border transition-colors shadow-sm group-hover:border-[var(--brand-secondary)]" style={{ background: '#f5f3f8', borderColor: '#e8e0f0' }}>
+                                                <img src={`https://mc-heads.net/avatar/${player}/64`} alt={player} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                                            </div>
+                                            <div
+                                                className="absolute top-0 left-1/2 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap pointer-events-none shadow-xl mt-[-5px]"
+                                                style={{ background: 'var(--brand-secondary)', transform: 'translate(-50%, -100%)' }}
+                                            >
+                                                {player}
+                                                <div className="absolute top-full left-1/2 -translate-x-1/2 border-[4px] border-transparent" style={{ borderTopColor: 'var(--brand-secondary)' }}></div>
+                                            </div>
+                                        </div>
+                                    )) : (
+                                        <div className="col-span-5 text-center py-4">
+                                            <p className="text-xs font-bold" style={{ color: 'var(--text-muted)' }}>Belum ada pembelian.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Top Supporter All Time Box */}
+                            <div className="mc-card p-5 flex flex-col gap-5 relative overflow-hidden" style={{ background: 'var(--bg-card)' }}>
+                                {/* Decorative glow */}
+                                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" style={{ background: 'var(--brand-secondary)', opacity: 0.07 }}></div>
+
+                                {/* Top Supporter All Time Pill */}
+                                <div className="rounded-xl py-3 px-4 flex items-center justify-center gap-3 relative z-10 mx-1" style={{ background: 'var(--brand-secondary)' }}>
+                                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                    </svg>
+                                    <span className="text-white font-extrabold text-sm tracking-widest uppercase mt-[2px] text-center">Top Supporter<br /><span className="text-[10px] opacity-80">(All Time)</span></span>
+                                </div>
+
+                                {topSupporterAllTime ? (
+                                    <div className="flex items-center gap-4 px-2 mt-2 relative z-10">
+                                        <div className="w-16 h-24 relative flex-shrink-0 flex items-start justify-center pl-1 overflow-hidden rounded-lg">
+                                            <img src={`https://mc-heads.net/body/${topSupporterAllTime}/100`} alt={topSupporterAllTime} className="max-w-none h-[140%] object-top drop-shadow-xl absolute top-0 left-1/2 -translate-x-1/2" />
+                                        </div>
+                                        <div className="flex flex-col py-2 self-start mt-2">
+                                            <h3 className="text-xl font-black tracking-tight truncate max-w-[120px]" style={{ color: 'var(--brand-secondary)' }} title={topSupporterAllTime}>{topSupporterAllTime}</h3>
+                                            <p className="text-[12px] font-bold mt-1 leading-snug" style={{ color: 'var(--text-muted)' }}>Top supporter sepanjang masa</p>
+                                            <p className="text-[10px] font-black tracking-wide mt-1 uppercase" style={{ color: 'var(--brand-secondary)' }}>{topSupporterAllTimePoints?.toLocaleString('id-ID')} Points</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="py-8 text-center relative z-10">
+                                        <p className="text-sm font-bold" style={{ color: 'var(--text-muted)' }}>Belum ada supporter.</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
-                        {/* Recent Payment Heads Grid */}
-                        <div className="grid grid-cols-5 gap-2.5 px-2 pb-1 relative z-10">
-                            {recentPayments && recentPayments.length > 0 ? recentPayments.map((player, idx) => (
-                                <div key={idx} className="relative group cursor-pointer z-10 hover:z-50">
-                                    <div className="aspect-square rounded-[10px] overflow-hidden border transition-colors shadow-sm group-hover:border-[var(--brand-secondary)]" style={{ background: '#f5f3f8', borderColor: '#e8e0f0' }}>
-                                        <img src={`https://mc-heads.net/avatar/${player}/64`} alt={player} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                                    </div>
+                        {/* Products Grid */}
+                        <div className="lg:col-span-3 order-1 lg:order-2" id="products-grid">
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {paginatedProducts.map((product) => (
                                     <div
-                                        className="absolute top-0 left-1/2 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap pointer-events-none shadow-xl mt-[-5px]"
-                                        style={{ background: 'var(--brand-secondary)', transform: 'translate(-50%, -100%)' }}
+                                        key={product.id}
+                                        className={`mc-card relative overflow-hidden transition-all duration-300 hover:-translate-y-1`}
+                                        style={product.popular ? { border: '2px solid var(--brand-secondary)' } : {}}
                                     >
-                                        {player}
-                                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-[4px] border-transparent" style={{ borderTopColor: 'var(--brand-secondary)' }}></div>
+                                        {/* Badge */}
+                                        {product.badge && (
+                                            <div
+                                                className="absolute top-0 right-0 font-black text-[10px] tracking-wider py-1.5 px-4 z-10"
+                                                style={product.popular
+                                                    ? { background: 'var(--brand-secondary)', color: 'white', borderBottomLeftRadius: '12px' }
+                                                    : { background: '#f5f3f8', color: 'var(--text-muted)', borderBottomLeftRadius: '12px' }
+                                                }
+                                            >
+                                                {product.badge}
+                                            </div>
+                                        )}
+
+                                        {/* Content */}
+                                        <div className="p-6 flex flex-col items-center">
+                                            {/* Image */}
+                                            <div className="mb-4 w-32 h-32 relative flex items-center justify-center">
+                                                <img
+                                                    src={product.image}
+                                                    alt={product.name}
+                                                    className="w-full h-full object-contain drop-shadow-xl"
+                                                    style={product.imageStyle}
+                                                />
+                                            </div>
+
+                                            {/* Points Amount */}
+                                            <div className="text-center mb-5">
+                                                <h3 className="text-3xl font-black" style={{ color: 'var(--text-primary)' }}>
+                                                    {product.points === 500 ? (
+                                                        <>
+                                                            {product.points.toLocaleString('id-ID')}
+                                                            <br />
+                                                            <span style={{ color: 'var(--brand-secondary)' }}>POINTS</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            {product.points.toLocaleString('id-ID')} <span style={{ color: 'var(--brand-secondary)' }}>POINTS</span>
+                                                        </>
+                                                    )}
+                                                </h3>
+                                            </div>
+
+                                            {/* Price */}
+                                            <div className="text-center mb-5 w-full p-3 rounded-xl flex flex-col items-center justify-center gap-1" style={{ background: '#f5f3f8' }}>
+                                                {Boolean(discountEnabled) && (
+                                                    <p className="text-sm font-bold line-through opacity-60" style={{ color: 'var(--text-muted)' }}>
+                                                        {product.originalPrice}
+                                                    </p>
+                                                )}
+                                                <p className="text-2xl font-black" style={{ color: 'var(--brand-secondary)' }}>
+                                                    {product.price}
+                                                </p>
+                                            </div>
+
+                                            {/* Buy Button */}
+                                            <button
+                                                onClick={() => openPurchaseModal(product)}
+                                                className="w-full py-3 rounded-xl font-extrabold text-sm transition-all duration-300 text-white glow-button hover:shadow-lg"
+                                            >
+                                                BELI SEKARANG
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            )) : (
-                                <div className="col-span-5 text-center py-4">
-                                    <p className="text-xs font-bold" style={{ color: 'var(--text-muted)' }}>Belum ada pembelian.</p>
+                                ))}
+                            </div>
+
+                            {/* Pagination */}
+                            {totalPages > 1 && (
+                                <div className="flex items-center justify-center gap-2 mt-8">
+                                    <button
+                                        onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); document.getElementById('products-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
+                                        disabled={currentPage === 1}
+                                        className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                        style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid #e8e0f0' }}
+                                    >
+                                        ‹
+                                    </button>
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                        <button
+                                            key={page}
+                                            onClick={() => { setCurrentPage(page); document.getElementById('products-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
+                                            className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm transition-all"
+                                            style={currentPage === page
+                                                ? { background: 'var(--brand-secondary)', color: '#fff', boxShadow: '0 4px 12px rgba(226,110,16,0.3)' }
+                                                : { background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid #e8e0f0' }
+                                            }
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
+                                    <button
+                                        onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); document.getElementById('products-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
+                                        disabled={currentPage === totalPages}
+                                        className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                        style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid #e8e0f0' }}
+                                    >
+                                        ›
+                                    </button>
                                 </div>
                             )}
                         </div>
                     </div>
-
-                    {/* Top Supporter All Time Box */}
-                    <div className="mc-card p-5 flex flex-col gap-5 relative overflow-hidden" style={{ background: 'var(--bg-card)' }}>
-                        {/* Decorative glow */}
-                        <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" style={{ background: 'var(--brand-secondary)', opacity: 0.07 }}></div>
-
-                        {/* Top Supporter All Time Pill */}
-                        <div className="rounded-xl py-3 px-4 flex items-center justify-center gap-3 relative z-10 mx-1" style={{ background: 'var(--brand-secondary)' }}>
-                            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                            </svg>
-                            <span className="text-white font-extrabold text-sm tracking-widest uppercase mt-[2px] text-center">Top Supporter<br /><span className="text-[10px] opacity-80">(All Time)</span></span>
-                        </div>
-
-                        {topSupporterAllTime ? (
-                            <div className="flex items-center gap-4 px-2 mt-2 relative z-10">
-                                <div className="w-16 h-24 relative flex-shrink-0 flex items-start justify-center pl-1 overflow-hidden rounded-lg">
-                                    <img src={`https://mc-heads.net/body/${topSupporterAllTime}/100`} alt={topSupporterAllTime} className="max-w-none h-[140%] object-top drop-shadow-xl absolute top-0 left-1/2 -translate-x-1/2" />
-                                </div>
-                                <div className="flex flex-col py-2 self-start mt-2">
-                                    <h3 className="text-xl font-black tracking-tight truncate max-w-[120px]" style={{ color: 'var(--brand-secondary)' }} title={topSupporterAllTime}>{topSupporterAllTime}</h3>
-                                    <p className="text-[12px] font-bold mt-1 leading-snug" style={{ color: 'var(--text-muted)' }}>Top supporter sepanjang masa</p>
-                                    <p className="text-[10px] font-black tracking-wide mt-1 uppercase" style={{ color: 'var(--brand-secondary)' }}>{topSupporterAllTimePoints?.toLocaleString('id-ID')} Points</p>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="py-8 text-center relative z-10">
-                                <p className="text-sm font-bold" style={{ color: 'var(--text-muted)' }}>Belum ada supporter.</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Products Grid */}
-                <div className="lg:col-span-3 order-1 lg:order-2" id="products-grid">
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                        {paginatedProducts.map((product) => (
-                            <div
-                                key={product.id}
-                                className={`mc-card relative overflow-hidden transition-all duration-300 hover:-translate-y-1`}
-                                style={product.popular ? { border: '2px solid var(--brand-secondary)' } : {}}
-                            >
-                                {/* Badge */}
-                                {product.badge && (
-                                    <div
-                                        className="absolute top-0 right-0 font-black text-[10px] tracking-wider py-1.5 px-4 z-10"
-                                        style={product.popular
-                                            ? { background: 'var(--brand-secondary)', color: 'white', borderBottomLeftRadius: '12px' }
-                                            : { background: '#f5f3f8', color: 'var(--text-muted)', borderBottomLeftRadius: '12px' }
-                                        }
-                                    >
-                                        {product.badge}
-                                    </div>
-                                )}
-
-                                {/* Content */}
-                                <div className="p-6 flex flex-col items-center">
-                                    {/* Image */}
-                                    <div className="mb-4 w-32 h-32 relative flex items-center justify-center">
-                                        <img
-                                            src={product.image}
-                                            alt={product.name}
-                                            className="w-full h-full object-contain drop-shadow-xl"
-                                            style={product.imageStyle}
-                                        />
-                                    </div>
-
-                                    {/* Points Amount */}
-                                    <div className="text-center mb-5">
-                                        <h3 className="text-3xl font-black" style={{ color: 'var(--text-primary)' }}>
-                                            {product.points === 500 ? (
-                                                <>
-                                                    {product.points.toLocaleString('id-ID')}
-                                                    <br />
-                                                    <span style={{ color: 'var(--brand-secondary)' }}>POINTS</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {product.points.toLocaleString('id-ID')} <span style={{ color: 'var(--brand-secondary)' }}>POINTS</span>
-                                                </>
-                                            )}
-                                        </h3>
-                                    </div>
-
-                                    {/* Price */}
-                                    <div className="text-center mb-5 w-full p-3 rounded-xl flex flex-col items-center justify-center gap-1" style={{ background: '#f5f3f8' }}>
-                                        {Boolean(discountEnabled) && (
-                                            <p className="text-sm font-bold line-through opacity-60" style={{ color: 'var(--text-muted)' }}>
-                                                {product.originalPrice}
-                                            </p>
-                                        )}
-                                        <p className="text-2xl font-black" style={{ color: 'var(--brand-secondary)' }}>
-                                            {product.price}
-                                        </p>
-                                    </div>
-
-                                    {/* Buy Button */}
-                                    <button
-                                        onClick={() => openPurchaseModal(product)}
-                                        className="w-full py-3 rounded-xl font-extrabold text-sm transition-all duration-300 text-white glow-button hover:shadow-lg"
-                                    >
-                                        BELI SEKARANG
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                        <div className="flex items-center justify-center gap-2 mt-8">
-                            <button
-                                onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); document.getElementById('products-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
-                                disabled={currentPage === 1}
-                                className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid #e8e0f0' }}
-                            >
-                                ‹
-                            </button>
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                                <button
-                                    key={page}
-                                    onClick={() => { setCurrentPage(page); document.getElementById('products-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
-                                    className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm transition-all"
-                                    style={currentPage === page
-                                        ? { background: 'var(--brand-secondary)', color: '#fff', boxShadow: '0 4px 12px rgba(226,110,16,0.3)' }
-                                        : { background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid #e8e0f0' }
-                                    }
-                                >
-                                    {page}
-                                </button>
-                            ))}
-                            <button
-                                onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); document.getElementById('products-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
-                                disabled={currentPage === totalPages}
-                                className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid #e8e0f0' }}
-                            >
-                                ›
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </Wrapper >
+                </>
+            )}
+        </Wrapper>
     )
 }

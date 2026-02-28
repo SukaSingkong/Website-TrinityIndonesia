@@ -121,7 +121,39 @@ export default function AdminProducts() {
         fetchProducts()
     }
 
-    if (isLoading) return <AdminLayout title="Products & Commands">Memuat data...</AdminLayout>
+    if (isLoading) return (
+        <AdminLayout title="Kelola Products & Commands">
+            <div className="mb-6 flex items-center justify-between animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-32"></div>
+                <div className="h-10 bg-gray-200 rounded-xl w-36"></div>
+            </div>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 animate-pulse">
+                {[...Array(4)].map((_, i) => (
+                    <div key={i} className="mc-card p-6 flex flex-col gap-4 relative overflow-hidden">
+                        <div className="flex items-center gap-4 border-b pb-4" style={{ borderColor: 'var(--bg-body)' }}>
+                            <div className="w-16 h-16 bg-gray-200 rounded-xl"></div>
+                            <div className="flex-1 min-w-0 flex flex-col gap-2">
+                                <div className="h-6 bg-gray-200 rounded w-48"></div>
+                                <div className="h-4 bg-gray-200 rounded w-32"></div>
+                            </div>
+                            <div className="flex gap-2">
+                                <div className="w-9 h-9 bg-gray-200 rounded-lg"></div>
+                                <div className="w-9 h-9 bg-gray-200 rounded-lg"></div>
+                            </div>
+                        </div>
+                        <div className="rounded-xl p-4" style={{ background: 'var(--bg-body)' }}>
+                            <div className="h-4 bg-gray-200 rounded w-48 mb-4"></div>
+                            <div className="space-y-2 mb-4">
+                                <div className="h-10 bg-white rounded-xl border" style={{ borderColor: 'var(--bg-body)' }}></div>
+                                <div className="h-10 bg-white rounded-xl border" style={{ borderColor: 'var(--bg-body)' }}></div>
+                            </div>
+                            <div className="h-10 bg-gray-200 rounded-xl w-32 mt-2"></div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </AdminLayout>
+    )
 
     return (
         <AdminLayout title="Kelola Products & Commands">

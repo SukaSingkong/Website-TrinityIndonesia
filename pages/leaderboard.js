@@ -190,9 +190,19 @@ export default function Leaderboard() {
             {/* Content Area */}
             <div className="mc-content-card">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--brand-secondary)' }}></div>
-                        <p className="mt-4 font-bold" style={{ color: 'var(--text-muted)' }}>Memuat data leaderboard...</p>
+                    <div className="flex flex-col gap-3 animate-pulse">
+                        {[...Array(5)].map((_, index) => (
+                            <div key={index} className="flex items-center justify-between p-4 rounded-xl bg-white border border-gray-200">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-10 h-10 rounded-full bg-gray-200"></div>
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-8 h-8 rounded bg-gray-200"></div>
+                                        <div className="h-4 bg-gray-200 rounded w-24"></div>
+                                    </div>
+                                </div>
+                                <div className="h-4 bg-gray-200 rounded w-16"></div>
+                            </div>
+                        ))}
                     </div>
                 ) : error ? (
                     <div className="py-12 text-center rounded-xl" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca' }}>

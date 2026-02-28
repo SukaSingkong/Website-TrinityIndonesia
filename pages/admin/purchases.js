@@ -35,7 +35,51 @@ export default function AdminPurchases() {
         fetchPurchases()
     }
 
-    if (isLoading) return <AdminLayout title="Purchase Logs">Memuat data...</AdminLayout>
+    if (isLoading) return (
+        <AdminLayout title="Purchase Logs">
+            <div className="mc-card overflow-hidden border-0 shadow-lg relative z-10 bg-white">
+                <div className="p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4" style={{ borderBottom: '1px solid var(--bg-body)', background: 'rgba(232,224,240,0.3)' }}>
+                    <div>
+                        <div className="h-8 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-64 animate-pulse"></div>
+                    </div>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)' }} className="text-xs uppercase tracking-widest">
+                                <th className="p-5" style={{ borderBottom: '1px solid var(--bg-body)' }}><div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div></th>
+                                <th className="p-5" style={{ borderBottom: '1px solid var(--bg-body)' }}><div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div></th>
+                                <th className="p-5" style={{ borderBottom: '1px solid var(--bg-body)' }}><div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div></th>
+                                <th className="p-5" style={{ borderBottom: '1px solid var(--bg-body)' }}><div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div></th>
+                                <th className="p-5" style={{ borderBottom: '1px solid var(--bg-body)' }}><div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div></th>
+                                <th className="p-5" style={{ borderBottom: '1px solid var(--bg-body)' }}><div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div></th>
+                                <th className="p-5" style={{ borderBottom: '1px solid var(--bg-body)' }}><div className="h-4 bg-gray-200 rounded w-12 animate-pulse"></div></th>
+                            </tr>
+                        </thead>
+                        <tbody className="text-sm border-t-0 animate-pulse">
+                            {[...Array(5)].map((_, i) => (
+                                <tr key={i} style={{ borderBottom: '1px solid var(--bg-body)' }}>
+                                    <td className="p-5"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+                                    <td className="p-5">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 bg-gray-200 rounded-lg"></div>
+                                            <div className="h-4 bg-gray-200 rounded w-24"></div>
+                                        </div>
+                                    </td>
+                                    <td className="p-5"><div className="h-4 bg-gray-200 rounded w-32"></div></td>
+                                    <td className="p-5"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+                                    <td className="p-5"><div className="h-12 bg-gray-200 rounded w-48"></div></td>
+                                    <td className="p-5"><div className="h-6 bg-gray-200 rounded-xl w-20"></div></td>
+                                    <td className="p-5"><div className="w-8 h-8 bg-gray-200 rounded-lg"></div></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </AdminLayout>
+    )
 
     return (
         <AdminLayout title="Purchase Logs">
