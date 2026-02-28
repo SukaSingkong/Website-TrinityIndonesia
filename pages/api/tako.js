@@ -31,6 +31,12 @@ export default async function handler(req, res) {
         const payload = req.body;
         console.log("Incoming Tako Webhook payload:", payload);
 
+        // Handle Tako Webhook Test Notification
+        if (payload.test || payload.event === 'test' || !payload.amount) {
+            console.log("Received Tako test/invalid payload without amount. Returning 200 OK.");
+            return res.status(200).json({ success: true, message: "Webhook received successfully (test mode)" });
+        }
+
         // Tako provides name, amount, message, etc. based on the gift API specs.
         const supporterName = payload.name;
         const amount = parseFloat(payload.amount);
