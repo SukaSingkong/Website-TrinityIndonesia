@@ -44,7 +44,7 @@ export default function AdminPurchases() {
                     <div>
                         <h3 className="text-2xl font-black" style={{ color: 'var(--text-primary)' }}>Riwayat Pembelian</h3>
                         <p className="text-sm font-bold mt-2" style={{ color: 'var(--text-muted)' }}>
-                            Menampilkan {purchases.length} transaksi terbaru dari Trakteer (maks 100).
+                            Menampilkan {purchases.length} transaksi terbaru dari Tako (maks 100).
                         </p>
                     </div>
                     {purchases.length > 0 && (

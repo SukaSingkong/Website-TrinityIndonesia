@@ -325,7 +325,7 @@ export default function AdminProducts() {
                         <div className="relative z-10 rounded-xl p-4" style={{ background: 'var(--bg-body)' }}>
                             <h4 className="font-bold text-sm mb-3 flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
                                 <Icons.Terminal className="w-4 h-4" style={{ color: 'var(--brand-secondary)' }} />
-                                Commands to run on Trakteer Tip:
+                                Commands to run on Tako Gift:
                             </h4>
                             {product.commands && product.commands.length > 0 ? (
                                 <ul className="space-y-2 mb-4">

@@ -144,6 +144,7 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
     const [showPurchaseModal, setShowPurchaseModal] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState(null)
     const [agreedToTerms, setAgreedToTerms] = useState(false)
+    const [paymentMethod, setPaymentMethod] = useState('qris')
 
     // Pagination
     const PRODUCTS_PER_PAGE = 6
@@ -255,16 +256,44 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
         setShowPurchaseModal(true)
     }
 
-    function confirmPurchase() {
+    async function confirmPurchase() {
         if (!agreedToTerms) {
             toast("Silakan centang persetujuan syarat dan ketentuan!")
             return
         }
 
+        setIsLoading(true)
+
+        // Hitung harga sebenarnya
         const quantity = selectedProduct.quantity
-        const url = `https://trakteer.id/trinity-indonesia/tip/?open=true&step=2&quantity=${quantity}&display_name=${encodeURIComponent(savedUsername)}&unit=points`
-        window.open(url, 'trakteerPopup', 'width=500,height=700')
-        closePurchaseModal()
+        const { discount_enabled: discountEnabled, base_price_per_500: basePrice, discounted_price_per_500: discountPrice } = storeSettings || { discount_enabled: 0, base_price_per_500: 5000, discounted_price_per_500: 4000 };
+        const pricePerUnit = discountEnabled ? discountPrice : basePrice;
+        const totalAmount = quantity * pricePerUnit;
+
+        try {
+            const response = await fetch('/api/tako-checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: savedUsername,
+                    amount: totalAmount,
+                    paymentMethod: paymentMethod
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.paymentUrl) {
+                window.location.href = data.paymentUrl;
+                closePurchaseModal()
+            } else {
+                toast(data.message || "Gagal membuat link pembayaran Tako!");
+            }
+        } catch (error) {
+            toast("Terjadi kesalahan sistem saat memproses pembayaran.");
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     function closePurchaseModal() {
@@ -480,8 +509,8 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
                                                     <Icons.Ban className="h-5 w-5" style={{ color: '#dc2626' }} />
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-sm" style={{ color: '#dc2626' }}>JANGAN centang "Dukungan sebagai anonim"!</p>
-                                                    <p className="text-xs mt-1" style={{ color: '#b91c1c' }}>Jika kamu centang anonim, points tidak akan terkirim karena nickname tidak terbaca.</p>
+                                                    <p className="font-bold text-sm" style={{ color: '#dc2626' }}>JANGAN ubah nama pengirim!</p>
+                                                    <p className="text-xs mt-1" style={{ color: '#b91c1c' }}>Jika kamu mengubah nama pengirim saat membayar, points tidak akan terkirim karena nickname tidak terbaca.</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -495,6 +524,35 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
                                                     <p className="text-xs mt-1" style={{ color: '#92400e' }}>Jika nickname/platform salah, tidak ada refund. Silakan logout dan login ulang dengan nickname yang benar.</p>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Payment Method Selection */}
+                                    <div>
+                                        <label className="block text-sm font-bold mb-3" style={{ color: 'var(--text-muted)' }}>Pilih Metode Pembayaran</label>
+                                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                                            {[
+                                                { id: 'qris', label: 'QRIS', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Logo_QRIS.svg/1920px-Logo_QRIS.svg.png' },
+                                                { id: 'gopay', label: 'GoPay', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/1920px-Gopay_logo.svg.png' },
+                                                { id: 'dana', label: 'DANA', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg' },
+                                                { id: 'paypal', label: 'PayPal', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/1920px-PayPal.svg.png' }
+                                            ].map((method) => (
+                                                <button
+                                                    key={method.id}
+                                                    type="button"
+                                                    onClick={() => setPaymentMethod(method.id)}
+                                                    className={`py-3 px-4 rounded-xl flex items-center justify-center transition-all bg-white border-2 ${paymentMethod === method.id ? 'shadow-md scale-105 opacity-100 ring-2 ring-offset-2' : 'opacity-60 hover:opacity-100'}`}
+                                                    style={{
+                                                        borderColor: paymentMethod === method.id ? 'var(--brand-secondary)' : '#e8e0f0',
+                                                        ringColor: 'var(--brand-secondary)'
+                                                    }}
+                                                    title={method.label}
+                                                >
+                                                    <div className="h-6 w-full flex items-center justify-center">
+                                                        <img src={method.logo} alt={method.label} className="max-h-full max-w-full object-contain" />
+                                                    </div>
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
 
