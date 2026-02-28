@@ -704,11 +704,16 @@ export default function Store({ storeSettings, storeProducts, topSupporter, topS
                         {/* Recent Payment Heads Grid */}
                         <div className="grid grid-cols-5 gap-2.5 px-2 pb-1 relative z-10">
                             {recentPayments && recentPayments.length > 0 ? recentPayments.map((player, idx) => (
-                                <div key={idx} className="aspect-square rounded-[10px] overflow-hidden border hover:border-[var(--brand-secondary)] transition-colors group/head relative cursor-pointer shadow-sm" style={{ background: '#f5f3f8', borderColor: '#e8e0f0' }}>
-                                    <img src={`https://mc-heads.net/avatar/${player}/64`} alt={player} className="w-full h-full object-cover opacity-90 group-hover/head:opacity-100 transition-opacity" />
-
-                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg opacity-0 group-hover/head:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20 shadow-xl" style={{ background: 'var(--brand-primary)', transform: 'translateY(-130%)' }}>
+                                <div key={idx} className="relative group cursor-pointer z-10 hover:z-50">
+                                    <div className="aspect-square rounded-[10px] overflow-hidden border transition-colors shadow-sm group-hover:border-[var(--brand-secondary)]" style={{ background: '#f5f3f8', borderColor: '#e8e0f0' }}>
+                                        <img src={`https://mc-heads.net/avatar/${player}/64`} alt={player} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                                    </div>
+                                    <div
+                                        className="absolute top-0 left-1/2 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap pointer-events-none shadow-xl mt-[-5px]"
+                                        style={{ background: 'var(--brand-secondary)', transform: 'translate(-50%, -100%)' }}
+                                    >
                                         {player}
+                                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-[4px] border-transparent" style={{ borderTopColor: 'var(--brand-secondary)' }}></div>
                                     </div>
                                 </div>
                             )) : (
