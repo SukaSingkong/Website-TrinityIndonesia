@@ -180,6 +180,11 @@ function Footer() {
                         <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                             Trinity Indonesia tidak berafiliasi dengan Minecraft atau Mojang AB.
                         </p>
+                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 mt-3 text-xs font-bold" style={{ color: 'var(--brand-secondary)' }}>
+                            <Link href="/privacy" className="hover:underline">Kebijakan Privasi</Link>
+                            <Link href="/refund" className="hover:underline">Kebijakan Pengembalian</Link>
+                            <Link href="/terms" className="hover:underline">Syarat & Ketentuan</Link>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-3">

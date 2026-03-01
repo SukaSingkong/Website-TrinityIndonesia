@@ -43,7 +43,7 @@ export default function AdminLayout({ children, title }) {
     return (
         <div className="min-h-screen flex text-[#1c1917]" style={{ background: 'var(--bg-body)' }}>
             <Head>
-                <title>{title} | Trinity Admin</title>
+                <title>{title} | Trinity Indonesia</title>
             </Head>
             {/* Sidebar */}
             <div className="w-72 m-4 mr-0 rounded-2xl flex flex-col shadow-xl overflow-hidden relative" style={{ background: 'var(--bg-card)' }}>
@@ -57,7 +57,7 @@ export default function AdminLayout({ children, title }) {
                         <img src="/vendor/logo.webp" alt="Trinity Indonesia" className="w-12 h-12 object-contain drop-shadow-md" />
                         <div>
                             <h1 className="font-black text-xl leading-tight text-[var(--brand-secondary)]">
-                                Trinity<span className="text-[var(--text-primary)] ml-1 text-sm font-extrabold">Admin</span>
+                                Trinity <span className="text-[var(--text-primary)] font-black">Indonesia</span>
                             </h1>
                             <p className="text-[10px] font-bold text-[var(--text-muted)] tracking-wide">Panel Manajemen</p>
                         </div>

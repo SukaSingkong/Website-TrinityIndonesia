@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         const pricePerPoint = price_per_500 / 500
 
         // Daily sales for last 14 days
-        const [dailySales] = await pool.query(`
+        const [dailySalesRaw] = await pool.query(`
             SELECT 
                 DATE(created_at) as date,
                 COUNT(*) as total_transactions,
@@ -43,6 +43,46 @@ export default async function handler(req, res) {
             GROUP BY DATE(created_at)
             ORDER BY date ASC
         `)
+
+        // Fill in missing dates with zero sales
+        let filledDailySales = [];
+        const range = req.query.graphRange || '14d';
+
+        if (range !== 'all') {
+            const days = range === '1d' ? 1 : range === '14d' ? 14 : range === '30d' ? 30 : range === '365d' ? 365 : 14;
+            const now = new Date();
+
+            for (let i = days; i >= 0; i--) {
+                const date = new Date(now);
+                date.setDate(date.getDate() - i);
+                const dateString = date.toISOString().split('T')[0];
+
+                const existingData = dailySalesRaw.find(d => {
+                    const dDate = new Date(d.date);
+                    return dDate.toISOString().split('T')[0] === dateString;
+                });
+
+                if (existingData) {
+                    filledDailySales.push({
+                        ...existingData,
+                        date: dateString,
+                        total_points: parseFloat(existingData.total_points || 0)
+                    });
+                } else {
+                    filledDailySales.push({
+                        date: dateString,
+                        total_transactions: 0,
+                        total_points: 0
+                    });
+                }
+            }
+        } else {
+            filledDailySales = dailySalesRaw.map(d => ({
+                ...d,
+                date: new Date(d.date).toISOString().split('T')[0],
+                total_points: parseFloat(d.total_points || 0)
+            }));
+        }
 
         // Top donators (all time)
         const [topDonators] = await pool.query(`
@@ -90,7 +130,7 @@ export default async function handler(req, res) {
         `)
 
         return res.status(200).json({
-            dailySales: dailySales.map(d => ({ ...d, rupiah_value: d.total_points * pricePerPoint })),
+            dailySales: filledDailySales.map(d => ({ ...d, rupiah_value: d.total_points * pricePerPoint })),
             topDonators: topDonators.map(d => ({ ...d, rupiah_value: d.total_points * pricePerPoint })),
             popularProducts: popularProducts.map(d => ({ ...d, rupiah_value: d.total_points * pricePerPoint })),
             recentPurchases: recentPurchases.map(d => ({ ...d, rupiah_value: d.points_purchased * pricePerPoint })),

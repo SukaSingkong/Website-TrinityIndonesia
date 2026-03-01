@@ -52,8 +52,20 @@ export default async function handler(req, res) {
         // Store saves base_price_per_500 and discounted_price_per_500, we check if this matches any product.
         // Easiest is to find the exact price matched
 
-        const [settingsRows] = await pool.query('SELECT discount_enabled, base_price_per_500, discounted_price_per_500 FROM store_settings LIMIT 1');
-        const dbSettings = settingsRows[0] || { discount_enabled: 0, base_price_per_500: 5000, discounted_price_per_500: 4000 };
+        const [settingsRows] = await pool.query('SELECT * FROM store_settings LIMIT 1');
+        let dbSettings = settingsRows[0] || { discount_enabled: 0, base_price_per_500: 5000, discounted_price_per_500: 4000 };
+
+        // Auto-disable discount if timer has expired
+        if (dbSettings.discount_enabled && dbSettings.discount_timer) {
+            const timerEnd = new Date(dbSettings.discount_timer).getTime();
+            if (Date.now() >= timerEnd) {
+                await pool.query(
+                    'UPDATE store_settings SET discount_enabled = 0, discount_timer = NULL WHERE id = ?',
+                    [dbSettings.id || 1]
+                );
+                dbSettings = { ...dbSettings, discount_enabled: 0, discount_timer: null };
+            }
+        }
 
         // Find which quantity this amount corresponds to
         let quantity = 0;
@@ -66,8 +78,9 @@ export default async function handler(req, res) {
         for (const p of productRows) {
             const basePrice = p.quantity * dbSettings.base_price_per_500;
             const currentPrice = dbSettings.discount_enabled ? (p.quantity * dbSettings.discounted_price_per_500) : basePrice;
+            const totalWithFee = currentPrice + 1000;
 
-            if (amount === currentPrice) {
+            if (amount === totalWithFee) {
                 productId = p.id;
                 quantity = p.quantity;
                 matchedProductPoints = p.points;

@@ -4,7 +4,10 @@ import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 
 // Simple SVG bar chart component (no external deps)
+// Simple SVG line chart component (no external deps)
 function SalesChart({ data }) {
+    const [hoveredPoint, setHoveredPoint] = useState(null);
+
     if (!data || data.length === 0) {
         return (
             <div className="flex items-center justify-center h-52 text-sm font-bold" style={{ color: 'var(--text-muted)' }}>
@@ -14,41 +17,143 @@ function SalesChart({ data }) {
     }
 
     const maxVal = Math.max(...data.map(d => d.rupiah_value), 1)
+    const padding = 20
+    const width = 1000
+    const height = 200
+
+    // Calculate points for the line
+    const points = data.map((d, i) => {
+        const x = (i / (data.length - 1)) * width
+        const y = height - ((d.rupiah_value / maxVal) * (height - padding * 2) + padding)
+        return { x, y, ...d }
+    })
+
+    const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+    const areaPath = `${linePath} L ${points[points.length - 1].x} ${height} L ${points[0].x} ${height} Z`
 
     return (
-        <div className="flex items-end gap-1.5 h-52 pt-4">
-            {data.map((d, i) => {
-                const h = Math.max((d.rupiah_value / maxVal) * 100, 4)
-                const dateObj = new Date(d.date)
-                const dayLabel = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
-                return (
-                    <div key={i} className="flex-1 flex flex-col items-center justify-end gap-1 group relative h-full">
-                        {/* Tooltip */}
-                        <div className="absolute -top-16 left-1/2 -translate-x-1/2 px-3 py-2 rounded-lg text-xs font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10"
-                            style={{ background: 'rgba(42,30,58,0.95)', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
-                            <span className="font-extrabold">{d.total_transactions}</span> transaksi
-                            <br />
-                            <span className="font-extrabold" style={{ color: '#E26E10' }}>Rp {d.rupiah_value?.toLocaleString('id-ID')}</span>
+        <div className="relative pt-4 px-2 select-none group/chart">
+            {/* Legend / Info */}
+            <div className="absolute top-0 left-4 text-[10px] font-bold text-[var(--text-muted)] flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#E26E10]"></div>
+                <span>Pendapatan (Rp)</span>
+            </div>
+
+            <div className="h-48 relative mt-6">
+                <svg
+                    viewBox={`0 0 ${width} ${height}`}
+                    className="w-full h-full overflow-visible"
+                    preserveAspectRatio="none"
+                    onMouseLeave={() => setHoveredPoint(null)}
+                >
+                    <defs>
+                        <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#E26E10" stopOpacity="0.2" />
+                            <stop offset="100%" stopColor="#E26E10" stopOpacity="0" />
+                        </linearGradient>
+                    </defs>
+
+                    {/* Grid Line */}
+                    <line x1="0" y1={height} x2={width} y2={height} stroke="var(--bg-body)" strokeWidth="1" />
+
+                    {/* Area Fill */}
+                    <path d={areaPath} fill="url(#areaGradient)" />
+
+                    {/* The Line */}
+                    <path
+                        d={linePath}
+                        fill="none"
+                        stroke="#E26E10"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="transition-all duration-300"
+                    />
+
+                    {/* Hover Vertical Line */}
+                    {hoveredPoint && (
+                        <line
+                            x1={hoveredPoint.x} y1="0" x2={hoveredPoint.x} y2={height}
+                            stroke="#E26E10" strokeWidth="1" strokeDasharray="4 4" opacity="0.5"
+                        />
+                    )}
+
+                    {/* Points & Hover Zones */}
+                    {points.map((p, i) => (
+                        <g key={i}>
+                            {/* Point Circle */}
+                            <circle
+                                cx={p.x}
+                                cy={p.y}
+                                r={hoveredPoint?.date === p.date ? "6" : "3"}
+                                fill={hoveredPoint?.date === p.date ? "#E26E10" : "white"}
+                                stroke="#E26E10"
+                                strokeWidth="2"
+                                className="transition-all duration-200"
+                            />
+
+                            {/* Invisible Hover Zone */}
+                            <rect
+                                x={i === 0 ? 0 : p.x - (width / (data.length - 1) / 2)}
+                                y="0"
+                                width={width / (data.length - 1)}
+                                height={height}
+                                fill="transparent"
+                                onMouseEnter={() => setHoveredPoint(p)}
+                            />
+                        </g>
+                    ))}
+                </svg>
+
+                {/* Tooltip */}
+                {hoveredPoint && (
+                    <div
+                        className="absolute pointer-events-none z-20 transition-all duration-200 ease-out"
+                        style={{
+                            left: `${(hoveredPoint.x / width) * 100}%`,
+                            top: `${(hoveredPoint.y / height) * 100}%`,
+                            transform: 'translate(-50%, -120%)'
+                        }}
+                    >
+                        <div className="bg-[#2A1E3A] px-3 py-2 rounded-xl text-white shadow-xl min-w-[120px]">
+                            <div className="text-[9px] text-white/50 font-bold mb-1">
+                                {new Date(hoveredPoint.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="text-[10px] font-bold text-white/80">Total Penjualan:</span>
+                                <span className="text-sm font-black text-[#E26E10]">
+                                    Rp {hoveredPoint.rupiah_value?.toLocaleString('id-ID')}
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4 mt-1">
+                                <span className="text-[10px] font-bold text-white/80">Transaksi:</span>
+                                <span className="text-[10px] font-black">{hoveredPoint.total_transactions}</span>
+                            </div>
                         </div>
-                        {/* Bar */}
-                        <div
-                            className="w-full rounded-t-lg transition-all duration-500 hover:opacity-80 cursor-pointer relative overflow-hidden"
-                            style={{
-                                height: `${h}%`,
-                                background: `linear-gradient(180deg, #E26E10 0%, #c55e0d 100%)`,
-                                minHeight: '4px',
-                                boxShadow: '0 -2px 8px rgba(226,110,16,0.2)'
-                            }}
-                        >
-                            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        </div>
-                        {/* Label */}
-                        <span className="text-[9px] font-bold leading-none mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                            {dayLabel}
-                        </span>
+                        {/* Tooltip Arrow */}
+                        <div className="w-3 h-3 bg-[#2A1E3A] translate-y-[-50%] rotate-45 mx-auto rounded-sm mt-[-6px]"></div>
                     </div>
-                )
-            })}
+                )}
+            </div>
+
+            {/* Labels */}
+            <div className="flex justify-between mt-2 pt-2 border-t border-[var(--bg-body)]">
+                {data.map((d, i) => {
+                    const showLabel = data.length <= 15 || i % Math.ceil(data.length / 10) === 0 || i === data.length - 1
+                    if (!showLabel) return <div key={i} className="flex-1"></div>
+
+                    const dateObj = new Date(d.date)
+                    const dayLabel = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+
+                    return (
+                        <div key={i} className="flex-1 flex flex-col items-center">
+                            <span className="text-[9px] font-bold leading-none" style={{ color: 'var(--text-muted)' }}>
+                                {dayLabel}
+                            </span>
+                        </div>
+                    )
+                })}
+            </div>
         </div>
     )
 }
@@ -106,47 +211,37 @@ export default function AdminDashboard() {
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
-                <div className="mc-card p-5 flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default">
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#dcfce7]">
-                        <Icons.CheckCircle className="w-6 h-6 text-[#16a34a]" />
+                {[{
+                    icon: <Icons.CheckCircle className="w-6 h-6 text-[#16a34a]" />,
+                    bg: '#dcfce7', label: 'Webhook',
+                    value: 'Aktif', loading: false
+                }, {
+                    icon: <Icons.ShoppingBag className="w-6 h-6 text-[#2563eb]" />,
+                    bg: '#dbeafe', label: 'Produk',
+                    value: stats.products, loading: stats.loading
+                }, {
+                    icon: <Icons.Coins className="w-6 h-6 text-[#d97706]" />,
+                    bg: '#fef3c7', label: 'Transaksi',
+                    value: stats.purchases, loading: stats.loading
+                }, {
+                    icon: <Icons.Users className="w-6 h-6 text-[#7c3aed]" />,
+                    bg: '#f3e8ff', label: 'Pembeli Unik',
+                    value: analytics?.totals?.unique_buyers || 0, loading: analyticsLoading
+                }].map((stat, i) => (
+                    <div key={i} className="mc-card p-5 flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default">
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: stat.bg }}>
+                            {stat.icon}
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-[10px] uppercase tracking-wider mb-0.5 text-[var(--text-muted)]">{stat.label}</h3>
+                            {stat.loading ? (
+                                <div className="h-7 w-12 rounded-lg bg-[var(--bg-body)] animate-pulse"></div>
+                            ) : (
+                                <p className="text-xl font-black text-[var(--text-primary)]">{stat.value}</p>
+                            )}
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="font-bold text-[10px] uppercase tracking-wider mb-0.5 text-[var(--text-muted)]">Webhook</h3>
-                        <p className="text-xl font-black text-[var(--text-primary)]">Aktif</p>
-                    </div>
-                </div>
-
-                <div className="mc-card p-5 flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default">
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#dbeafe]">
-                        <Icons.ShoppingBag className="w-6 h-6 text-[#2563eb]" />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-[10px] uppercase tracking-wider mb-0.5 text-[var(--text-muted)]">Produk</h3>
-                        <p className="text-xl font-black text-[var(--text-primary)]">{stats.loading ? '...' : stats.products}</p>
-                    </div>
-                </div>
-
-                <div className="mc-card p-5 flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default">
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#fef3c7]">
-                        <Icons.Coins className="w-6 h-6 text-[#d97706]" />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-[10px] uppercase tracking-wider mb-0.5 text-[var(--text-muted)]">Transaksi</h3>
-                        <p className="text-xl font-black text-[var(--text-primary)]">{stats.loading ? '...' : stats.purchases}</p>
-                    </div>
-                </div>
-
-                <div className="mc-card p-5 flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default">
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#f3e8ff]">
-                        <Icons.Users className="w-6 h-6 text-[#7c3aed]" />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-[10px] uppercase tracking-wider mb-0.5 text-[var(--text-muted)]">Pembeli Unik</h3>
-                        <p className="text-xl font-black text-[var(--text-primary)]">
-                            {analyticsLoading ? '...' : (analytics?.totals?.unique_buyers || 0)}
-                        </p>
-                    </div>
-                </div>
+                ))}
             </div>
 
             {/* Analytics Row: Chart + Top Donators */}
@@ -173,13 +268,26 @@ export default function AdminDashboard() {
                         </div>
                         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-extrabold" style={{ background: 'rgba(226,110,16,0.08)', color: '#E26E10' }}>
                             <Icons.Coins className="w-3.5 h-3.5" />
-                            Rp {analyticsLoading ? '...' : (analytics?.totals?.rupiah_value?.toLocaleString('id-ID') || 0)} total
+                            {analyticsLoading ? (
+                                <div className="h-3 w-24 rounded bg-[#E26E10]/20 animate-pulse"></div>
+                            ) : (
+                                <>Rp {analytics?.totals?.rupiah_value?.toLocaleString('id-ID') || 0} total</>
+                            )}
                         </div>
                     </div>
                     <div className="relative z-10">
                         {analyticsLoading ? (
-                            <div className="flex items-center justify-center h-52">
-                                <div className="w-8 h-8 border-3 rounded-full animate-spin border-t-[#E26E10] border-r-transparent border-b-transparent border-l-transparent"></div>
+                            <div className="h-52 animate-pulse">
+                                <div className="flex items-end gap-1 h-44 pt-4">
+                                    {[40, 65, 30, 80, 55, 70, 45, 90, 35, 60, 50, 75, 42, 68].map((h, i) => (
+                                        <div key={i} className="flex-1 rounded-t-lg" style={{ height: `${h}%`, background: 'var(--bg-body)' }}></div>
+                                    ))}
+                                </div>
+                                <div className="flex justify-between mt-2 pt-2">
+                                    {[...Array(7)].map((_, i) => (
+                                        <div key={i} className="h-2 w-8 rounded bg-[var(--bg-body)]"></div>
+                                    ))}
+                                </div>
                             </div>
                         ) : (
                             <SalesChart data={analytics?.dailySales || []} />
@@ -209,8 +317,18 @@ export default function AdminDashboard() {
                     </div>
                     <div className="space-y-2.5 relative z-10 max-h-[300px] overflow-y-auto pr-2">
                         {analyticsLoading ? (
-                            <div className="flex items-center justify-center h-40">
-                                <div className="w-8 h-8 border-3 rounded-full animate-spin border-t-[#E26E10] border-r-transparent border-b-transparent border-l-transparent"></div>
+                            <div className="space-y-2.5 animate-pulse">
+                                {[...Array(5)].map((_, i) => (
+                                    <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl">
+                                        <div className="w-7 h-7 rounded-lg bg-[var(--bg-body)]"></div>
+                                        <div className="w-8 h-8 rounded-lg bg-[var(--bg-body)]"></div>
+                                        <div className="flex-1">
+                                            <div className="h-3.5 w-24 rounded bg-[var(--bg-body)] mb-1.5"></div>
+                                            <div className="h-2.5 w-14 rounded bg-[var(--bg-body)]"></div>
+                                        </div>
+                                        <div className="h-3.5 w-20 rounded bg-[var(--bg-body)]"></div>
+                                    </div>
+                                ))}
                             </div>
                         ) : analytics?.topDonators?.length > 0 ? (
                             analytics.topDonators.map((donor, i) => (
@@ -266,8 +384,18 @@ export default function AdminDashboard() {
                     </div>
                     <div className="space-y-3 relative z-10 max-h-[300px] overflow-y-auto pr-2">
                         {analyticsLoading ? (
-                            <div className="flex items-center justify-center h-32">
-                                <div className="w-8 h-8 border-3 rounded-full animate-spin border-t-[#E26E10] border-r-transparent border-b-transparent border-l-transparent"></div>
+                            <div className="space-y-4 animate-pulse">
+                                {[80, 60, 45, 30].map((w, i) => (
+                                    <div key={i}>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <div className="h-3.5 w-28 rounded bg-[var(--bg-body)]"></div>
+                                            <div className="h-3 w-8 rounded bg-[var(--bg-body)]"></div>
+                                        </div>
+                                        <div className="w-full h-2.5 rounded-full" style={{ background: 'var(--bg-body)' }}>
+                                            <div className="h-full rounded-full" style={{ width: `${w}%`, background: '#e8e0f0' }}></div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         ) : analytics?.popularProducts?.length > 0 ? (
                             analytics.popularProducts.map((prod, i) => {
@@ -314,8 +442,17 @@ export default function AdminDashboard() {
                     </div>
                     <div className="space-y-2.5 relative z-10 max-h-[300px] overflow-y-auto pr-2">
                         {analyticsLoading ? (
-                            <div className="flex items-center justify-center h-32">
-                                <div className="w-8 h-8 border-3 rounded-full animate-spin border-t-[#E26E10] border-r-transparent border-b-transparent border-l-transparent"></div>
+                            <div className="space-y-2.5 animate-pulse">
+                                {[...Array(5)].map((_, i) => (
+                                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--bg-body)' }}>
+                                        <div className="w-9 h-9 rounded-lg bg-white"></div>
+                                        <div className="flex-1">
+                                            <div className="h-3.5 w-24 rounded bg-white mb-1.5"></div>
+                                            <div className="h-2.5 w-36 rounded bg-white"></div>
+                                        </div>
+                                        <div className="h-5 w-20 rounded-lg bg-white"></div>
+                                    </div>
+                                ))}
                             </div>
                         ) : analytics?.recentPurchases?.length > 0 ? (
                             analytics.recentPurchases.map((purchase, i) => (

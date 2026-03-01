@@ -4,9 +4,10 @@ import { useEffect, useState } from "react"
 import { useRouter } from 'next/router'
 import config from '@layer/theme.config'
 
-function CountdownTimer({ targetDate }) {
+function CountdownTimer({ targetDate, onExpire }) {
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [isClient, setIsClient] = useState(false);
+    const [expired, setExpired] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
@@ -18,6 +19,10 @@ function CountdownTimer({ targetDate }) {
             const difference = target - now;
             if (difference <= 0) {
                 setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                if (!expired) {
+                    setExpired(true);
+                    if (onExpire) onExpire();
+                }
                 return;
             }
             setTimeLeft({
@@ -33,18 +38,34 @@ function CountdownTimer({ targetDate }) {
         return () => clearInterval(interval);
     }, [targetDate]);
 
-    if (!targetDate || !isClient) return null;
+    if (!targetDate || !isClient || expired) return null;
     const f = (n) => n.toString().padStart(2, '0');
 
-    return (
-        <div className="inline-flex items-center gap-2.5 mt-4 px-4 py-2 rounded-xl backdrop-blur-md shadow-lg" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <Icons.Clock className="w-5 h-5 text-white drop-shadow-md" />
-            <div className="flex items-center font-mono font-black text-white tracking-wider text-base md:text-lg" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
-                {timeLeft.days > 0 && <span className="flex items-baseline">{f(timeLeft.days)}<span className="text-white/70 text-xs ml-1 mr-2.5 font-sans font-bold tracking-normal uppercase">Hari</span></span>}
-                <span className="flex items-baseline w-7 justify-center">{f(timeLeft.hours)}</span><span className="text-white/40 pb-0.5 mx-0.5">:</span>
-                <span className="flex items-baseline w-7 justify-center">{f(timeLeft.minutes)}</span><span className="text-white/40 pb-0.5 mx-0.5">:</span>
-                <span className="flex items-baseline w-7 justify-center">{f(timeLeft.seconds)}</span>
+    const TimeBox = ({ value, label }) => (
+        <div className="flex flex-col items-center">
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center font-black text-xl md:text-2xl text-white"
+                style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 4px 12px rgba(0,0,0,0.25)' }}>
+                {f(value)}
             </div>
+            <span className="text-[9px] font-bold text-white/60 mt-1.5 uppercase tracking-widest">{label}</span>
+        </div>
+    );
+
+    const Separator = () => (
+        <span className="text-white/30 font-black text-xl md:text-2xl pb-3">:</span>
+    );
+
+    return (
+        <div className="inline-flex items-center gap-2 md:gap-3 mt-5">
+            {timeLeft.days > 0 && <>
+                <TimeBox value={timeLeft.days} label="Hari" />
+                <Separator />
+            </>}
+            <TimeBox value={timeLeft.hours} label="Jam" />
+            <Separator />
+            <TimeBox value={timeLeft.minutes} label="Menit" />
+            <Separator />
+            <TimeBox value={timeLeft.seconds} label="Detik" />
         </div>
     );
 }
@@ -86,6 +107,18 @@ export default function Store() {
 
 
 
+    async function fetchStore() {
+        try {
+            const res = await fetch('/api/store')
+            const data = await res.json()
+            setStoreData(data)
+        } catch (err) {
+            console.error("Failed to load store data", err)
+        } finally {
+            setIsFetching(false)
+        }
+    }
+
     useEffect(() => {
         const stored = localStorage.getItem("mcUsername")
         if (stored) {
@@ -93,17 +126,6 @@ export default function Store() {
             setLoggedIn(true)
         }
 
-        async function fetchStore() {
-            try {
-                const res = await fetch('/api/store')
-                const data = await res.json()
-                setStoreData(data)
-            } catch (err) {
-                console.error("Failed to load store data", err)
-            } finally {
-                setIsFetching(false)
-            }
-        }
         fetchStore()
 
         if (router.query.status === 'success') {
@@ -207,7 +229,9 @@ export default function Store() {
         const quantity = selectedProduct.quantity
         const { discount_enabled: discountEnabled, base_price_per_500: basePrice, discounted_price_per_500: discountPrice } = storeSettings || { discount_enabled: 0, base_price_per_500: 5000, discounted_price_per_500: 4000 };
         const pricePerUnit = discountEnabled ? discountPrice : basePrice;
-        const totalAmount = quantity * pricePerUnit;
+        const subtotal = quantity * pricePerUnit;
+        const serviceFee = 1000;
+        const totalAmount = subtotal + serviceFee;
 
         try {
             const response = await fetch('/api/tako-checkout', {
@@ -441,17 +465,6 @@ export default function Store() {
 
                                     {/* Warnings */}
                                     <div className="space-y-3">
-                                        <div className="p-4 rounded-xl" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
-                                            <div className="flex items-start gap-3">
-                                                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: '#fee2e2' }}>
-                                                    <Icons.Ban className="h-5 w-5" style={{ color: '#dc2626' }} />
-                                                </div>
-                                                <div>
-                                                    <p className="font-bold text-sm" style={{ color: '#dc2626' }}>JANGAN ubah nama pengirim!</p>
-                                                    <p className="text-xs mt-1" style={{ color: '#b91c1c' }}>Jika kamu mengubah nama pengirim saat membayar, points tidak akan terkirim karena nickname tidak terbaca.</p>
-                                                </div>
-                                            </div>
-                                        </div>
                                         <div className="p-4 rounded-xl" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
                                             <div className="flex items-start gap-3">
                                                 <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: '#fef3c7' }}>
@@ -494,6 +507,26 @@ export default function Store() {
                                         </div>
                                     </div>
 
+                                    {/* Checkout Overview (Nota) */}
+                                    <div className="p-4 rounded-xl space-y-3" style={{ background: '#f5f3f8' }}>
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span style={{ color: 'var(--text-muted)' }}>Subtotal</span>
+                                            <span className="font-bold" style={{ color: 'var(--text-primary)' }}>
+                                                Rp {(selectedProduct.quantity * (storeSettings?.discount_enabled ? storeSettings?.discounted_price_per_500 : storeSettings?.base_price_per_500 || 5000)).toLocaleString('id-ID')}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span style={{ color: 'var(--text-muted)' }}>Service Fee</span>
+                                            <span className="font-bold" style={{ color: 'var(--text-primary)' }}>Rp 1.000</span>
+                                        </div>
+                                        <div className="pt-3 flex justify-between items-center border-t border-gray-200">
+                                            <span className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>Total Pembayaran</span>
+                                            <span className="font-black text-lg" style={{ color: 'var(--brand-secondary)' }}>
+                                                Rp {((selectedProduct.quantity * (storeSettings?.discount_enabled ? storeSettings?.discounted_price_per_500 : storeSettings?.base_price_per_500 || 5000)) + 1000).toLocaleString('id-ID')}
+                                            </span>
+                                        </div>
+                                    </div>
+
                                     {/* Agreement Checkbox */}
                                     <button
                                         type="button"
@@ -515,7 +548,7 @@ export default function Store() {
                                             )}
                                         </div>
                                         <span className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                                            Saya sudah membaca dan menyetujui <a href="/rules" className="font-bold hover:underline" style={{ color: 'var(--brand-secondary)' }} onClick={(e) => e.stopPropagation()}>Syarat dan Ketentuan</a>
+                                            Saya sudah membaca dan menyetujui <a href="/terms" className="font-bold hover:underline" style={{ color: 'var(--brand-secondary)' }} onClick={(e) => e.stopPropagation()}>Syarat dan Ketentuan</a>
                                         </span>
                                     </button>
 
@@ -550,7 +583,7 @@ export default function Store() {
                                     <div className="h-4 bg-gray-200 rounded w-1/3"></div>
                                     <div className="h-10 bg-gray-200 rounded-lg w-48 mt-8"></div>
                                 </div>
-                                <div className="w-32 h-32 md:w-40 md:h-40 bg-gray-200 rounded-full flex-shrink-0 ml-6 hidden sm:block"></div>
+
                             </div>
                         </div>
                     </div>
@@ -610,16 +643,9 @@ export default function Store() {
                                                 <>Nikmati diskon eksklusif sebesar <strong className="text-[#FFE066] font-black bg-black/20 px-2 py-1 rounded-md shadow-inner">{storeSettings.popup_discount_text || '20%'}</strong> untuk semua pembelian Points selama event berlangsung.</>
                                             )}
                                         </p>
-                                        {storeSettings.discount_timer && <CountdownTimer targetDate={storeSettings.discount_timer} />}
+                                        {storeSettings.discount_timer && <CountdownTimer targetDate={storeSettings.discount_timer} onExpire={() => fetchStore()} />}
                                     </div>
-                                    <div className="flex-shrink-0">
-                                        <img
-                                            src="/vendor/mascot.webp"
-                                            alt="Event Mascot"
-                                            className="h-24 sm:h-40 object-contain hover:scale-110 transition-transform duration-300"
-                                            style={{ filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.5))' }}
-                                        />
-                                    </div>
+
                                 </div>
                             </div>
                         )}

@@ -37,10 +37,22 @@ export default async function handler(req, res) {
             LIMIT 10
         `);
 
-        const dbSettings = settingsRows[0] || {
+        let dbSettings = settingsRows[0] || {
             event_name: 'Store', discount_enabled: 0,
             base_price_per_500: 5000, discounted_price_per_500: 4000
         };
+
+        // Auto-disable discount if timer has expired
+        if (dbSettings.discount_enabled && dbSettings.discount_timer) {
+            const timerEnd = new Date(dbSettings.discount_timer).getTime();
+            if (Date.now() >= timerEnd) {
+                await pool.query(
+                    'UPDATE store_settings SET discount_enabled = 0, discount_timer = NULL WHERE id = ?',
+                    [dbSettings.id || 1]
+                );
+                dbSettings = { ...dbSettings, discount_enabled: 0, discount_timer: null };
+            }
+        }
 
         const products = productRows.map(p => {
             const basePrice = p.quantity * dbSettings.base_price_per_500;
