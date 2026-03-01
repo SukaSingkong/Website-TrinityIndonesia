@@ -7,6 +7,7 @@ const CATEGORIES = [
     { id: 'points', label: 'Points', icon: Icons.Star },
     { id: 'money', label: 'Money', icon: Icons.Cash },
     { id: 'playtime', label: 'Jam Bermain', icon: Icons.Clock },
+    { id: 'votes', label: 'Votes', icon: Icons.Heart },
     { id: 'level', label: 'Level', icon: Icons.Users }
 ];
 
@@ -26,6 +27,7 @@ export default function Leaderboard() {
         'money': 'Balance',
         'points': 'Points',
         'playtime': 'Hours Played',
+        'votes': 'Votes',
         'level': 'Level' // Keeping level here just in case it populates later
     };
 
@@ -100,6 +102,9 @@ export default function Leaderboard() {
         }
         if (category === 'playtime') {
             return `${score} Jam`;
+        }
+        if (category === 'votes') {
+            return `${new Intl.NumberFormat('id-ID').format(score)} Vote`;
         }
         return score;
     };
@@ -279,6 +284,66 @@ export default function Leaderboard() {
                         <Icons.ShoppingBag className="w-5 h-5" />
                         Beli Points
                     </Link>
+                </div>
+            )}
+
+            {activeCategory === 'money' && !loading && !error && currentData.length > 0 && (
+                <div className="mc-content-card mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#10B981', color: 'white', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)' }}>
+                            <Icons.Cash className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Ingin masuk leaderboard ini?</h4>
+                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Bermain, berdagang, dan kumpulkan uang sebanyak-banyaknya di dalam game!</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeCategory === 'playtime' && !loading && !error && currentData.length > 0 && (
+                <div className="mc-content-card mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#3B82F6', color: 'white', boxShadow: '0 4px 14px rgba(59, 130, 246, 0.3)' }}>
+                            <Icons.Clock className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Ingin masuk leaderboard ini?</h4>
+                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Terus bermain dan jadilah pemain paling aktif di server!</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeCategory === 'votes' && !loading && !error && currentData.length > 0 && (
+                <div className="mc-content-card mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#EF4444', color: 'white', boxShadow: '0 4px 14px rgba(239, 68, 68, 0.3)' }}>
+                            <Icons.Heart className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Ingin masuk leaderboard ini?</h4>
+                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Dukung server dengan melakukan vote setiap hari lewat website!</p>
+                        </div>
+                    </div>
+                    <Link href="/vote" className="mc-btn mc-btn-primary flex items-center gap-2 whitespace-nowrap">
+                        <Icons.CheckCircle className="w-5 h-5" />
+                        Vote Sekarang
+                    </Link>
+                </div>
+            )}
+
+            {activeCategory === 'level' && !loading && !error && currentData.length > 0 && (
+                <div className="mc-content-card mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#8B5CF6', color: 'white', boxShadow: '0 4px 14px rgba(139, 92, 246, 0.3)' }}>
+                            <Icons.Users className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Ingin masuk leaderboard ini?</h4>
+                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Tingkatkan levelmu dengan menyelesaikan berbagai tantangan di dalam game!</p>
+                        </div>
+                    </div>
                 </div>
             )}
         </Wrapper>
