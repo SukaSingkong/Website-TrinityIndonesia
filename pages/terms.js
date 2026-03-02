@@ -17,15 +17,17 @@ export default function TermsOfService() {
 
                     <h2 className="text-xl font-bold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>1. Akun dan Keamanan</h2>
                     <ul className="list-disc pl-6 space-y-2">
+                        <li>Satu player hanya boleh memiliki 1 akun yang terdaftar.</li>
                         <li>Setiap pemain bertanggung jawab penuh atas keamanan akun miliknya sendiri. Segala pelanggaran yang terjadi melalui akun tersebut, termasuk jika akun diretas atau dipinjamkan, tetap dikenakan sanksi tanpa pengecualian.</li>
                         <li>Dilarang membagikan kredensial login (password, dll) kepada siapa pun. Staff tidak pernah dan tidak akan pernah meminta password pemain.</li>
                         <li>Jual-beli akun, transfer kepemilikan akun, atau berpura-pura menjadi staff/pihak resmi server dilarang keras.</li>
+                        <li>Kami berhak memberi hukuman kepada pemain tanpa memberikan bukti.</li>
                     </ul>
 
                     <h2 className="text-xl font-bold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>2. Transaksi & Kebijakan Points</h2>
                     <ul className="list-disc pl-6 space-y-2">
                         <li>Semua pembelian Points bersifat final. Kebijakan mengenai pengembalian dana selengkapnya dapat dilihat pada halaman <a href="/refund" className="hover:underline" style={{ color: 'var(--brand-secondary)' }}>Refund Policy</a>.</li>
-                        <li>Melakukan chargeback atau dispute pembayaran melalui pihak ketiga dianggap sebagai tindakan agresif terhadap server dan akan ditindak tegas (Banned Permanen).</li>
+                        <li>Melakukan chargeback atau dispute pembayaran melalui pihak ketiga dianggap sebagai tindakan agresif terhadap server dan akan ditindak tegas.</li>
                         <li>Points tidak dapat dijual, ditukar dengan uang nyata, atau dipindahtangankan ke pemain lain.</li>
                     </ul>
 
