@@ -80,7 +80,49 @@ export default function AdminSettings() {
         setMessage('')
     }
 
-    if (isLoading) return <AdminLayout title="Store Settings">Loading...</AdminLayout>
+    if (isLoading) return (
+        <AdminLayout title="Store Settings">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-24 items-start">
+                {/* Skeleton for Konfigurasi Toko */}
+                <div className="mc-card p-8 relative overflow-hidden bg-white border-0 shadow-lg animate-pulse">
+                    <div className="absolute top-0 right-0 w-48 h-48 opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 bg-gray-300"></div>
+                    <div className="h-8 bg-gray-200 rounded w-48 mb-6 relative z-10"></div>
+                    <div className="space-y-6 relative z-10">
+                        <div>
+                            <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                            <div className="h-14 bg-gray-100 rounded-xl w-full border-2 border-gray-100"></div>
+                        </div>
+                        <div className="h-14 bg-gray-100 rounded-xl w-full border-2 border-gray-100"></div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <div className="h-4 bg-gray-200 rounded w-40 mb-2"></div>
+                                <div className="h-14 bg-gray-100 rounded-xl w-full border-2 border-gray-100"></div>
+                            </div>
+                            <div>
+                                <div className="h-4 bg-gray-200 rounded w-48 mb-2"></div>
+                                <div className="h-14 bg-gray-100 rounded-xl w-full border-2 border-gray-100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Skeleton for Pengaturan Popup Diskon */}
+                <div className="mc-card p-8 relative overflow-hidden bg-white border-0 shadow-lg animate-pulse">
+                    <div className="absolute top-0 right-0 w-48 h-48 opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 bg-gray-300"></div>
+                    <div className="h-8 bg-gray-200 rounded w-64 mb-2 relative z-10"></div>
+                    <div className="h-4 bg-gray-200 rounded w-72 mb-6 relative z-10"></div>
+                    <div className="space-y-4 relative z-10">
+                        {[...Array(5)].map((_, i) => (
+                            <div key={i}>
+                                <div className="h-4 bg-gray-200 rounded w-40 mb-2"></div>
+                                <div className={`bg-gray-100 rounded-xl w-full border-2 border-gray-100 ${i === 2 ? 'h-32' : 'h-14'}`}></div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </AdminLayout>
+    )
 
     return (
         <AdminLayout title="Store Settings">

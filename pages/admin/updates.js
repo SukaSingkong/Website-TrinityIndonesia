@@ -125,11 +125,11 @@ export default function AdminUpdates() {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)' }} className="text-xs uppercase tracking-widest">
-                                <th className="p-5"><div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div></th>
-                                <th className="p-5"><div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div></th>
-                                <th className="p-5"><div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div></th>
-                                <th className="p-5"><div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div></th>
-                                <th className="p-5 w-24"><div className="h-4 bg-gray-200 rounded w-12 animate-pulse"></div></th>
+                                <th className="p-5" style={{ borderBottom: '1px solid var(--bg-body)' }}><div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div></th>
+                                <th className="p-5" style={{ borderBottom: '1px solid var(--bg-body)' }}><div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div></th>
+                                <th className="p-5" style={{ borderBottom: '1px solid var(--bg-body)' }}><div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div></th>
+                                <th className="p-5" style={{ borderBottom: '1px solid var(--bg-body)' }}><div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div></th>
+                                <th className="p-5 w-24" style={{ borderBottom: '1px solid var(--bg-body)' }}><div className="h-4 bg-gray-200 rounded w-12 animate-pulse"></div></th>
                             </tr>
                         </thead>
                         <tbody className="text-sm border-t-0 animate-pulse">
@@ -137,7 +137,7 @@ export default function AdminUpdates() {
                                 <tr key={i} style={{ borderBottom: '1px solid var(--bg-body)' }}>
                                     <td className="p-5"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
                                     <td className="p-5"><div className="h-5 bg-gray-200 rounded w-32"></div></td>
-                                    <td className="p-5"><div className="h-6 bg-gray-200 rounded w-16"></div></td>
+                                    <td className="p-5"><div className="h-6 bg-gray-200 rounded-lg w-16"></div></td>
                                     <td className="p-5"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
                                     <td className="p-5 flex items-center gap-2">
                                         <div className="w-8 h-8 bg-gray-200 rounded-lg"></div>
