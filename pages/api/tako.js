@@ -1,6 +1,27 @@
 import { getDbConnection } from '../../lib/db'
 import crypto from 'crypto';
 
+export const config = {
+    api: {
+        bodyParser: false,
+    },
+};
+
+const getRawBody = (req) => {
+    return new Promise((resolve, reject) => {
+        let body = [];
+        req.on('data', (chunk) => {
+            body.push(chunk);
+        });
+        req.on('end', () => {
+            resolve(Buffer.concat(body).toString());
+        });
+        req.on('error', (err) => {
+            reject(err);
+        });
+    });
+};
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' })
@@ -9,10 +30,18 @@ export default async function handler(req, res) {
     const webhookToken = process.env.TAKO_WEBHOOK_TOKEN;
     const signatureFromHeader = req.headers['x-tako-signature'];
 
+    let rawBody;
+    try {
+        rawBody = await getRawBody(req);
+    } catch (e) {
+        console.error("Failed to read raw body", e);
+        return res.status(500).json({ message: 'Failed to read raw body' });
+    }
+
     if (webhookToken && signatureFromHeader) {
         const computedSignature = crypto
             .createHmac("sha256", webhookToken)
-            .update(JSON.stringify(req.body))
+            .update(rawBody)
             .digest("hex");
 
         const isValid = crypto.timingSafeEqual(
@@ -28,7 +57,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const payload = req.body;
+        const payload = JSON.parse(rawBody);
         console.log("Incoming Tako Webhook payload:", payload);
 
         // Handle Tako Webhook Test Notification
