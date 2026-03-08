@@ -79,7 +79,7 @@ export default async function handler(req, res) {
         }
 
         // Tako provides name, amount, message, etc. based on the gift API specs.
-        const supporterName = payload.name;
+        const supporterName = payload.gifterName || payload.name;
         const amount = parseFloat(payload.amount);
 
         if (!supporterName || !amount) {
