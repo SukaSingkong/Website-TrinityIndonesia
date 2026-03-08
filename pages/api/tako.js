@@ -38,6 +38,18 @@ export default async function handler(req, res) {
         return res.status(500).json({ message: 'Failed to read raw body' });
     }
 
+    // --- TEMPORARY LOGGING FOR DEBUGGING ---
+    try {
+        const pool = await getDbConnection();
+        await pool.query(
+            'INSERT INTO tako_webhook_logs (headers, body) VALUES (?, ?)',
+            [JSON.stringify(req.headers), rawBody]
+        );
+    } catch (logErr) {
+        console.error("Failed to insert into webhook logs:", logErr);
+    }
+    // ---------------------------------------
+
     if (webhookToken && signatureFromHeader) {
         const computedSignature = crypto
             .createHmac("sha256", webhookToken)
