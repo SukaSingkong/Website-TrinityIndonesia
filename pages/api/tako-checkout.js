@@ -45,11 +45,18 @@ export default async function handler(req, res) {
 
         const payload = {
             name: name,
-            email: 'buyer@trinityindonesia.cc', // Default email since game only provides username
+            email: `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@buyer-trinity.cc`, // Unique-ish email to avoid anti-fraud blocks
             amount: amount,
             paymentMethod: paymentMethod,
             message: `Pembelian points untuk username ${name}`
         };
+
+        console.log("Sending request to Tako API:", {
+            url: `${apiUrl}/api/gift/TrinityIndonesia`,
+            paymentMethod: paymentMethod,
+            amount: amount,
+            name: name
+        });
 
         const response = await fetch(`${apiUrl}/api/gift/TrinityIndonesia`, {
             method: 'POST',
@@ -61,6 +68,8 @@ export default async function handler(req, res) {
         });
 
         const data = await response.json();
+        console.log("Tako API Response Status:", response.status);
+        console.log("Tako API Response Data:", JSON.stringify(data, null, 2));
 
         // Handle Tako API's response structure which wraps success in a `result` object
         // and may use status code 206 for successful creation

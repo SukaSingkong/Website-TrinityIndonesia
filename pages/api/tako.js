@@ -116,12 +116,15 @@ export default async function handler(req, res) {
 
         const [productRows] = await pool.query('SELECT id, name, quantity, points FROM store_products');
 
+        // Use a small tolerance for float comparison to ensure robustness
+        const EPSILON = 0.5;
+
         for (const p of productRows) {
             const basePrice = p.quantity * dbSettings.base_price_per_500;
             const currentPrice = dbSettings.discount_enabled ? (p.quantity * dbSettings.discounted_price_per_500) : basePrice;
             const totalWithFee = currentPrice + 1000;
 
-            if (amount === totalWithFee) {
+            if (Math.abs(amount - totalWithFee) < EPSILON) {
                 productId = p.id;
                 quantity = p.quantity;
                 matchedProductPoints = p.points;
@@ -131,8 +134,19 @@ export default async function handler(req, res) {
         }
 
         if (!productId) {
-            console.error(`No product found corresponding to amount: ${amount}`);
-            return res.status(404).json({ message: 'Product not found for that amount', amount });
+            console.error(`Product mismatch - Received Amount: ${amount}. Check if it includes fees or if settings changed.`);
+
+            // Log this mismatch so it's not lost (Admin can give points manually)
+            try {
+                await pool.query(`
+                    INSERT INTO store_purchases (player_name, product_name, points_purchased, commands_executed, status)
+                    VALUES (?, ?, ?, ?, ?)
+                `, [supporterName, `MISMATCH: Rp ${amount}`, 0, JSON.stringify({ received_amount: amount }), 'mismatch_requires_manual']);
+            } catch (logErr) {
+                console.error("Failed to log mismatching purchase:", logErr);
+            }
+
+            return res.status(404).json({ message: 'Product not found for that amount', received_amount: amount });
         }
 
         const [commands] = await pool.query('SELECT command FROM store_product_commands WHERE product_id = ?', [productId]);

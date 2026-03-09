@@ -93,6 +93,32 @@ export default function Store() {
     const [selectedProduct, setSelectedProduct] = useState(null)
     const [agreedToTerms, setAgreedToTerms] = useState(false)
     const [paymentMethod, setPaymentMethod] = useState('qris')
+    const [selectedCountry, setSelectedCountry] = useState('indonesia')
+
+    const paymentMethodsByCountry = {
+        indonesia: [
+            { id: 'qris', label: 'QRIS', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Logo_QRIS.svg/1920px-Logo_QRIS.svg.png' },
+            { id: 'gopay', label: 'GoPay', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/1920px-Gopay_logo.svg.png' },
+            { id: 'paypal', label: 'PayPal', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/1920px-PayPal.svg.png' }
+        ],
+        malaysia: [
+            { id: 'qris', label: 'QRIS', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Logo_QRIS.svg/1920px-Logo_QRIS.svg.png' },
+            { id: 'paypal', label: 'PayPal', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/1920px-PayPal.svg.png' },
+            { id: 'touchngo', label: "Touch 'n Go", logo: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Touch_%27n_Go_logo.svg' },
+            { id: 'shopeepay', label: 'ShopeePay', logo: 'https://fintechid-bucket.s3.ap-southeast-3.amazonaws.com/aftech/assets/files/shares/logo/logofi2/ShopeePay.png' },
+            { id: 'grabpay', label: 'GrabPay', logo: 'https://brandlogos.net/wp-content/uploads/2025/11/grabpay_vertical-logo_brandlogos.net_ptzen.png' }
+        ],
+        singapore: [
+            { id: 'qris', label: 'QRIS', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Logo_QRIS.svg/1920px-Logo_QRIS.svg.png' },
+            { id: 'paypal', label: 'PayPal', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/1920px-PayPal.svg.png' }
+        ],
+        united_states: [
+            { id: 'paypal', label: 'PayPal', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/1920px-PayPal.svg.png' }
+        ]
+    }
+
+    const availablePaymentMethods = paymentMethodsByCountry[selectedCountry] || paymentMethodsByCountry.indonesia
+
 
     // Pagination
     const PRODUCTS_PER_PAGE = 6
@@ -200,7 +226,7 @@ export default function Store() {
             setError("Tidak dapat tersambung ke server. Coba lagi nanti.")
         }
 
-        setIsLoading(false)
+        setIsProcessing(false)
     }
 
     function logout() {
@@ -463,7 +489,33 @@ export default function Store() {
                                         </div>
                                     </div>
 
+                                    {/* Country Selection */}
+                                    <div>
+                                        <label className="block text-sm font-bold mb-3" style={{ color: 'var(--text-muted)' }}>Pilih Negara Pembayaran</label>
+                                        <div className="relative">
+                                            <select
+                                                value={selectedCountry}
+                                                onChange={(e) => {
+                                                    const newCountry = e.target.value;
+                                                    setSelectedCountry(newCountry);
+                                                    setPaymentMethod(paymentMethodsByCountry[newCountry][0].id);
+                                                }}
+                                                className="mc-input appearance-none pr-10"
+                                                style={{ background: '#f5f3f8' }}
+                                            >
+                                                <option value="indonesia">Indonesia</option>
+                                                <option value="malaysia">Malaysia</option>
+                                                <option value="singapore">Singapore</option>
+                                                <option value="united_states">United States</option>
+                                            </select>
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                <Icons.ChevronDown className="h-5 w-5" style={{ color: 'var(--text-muted)' }} />
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     {/* Warnings */}
+
                                     <div className="space-y-3">
                                         <div className="p-4 rounded-xl" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
                                             <div className="flex items-start gap-3">
@@ -482,12 +534,7 @@ export default function Store() {
                                     <div>
                                         <label className="block text-sm font-bold mb-3" style={{ color: 'var(--text-muted)' }}>Pilih Metode Pembayaran</label>
                                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                                            {[
-                                                { id: 'qris', label: 'QRIS', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Logo_QRIS.svg/1920px-Logo_QRIS.svg.png' },
-                                                { id: 'gopay', label: 'GoPay', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/1920px-Gopay_logo.svg.png' },
-                                                { id: 'dana', label: 'DANA', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg' },
-                                                { id: 'paypal', label: 'PayPal', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/1920px-PayPal.svg.png' }
-                                            ].map((method) => (
+                                            {availablePaymentMethods.map((method) => (
                                                 <button
                                                     key={method.id}
                                                     type="button"
@@ -506,6 +553,7 @@ export default function Store() {
                                             ))}
                                         </div>
                                     </div>
+
 
                                     {/* Checkout Overview (Nota) */}
                                     <div className="p-4 rounded-xl space-y-3" style={{ background: '#f5f3f8' }}>

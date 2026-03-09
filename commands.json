@@ -1,0 +1,50 @@
+[
+  {
+    "product_id": 1,
+    "command": "points give {player} 500"
+  },
+  {
+    "product_id": 2,
+    "command": "points give {player} 1000"
+  },
+  {
+    "product_id": 3,
+    "command": "points give {player} 2000"
+  },
+  {
+    "product_id": 4,
+    "command": "points give {player} 3000"
+  },
+  {
+    "product_id": 5,
+    "command": "points give {player} 4000"
+  },
+  {
+    "product_id": 6,
+    "command": "points give {player} 5000"
+  },
+  {
+    "product_id": 7,
+    "command": "points give {player} 6000"
+  },
+  {
+    "product_id": 8,
+    "command": "points give {player} 7000"
+  },
+  {
+    "product_id": 10,
+    "command": "points give {player} 7500"
+  },
+  {
+    "product_id": 11,
+    "command": "points give {player} 8000"
+  },
+  {
+    "product_id": 12,
+    "command": "points give {player} 8500"
+  },
+  {
+    "product_id": 13,
+    "command": "points give {player} 9000"
+  }
+]
