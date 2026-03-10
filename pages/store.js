@@ -842,10 +842,33 @@ export default function Store() {
 
                                             {/* Points Amount */}
                                             <div className="text-center mb-5">
-                                                <h3 className="text-3xl font-black" style={{ color: 'var(--text-primary)' }}>
-                                                    {product.points.toLocaleString('id-ID')}
-                                                    <br />
-                                                    <span style={{ color: 'var(--brand-secondary)' }}>POINTS</span>
+                                                <h3 className="text-3xl font-black flex flex-col items-center gap-1" style={{ color: 'var(--text-primary)' }}>
+                                                    <span>
+                                                        {product.points.toLocaleString('id-ID')}
+                                                        <span style={{ color: 'var(--brand-secondary)', marginLeft: '4px' }}>POINTS</span>
+                                                    </span>
+                                                    {product.points > 100 && (
+                                                        <span className="text-sm font-bold opacity-80" style={{ color: 'var(--text-muted)' }}>
+                                                            ({(() => {
+                                                                let base;
+                                                                if (product.points <= 500) base = Math.floor(product.points / 100) * 100;
+                                                                else if (product.points <= 1000) base = Math.floor(product.points / 500) * 500;
+                                                                else if (product.points <= 5000) base = Math.floor(product.points / 1000) * 1000;
+                                                                else base = Math.floor(product.points / 5000) * 5000;
+
+                                                                if (base >= product.points) {
+                                                                    if (product.points <= 500) base -= 100;
+                                                                    else if (product.points <= 1000) base -= 500;
+                                                                    else if (product.points <= 5000) base -= 1000;
+                                                                    else base -= 5000;
+                                                                }
+                                                                if (product.points === 280) base = 200;
+
+                                                                const bonus = product.points - base;
+                                                                return `${base.toLocaleString('id-ID')} + ${bonus.toLocaleString('id-ID')} Bonus`;
+                                                            })()})
+                                                        </span>
+                                                    )}
                                                 </h3>
                                             </div>
 

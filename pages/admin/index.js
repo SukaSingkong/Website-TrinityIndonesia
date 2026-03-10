@@ -481,15 +481,7 @@ export default function AdminDashboard() {
             {/* Quick Actions */}
             <h3 className="text-lg font-extrabold mb-4 text-[var(--text-primary)]">Aksi Cepat</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <Link href="/admin/products" className="mc-card p-5 group hover:shadow-lg transition-all border-2 border-transparent hover:border-[#E26E10]">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform bg-[#fff5eb]">
-                            <Icons.Terminal className="w-4 h-4 text-[#E26E10]" />
-                        </div>
-                        <h4 className="font-extrabold text-[var(--text-primary)] group-hover:text-[#E26E10] transition-colors">Products</h4>
-                    </div>
-                    <p className="text-xs leading-relaxed text-[var(--text-muted)]">Kelola produk & commands</p>
-                </Link>
+
 
                 <Link href="/admin/purchases" className="mc-card p-5 group hover:shadow-lg transition-all border-2 border-transparent hover:border-[#E26E10]">
                     <div className="flex items-center gap-3 mb-2">

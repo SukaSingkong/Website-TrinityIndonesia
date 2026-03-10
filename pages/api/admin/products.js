@@ -49,14 +49,9 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'PUT') {
-        const { action, productId, image_filter, badge } = req.body;
+        const { productId, image_filter } = req.body;
         try {
-            if (action === 'edit_badge') {
-                await pool.query('UPDATE store_products SET badge = ? WHERE id = ?', [badge || '', productId]);
-            } else {
-                // Default randomize_hue behavior
-                await pool.query('UPDATE store_products SET image_filter = ? WHERE id = ?', [image_filter, productId]);
-            }
+            await pool.query('UPDATE store_products SET image_filter = ? WHERE id = ?', [image_filter, productId]);
             return res.status(200).json({ success: true });
         } catch (error) {
             return res.status(500).json({ error: error.message });
