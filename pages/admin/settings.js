@@ -6,8 +6,8 @@ export default function AdminSettings() {
     const [settings, setSettings] = useState({
         event_name: 'Idul Fitri',
         discount_enabled: false,
-        base_price_per_500: 5000,
-        discounted_price_per_500: 4000,
+        base_price_per_500: 1000,
+        discount_percentage: 0,
         popup_bg_image: '',
         popup_title: '',
         popup_subtitle: '',
@@ -30,8 +30,8 @@ export default function AdminSettings() {
                     const loaded = {
                         event_name: data.event_name || '',
                         discount_enabled: Boolean(data.discount_enabled),
-                        base_price_per_500: data.base_price_per_500 || 5000,
-                        discounted_price_per_500: data.discounted_price_per_500 || 4000,
+                        base_price_per_500: data.base_price_per_500 || 1000,
+                        discount_percentage: data.discount_percentage || 0,
                         popup_bg_image: data.popup_bg_image || '',
                         popup_title: data.popup_title || '',
                         popup_subtitle: data.popup_subtitle || '',
@@ -164,31 +164,20 @@ export default function AdminSettings() {
                             </label>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="mt-6">
                             <div>
-                                <label className="block text-sm font-extrabold mb-2" style={{ color: 'var(--text-secondary)' }}>Nilai Harga Normal <span className="text-xs font-bold opacity-70">(Per 500 Points)</span></label>
-                                <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold" style={{ color: 'var(--text-muted)' }}>Rp</span>
+                                <label className="block text-sm font-extrabold mb-2" style={{ color: 'var(--text-secondary)' }}>Persentase Diskon <span className="text-xs font-bold opacity-70">(%)</span></label>
+                                <div className="relative max-w-sm">
                                     <input
                                         type="number"
-                                        value={settings.base_price_per_500}
-                                        onChange={(e) => setSettings({ ...settings, base_price_per_500: Number(e.target.value) })}
-                                        className="w-full p-4 pl-10 rounded-xl border-2 focus:bg-white focus:outline-none transition-all font-bold"
+                                        min="0"
+                                        max="100"
+                                        value={settings.discount_percentage}
+                                        onChange={(e) => setSettings({ ...settings, discount_percentage: Number(e.target.value) })}
+                                        className="w-full p-4 pr-10 rounded-xl border-2 focus:bg-white focus:outline-none transition-all font-bold"
                                         style={{ borderColor: 'var(--bg-body)', background: 'rgba(232,224,240,0.3)', color: 'var(--text-primary)' }}
                                     />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-extrabold mb-2" style={{ color: 'var(--text-secondary)' }}>Nilai Harga Saat Diskon <span className="text-xs font-bold opacity-70">(Per 500 Points)</span></label>
-                                <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold" style={{ color: 'var(--text-muted)' }}>Rp</span>
-                                    <input
-                                        type="number"
-                                        value={settings.discounted_price_per_500}
-                                        onChange={(e) => setSettings({ ...settings, discounted_price_per_500: Number(e.target.value) })}
-                                        className="w-full p-4 pl-10 rounded-xl border-2 focus:bg-white focus:outline-none transition-all font-bold"
-                                        style={{ borderColor: 'var(--bg-body)', background: 'rgba(232,224,240,0.3)', color: 'var(--text-primary)' }}
-                                    />
+                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold" style={{ color: 'var(--text-muted)' }}>%</span>
                                 </div>
                             </div>
                         </div>

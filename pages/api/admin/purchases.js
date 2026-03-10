@@ -10,10 +10,10 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
         try {
-            const [settingsRows] = await pool.query('SELECT discount_enabled, base_price_per_500, discounted_price_per_500 FROM store_settings LIMIT 1')
+            const [settingsRows] = await pool.query('SELECT discount_enabled, base_price_per_500, discount_percentage FROM store_settings LIMIT 1')
             const settings = settingsRows[0] || {}
             const discount_enabled = settings.discount_enabled === 1 || settings.discount_enabled === true
-            const price_per_500 = discount_enabled ? (settings.discounted_price_per_500 || 4000) : (settings.base_price_per_500 || 5000)
+            const price_per_500 = discount_enabled ? (settings.base_price_per_500 * (1 - (settings.discount_percentage / 100))) : (settings.base_price_per_500 || 1000)
             const pricePerPoint = price_per_500 / 500
 
             const [rows] = await pool.query('SELECT * FROM store_purchases ORDER BY created_at DESC LIMIT 100');

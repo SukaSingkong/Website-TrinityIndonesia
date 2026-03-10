@@ -253,8 +253,8 @@ export default function Store() {
 
         // Hitung harga sebenarnya
         const quantity = selectedProduct.quantity
-        const { discount_enabled: discountEnabled, base_price_per_500: basePrice, discounted_price_per_500: discountPrice } = storeSettings || { discount_enabled: 0, base_price_per_500: 5000, discounted_price_per_500: 4000 };
-        const pricePerUnit = discountEnabled ? discountPrice : basePrice;
+        const { discount_enabled: discountEnabled, base_price_per_500: basePrice, discount_percentage: discountPercentage } = storeSettings || { discount_enabled: 0, base_price_per_500: 1000, discount_percentage: 0 };
+        const pricePerUnit = discountEnabled ? basePrice * (1 - (discountPercentage / 100)) : basePrice;
         const subtotal = quantity * pricePerUnit;
         const serviceFee = 1000;
         const totalAmount = subtotal + serviceFee;
@@ -489,8 +489,23 @@ export default function Store() {
                                         </div>
                                     </div>
 
+                                    {/* Warnings */}
+                                    <div className="space-y-3 mb-6">
+                                        <div className="p-4 rounded-xl" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
+                                            <div className="flex items-start gap-3">
+                                                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: '#fef3c7' }}>
+                                                    <Icons.ExclamationCircle className="h-5 w-5" style={{ color: '#d97706' }} />
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-sm" style={{ color: '#d97706' }}>Pastikan nickname & platform sudah benar!</p>
+                                                    <p className="text-xs mt-1" style={{ color: '#92400e' }}>Jika nickname/platform salah, tidak ada refund. Silakan logout dan login ulang dengan nickname yang benar.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     {/* Country Selection */}
-                                    <div>
+                                    <div className="mb-6">
                                         <label className="block text-sm font-bold mb-3" style={{ color: 'var(--text-muted)' }}>Pilih Negara Pembayaran</label>
                                         <div className="relative">
                                             <select
@@ -510,22 +525,6 @@ export default function Store() {
                                             </select>
                                             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                                 <Icons.ChevronDown className="h-5 w-5" style={{ color: 'var(--text-muted)' }} />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Warnings */}
-
-                                    <div className="space-y-3">
-                                        <div className="p-4 rounded-xl" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
-                                            <div className="flex items-start gap-3">
-                                                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: '#fef3c7' }}>
-                                                    <Icons.ExclamationCircle className="h-5 w-5" style={{ color: '#d97706' }} />
-                                                </div>
-                                                <div>
-                                                    <p className="font-bold text-sm" style={{ color: '#d97706' }}>Pastikan nickname & platform sudah benar!</p>
-                                                    <p className="text-xs mt-1" style={{ color: '#92400e' }}>Jika nickname/platform salah, tidak ada refund. Silakan logout dan login ulang dengan nickname yang benar.</p>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -560,7 +559,7 @@ export default function Store() {
                                         <div className="flex justify-between items-center text-sm">
                                             <span style={{ color: 'var(--text-muted)' }}>Subtotal</span>
                                             <span className="font-bold" style={{ color: 'var(--text-primary)' }}>
-                                                Rp {(selectedProduct.quantity * (storeSettings?.discount_enabled ? storeSettings?.discounted_price_per_500 : storeSettings?.base_price_per_500 || 5000)).toLocaleString('id-ID')}
+                                                Rp {(selectedProduct.quantity * (storeSettings?.discount_enabled ? storeSettings?.base_price_per_500 * (1 - (storeSettings?.discount_percentage / 100)) : storeSettings?.base_price_per_500 || 1000)).toLocaleString('id-ID')}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center text-sm">
@@ -570,7 +569,7 @@ export default function Store() {
                                         <div className="pt-3 flex justify-between items-center border-t border-gray-200">
                                             <span className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>Total Pembayaran</span>
                                             <span className="font-black text-lg" style={{ color: 'var(--brand-secondary)' }}>
-                                                Rp {((selectedProduct.quantity * (storeSettings?.discount_enabled ? storeSettings?.discounted_price_per_500 : storeSettings?.base_price_per_500 || 5000)) + 1000).toLocaleString('id-ID')}
+                                                Rp {((selectedProduct.quantity * (storeSettings?.discount_enabled ? storeSettings?.base_price_per_500 * (1 - (storeSettings?.discount_percentage / 100)) : storeSettings?.base_price_per_500 || 1000)) + 1000).toLocaleString('id-ID')}
                                             </span>
                                         </div>
                                     </div>
@@ -844,17 +843,9 @@ export default function Store() {
                                             {/* Points Amount */}
                                             <div className="text-center mb-5">
                                                 <h3 className="text-3xl font-black" style={{ color: 'var(--text-primary)' }}>
-                                                    {product.points === 500 ? (
-                                                        <>
-                                                            {product.points.toLocaleString('id-ID')}
-                                                            <br />
-                                                            <span style={{ color: 'var(--brand-secondary)' }}>POINTS</span>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            {product.points.toLocaleString('id-ID')} <span style={{ color: 'var(--brand-secondary)' }}>POINTS</span>
-                                                        </>
-                                                    )}
+                                                    {product.points.toLocaleString('id-ID')}
+                                                    <br />
+                                                    <span style={{ color: 'var(--brand-secondary)' }}>POINTS</span>
                                                 </h3>
                                             </div>
 

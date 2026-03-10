@@ -38,7 +38,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
         const {
-            event_name, discount_enabled, base_price_per_500, discounted_price_per_500,
+            event_name, discount_enabled, base_price_per_500, discount_percentage,
             popup_bg_image, popup_title, popup_subtitle, popup_discount_text, discount_timer
         } = req.body;
 
@@ -49,11 +49,11 @@ export default async function handler(req, res) {
             if (rows.length > 0) {
                 await pool.query(
                     `UPDATE store_settings SET 
-                        event_name=?, discount_enabled=?, base_price_per_500=?, discounted_price_per_500=?,
+                        event_name=?, discount_enabled=?, base_price_per_500=?, discount_percentage=?,
                         popup_bg_image=?, popup_title=?, popup_subtitle=?, popup_discount_text=?, discount_timer=?
                     WHERE id=?`,
                     [
-                        event_name, discount_enabled ? 1 : 0, base_price_per_500, discounted_price_per_500,
+                        event_name, discount_enabled ? 1 : 0, base_price_per_500, discount_percentage,
                         popup_bg_image || '', popup_title || '', popup_subtitle || '', popup_discount_text || '', discount_timer || '',
                         rows[0].id
                     ]
@@ -61,10 +61,10 @@ export default async function handler(req, res) {
             } else {
                 await pool.query(
                     `INSERT INTO store_settings 
-                        (event_name, discount_enabled, base_price_per_500, discounted_price_per_500, popup_bg_image, popup_title, popup_subtitle, popup_discount_text, discount_timer) 
+                        (event_name, discount_enabled, base_price_per_500, discount_percentage, popup_bg_image, popup_title, popup_subtitle, popup_discount_text, discount_timer) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
-                        event_name, discount_enabled ? 1 : 0, base_price_per_500, discounted_price_per_500,
+                        event_name, discount_enabled ? 1 : 0, base_price_per_500, discount_percentage,
                         popup_bg_image || '', popup_title || '', popup_subtitle || '', popup_discount_text || '', discount_timer || ''
                     ]
                 );

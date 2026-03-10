@@ -39,7 +39,7 @@ export default async function handler(req, res) {
 
         let dbSettings = settingsRows[0] || {
             event_name: 'Store', discount_enabled: 0,
-            base_price_per_500: 5000, discounted_price_per_500: 4000
+            base_price_per_500: 1000, discount_percentage: 0
         };
 
         // Auto-disable discount if timer has expired
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
 
         const products = productRows.map(p => {
             const basePrice = p.quantity * dbSettings.base_price_per_500;
-            const currentPrice = dbSettings.discount_enabled ? (p.quantity * dbSettings.discounted_price_per_500) : basePrice;
+            const currentPrice = dbSettings.discount_enabled ? (basePrice * (1 - (dbSettings.discount_percentage / 100))) : basePrice;
 
             return {
                 ...p,

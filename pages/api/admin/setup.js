@@ -14,8 +14,8 @@ export default async function handler(req, res) {
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 event_name VARCHAR(100) DEFAULT '',
                 discount_enabled BOOLEAN DEFAULT false,
-                base_price_per_500 INT DEFAULT 5000,
-                discounted_price_per_500 INT DEFAULT 4000,
+                base_price_per_500 INT DEFAULT 1000,
+                discount_percentage INT DEFAULT 0,
                 popup_bg_image VARCHAR(500) DEFAULT '',
                 popup_title VARCHAR(200) DEFAULT '',
                 popup_subtitle VARCHAR(500) DEFAULT '',
@@ -42,8 +42,8 @@ export default async function handler(req, res) {
         const [settingsRows] = await pool.query('SELECT COUNT(*) as count FROM store_settings');
         if (settingsRows[0].count === 0) {
             await pool.query(`
-                INSERT INTO store_settings (event_name, discount_enabled, base_price_per_500, discounted_price_per_500)
-                VALUES ('Idul Fitri', false, 5000, 4000)
+                INSERT INTO store_settings (event_name, discount_enabled, base_price_per_500, discount_percentage)
+                VALUES ('Idul Fitri', false, 1000, 0)
             `);
         }
 
@@ -88,14 +88,12 @@ export default async function handler(req, res) {
         const [productRows] = await pool.query('SELECT COUNT(*) as count FROM store_products');
         if (productRows[0].count === 0) {
             const defaultProducts = [
-                { name: '500 Points', points: 500, quantity: 1, badge: '', popular: false, image: '/vendor/gift1.webp', filter: '' },
-                { name: '1000 Points', points: 1000, quantity: 2, badge: '', popular: false, image: '/vendor/gift2.webp', filter: '' },
-                { name: '2000 Points', points: 2000, quantity: 4, badge: '', popular: false, image: '/vendor/gift3.webp', filter: '' },
-                { name: '3000 Points', points: 3000, quantity: 6, badge: '', popular: false, image: '/vendor/gift1.webp', filter: 'hue-rotate(90deg)' },
-                { name: '4000 Points', points: 4000, quantity: 8, badge: 'PALING LARIS!', popular: true, image: '/vendor/gift3.webp', filter: 'hue-rotate(90deg)' },
-                { name: '5000 Points', points: 5000, quantity: 10, badge: '', popular: false, image: '/vendor/gift1.webp', filter: 'hue-rotate(270deg)' },
-                { name: '6000 Points', points: 6000, quantity: 12, badge: '', popular: false, image: '/vendor/gift3.webp', filter: 'invert(10%) sepia(80%) saturate(1500%) hue-rotate(300deg)' },
-                { name: '7000 Points', points: 7000, quantity: 14, badge: '', popular: false, image: '/vendor/gift1.webp', filter: 'hue-rotate(45deg)' }
+                { name: 'Paket 1', points: 280, quantity: 5, badge: '', popular: false, image: '/vendor/gift1.webp', filter: '' },
+                { name: 'Paket 2', points: 680, quantity: 12, badge: '', popular: false, image: '/vendor/gift2.webp', filter: '' },
+                { name: 'Paket 3', points: 1520, quantity: 25, badge: '', popular: false, image: '/vendor/gift3.webp', filter: '' },
+                { name: 'Paket 4', points: 3240, quantity: 50, badge: 'PALING LARIS!', popular: true, image: '/vendor/gift1.webp', filter: 'hue-rotate(90deg)' },
+                { name: 'Paket 5', points: 6780, quantity: 100, badge: '', popular: false, image: '/vendor/gift2.webp', filter: 'hue-rotate(270deg)' },
+                { name: 'Paket 6', points: 13820, quantity: 190, badge: '', popular: false, image: '/vendor/gift3.webp', filter: 'invert(10%) sepia(80%) saturate(1500%) hue-rotate(300deg)' }
             ];
 
             for (const p of defaultProducts) {

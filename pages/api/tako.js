@@ -94,7 +94,7 @@ export default async function handler(req, res) {
         // Easiest is to find the exact price matched
 
         const [settingsRows] = await pool.query('SELECT * FROM store_settings LIMIT 1');
-        let dbSettings = settingsRows[0] || { discount_enabled: 0, base_price_per_500: 5000, discounted_price_per_500: 4000 };
+        let dbSettings = settingsRows[0] || { discount_enabled: 0, base_price_per_500: 1000, discount_percentage: 0 };
 
         // Auto-disable discount if timer has expired
         if (dbSettings.discount_enabled && dbSettings.discount_timer) {
@@ -121,7 +121,7 @@ export default async function handler(req, res) {
 
         for (const p of productRows) {
             const basePrice = p.quantity * dbSettings.base_price_per_500;
-            const currentPrice = dbSettings.discount_enabled ? (p.quantity * dbSettings.discounted_price_per_500) : basePrice;
+            const currentPrice = dbSettings.discount_enabled ? (basePrice * (1 - (dbSettings.discount_percentage / 100))) : basePrice;
             const totalWithFee = currentPrice + 1000;
 
             if (Math.abs(amount - totalWithFee) < EPSILON) {

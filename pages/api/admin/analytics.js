@@ -26,10 +26,10 @@ export default async function handler(req, res) {
         const productFilter = getFilter(req.query.productRange);
         const recentFilter = getFilter(req.query.recentRange);
 
-        const [settingsRows] = await pool.query('SELECT discount_enabled, base_price_per_500, discounted_price_per_500 FROM store_settings LIMIT 1')
+        const [settingsRows] = await pool.query('SELECT discount_enabled, base_price_per_500, discount_percentage FROM store_settings LIMIT 1')
         const settings = settingsRows[0] || {}
         const discount_enabled = settings.discount_enabled === 1 || settings.discount_enabled === true
-        const price_per_500 = discount_enabled ? (settings.discounted_price_per_500 || 4000) : (settings.base_price_per_500 || 5000)
+        const price_per_500 = discount_enabled ? (settings.base_price_per_500 * (1 - (settings.discount_percentage / 100))) : (settings.base_price_per_500 || 1000)
         const pricePerPoint = price_per_500 / 500
 
         // Daily sales for last 14 days

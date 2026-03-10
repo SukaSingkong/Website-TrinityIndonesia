@@ -223,7 +223,7 @@ export default function AdminProducts() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-extrabold mb-1" style={{ color: 'var(--text-secondary)' }}>Quantity <span className="text-xs font-bold opacity-60">(kelipatan 500)</span></label>
+                                <label className="block text-sm font-extrabold mb-1" style={{ color: 'var(--text-secondary)' }}>Multiplier Harga</label>
                                 <input
                                     type="number" required min="1"
                                     value={newProduct.quantity}
