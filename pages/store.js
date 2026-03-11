@@ -85,8 +85,7 @@ export default function Store() {
     const [savedUsername, setSavedUsername] = useState('')
     const [isProcessing, setIsProcessing] = useState(false)
     const [error, setError] = useState('')
-    const [toastVisible, setToastVisible] = useState(false)
-    const [toastMsg, setToastMsg] = useState('')
+    const [toasts, setToasts] = useState([])
 
     // Purchase modal states
     const [showPurchaseModal, setShowPurchaseModal] = useState(false)
@@ -94,6 +93,11 @@ export default function Store() {
     const [agreedToTerms, setAgreedToTerms] = useState(false)
     const [paymentMethod, setPaymentMethod] = useState('qris')
     const [selectedCountry, setSelectedCountry] = useState('indonesia')
+
+    // Cart states
+    const [cart, setCart] = useState([])
+    const [showCart, setShowCart] = useState(false)
+    const [cartBounce, setCartBounce] = useState(false)
 
     const paymentMethodsByCountry = {
         indonesia: [
@@ -152,6 +156,12 @@ export default function Store() {
             setLoggedIn(true)
         }
 
+        // Load cart from localStorage
+        try {
+            const savedCart = localStorage.getItem('trinityCart')
+            if (savedCart) setCart(JSON.parse(savedCart))
+        } catch (e) { /* ignore */ }
+
         fetchStore()
 
         if (router.query.status === 'success') {
@@ -168,9 +178,13 @@ export default function Store() {
     }, [router.query])
 
     function toast(msg) {
-        setToastMsg(msg)
-        setToastVisible(true)
-        setTimeout(() => setToastVisible(false), 3000)
+        const id = Date.now()
+        setToasts(prev => [...prev, { id, msg }])
+        setTimeout(() => removeToast(id), 3000)
+    }
+
+    function removeToast(id) {
+        setToasts(prev => prev.filter(t => t.id !== id))
     }
 
     async function handleLogin(e) {
@@ -237,10 +251,68 @@ export default function Store() {
         toast("Logout berhasil!")
     }
 
+    // Cart functions
+    function saveCart(newCart) {
+        setCart(newCart)
+        try { localStorage.setItem('trinityCart', JSON.stringify(newCart)) } catch (e) { /* ignore */ }
+    }
+
+    function addToCart(product) {
+        const existing = cart.find(item => item.product.id === product.id)
+        let newCart
+        if (existing) {
+            newCart = cart.map(item =>
+                item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+            )
+        } else {
+            newCart = [...cart, { product, quantity: 1 }]
+        }
+        saveCart(newCart)
+        toast(`${product.points} Points ditambahkan ke keranjang!`)
+        setCartBounce(true)
+        setTimeout(() => setCartBounce(false), 500)
+    }
+
+    function removeFromCart(productId) {
+        saveCart(cart.filter(item => item.product.id !== productId))
+    }
+
+    function updateCartQty(productId, qty) {
+        if (qty <= 0) return removeFromCart(productId)
+        saveCart(cart.map(item =>
+            item.product.id === productId ? { ...item, quantity: qty } : item
+        ))
+    }
+
+    function clearCart() {
+        saveCart([])
+    }
+
+    function getCartSubtotal() {
+        const { discount_enabled, base_price_per_500, discount_percentage } = storeSettings || { discount_enabled: 0, base_price_per_500: 1000, discount_percentage: 0 }
+        return cart.reduce((sum, item) => {
+            const pricePerUnit = discount_enabled ? base_price_per_500 * (1 - (discount_percentage / 100)) : base_price_per_500
+            return sum + (item.product.quantity * pricePerUnit * item.quantity)
+        }, 0)
+    }
+
+    const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0)
+
     function openPurchaseModal(product) {
         setSelectedProduct(product)
         setAgreedToTerms(false)
         setShowPurchaseModal(true)
+    }
+
+    function openCartCheckout() {
+        if (cart.length === 0) {
+            toast("Keranjang masih kosong!")
+            return
+        }
+        setShowCart(false)
+        setAgreedToTerms(false)
+        setShowPurchaseModal(true)
+        setSelectedProduct(null) // null = cart checkout mode
     }
 
     async function confirmPurchase() {
@@ -251,11 +323,14 @@ export default function Store() {
 
         setIsProcessing(true)
 
-        // Hitung harga sebenarnya
-        const quantity = selectedProduct.quantity
-        const { discount_enabled: discountEnabled, base_price_per_500: basePrice, discount_percentage: discountPercentage } = storeSettings || { discount_enabled: 0, base_price_per_500: 1000, discount_percentage: 0 };
-        const pricePerUnit = discountEnabled ? basePrice * (1 - (discountPercentage / 100)) : basePrice;
-        const subtotal = quantity * pricePerUnit;
+        const { discount_enabled: de, base_price_per_500: basePrice, discount_percentage: dp } = storeSettings || { discount_enabled: 0, base_price_per_500: 1000, discount_percentage: 0 };
+        const pricePerUnit = de ? basePrice * (1 - (dp / 100)) : basePrice;
+        let subtotal;
+        if (selectedProduct) {
+            subtotal = selectedProduct.quantity * pricePerUnit;
+        } else {
+            subtotal = getCartSubtotal();
+        }
         const serviceFee = 1000;
         const totalAmount = subtotal + serviceFee;
 
@@ -273,6 +348,7 @@ export default function Store() {
             const data = await response.json();
 
             if (data.success && data.paymentUrl) {
+                if (!selectedProduct) clearCart() // clear cart on cart checkout
                 window.location.href = data.paymentUrl;
                 closePurchaseModal()
             } else {
@@ -299,14 +375,28 @@ export default function Store() {
             description="Beli Points Trinity Indonesia untuk mendapatkan keuntungan in-game. Proses cepat, aman, dan berbagai pilihan paket menarik."
             path="/store"
         >
-            {/* Toast */}
-            <div className={`${toastVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95'} fixed right-6 bottom-6 z-50 mc-card px-6 py-4 shadow-xl transition-all duration-300`} style={{ borderLeft: '4px solid #16a34a' }}>
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#dcfce7' }}>
-                        <Icons.CheckCircle className="h-5 w-5" style={{ color: '#16a34a' }} />
+            {/* Toasts Container */}
+            <div className="fixed left-6 top-6 z-50 flex flex-col gap-3">
+                {toasts.map(t => (
+                    <div
+                        key={t.id}
+                        className="mc-card px-6 py-4 shadow-xl transition-all duration-300 animate-slide-in-left relative pr-12"
+                        style={{ borderLeft: '4px solid #16a34a' }}
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#dcfce7' }}>
+                                <Icons.CheckCircle className="h-5 w-5" style={{ color: '#16a34a' }} />
+                            </div>
+                            <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{t.msg}</p>
+                        </div>
+                        <button
+                            onClick={() => removeToast(t.id)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1 opacity-50 hover:opacity-100 hover:bg-gray-100 transition-all"
+                        >
+                            <Icons.X className="w-4 h-4" />
+                        </button>
                     </div>
-                    <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{toastMsg}</p>
-                </div>
+                ))}
             </div>
 
             {isProcessing && (
@@ -360,7 +450,7 @@ export default function Store() {
             )}
 
             {/* Purchase Confirmation Modal */}
-            {showPurchaseModal && selectedProduct && (
+            {showPurchaseModal && (selectedProduct || cart.length > 0) && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={closePurchaseModal}>
                     <div
                         className="w-full max-w-lg mc-card overflow-hidden max-h-[90vh] overflow-y-auto"
@@ -371,7 +461,7 @@ export default function Store() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="text-2xl font-extrabold text-white">Konfirmasi Pembelian</h3>
-                                    <p className="text-white/80 text-sm mt-1">{selectedProduct.points} Points - {selectedProduct.price}</p>
+                                    <p className="text-white/80 text-sm mt-1">{selectedProduct ? `${selectedProduct.points} Points - ${selectedProduct.price}` : `${cart.length} item dalam keranjang`}</p>
                                 </div>
                                 <button
                                     onClick={closePurchaseModal}
@@ -555,11 +645,26 @@ export default function Store() {
 
 
                                     {/* Checkout Overview (Nota) */}
+                                    {!selectedProduct && cart.length > 0 && (
+                                        <div className="space-y-2 mb-3">
+                                            <label className="block text-sm font-bold" style={{ color: 'var(--text-muted)' }}>Item Keranjang</label>
+                                            {cart.map(item => (
+                                                <div key={item.product.id} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#f5f3f8' }}>
+                                                    <img src={item.product.image} alt={item.product.name} className="w-10 h-10 object-contain" style={item.product.imageStyle} />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="font-bold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{item.product.points} Points</p>
+                                                        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>x{item.quantity}</p>
+                                                    </div>
+                                                    <p className="font-bold text-sm" style={{ color: 'var(--brand-secondary)' }}>{item.product.price}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                     <div className="p-4 rounded-xl space-y-3" style={{ background: '#f5f3f8' }}>
                                         <div className="flex justify-between items-center text-sm">
                                             <span style={{ color: 'var(--text-muted)' }}>Subtotal</span>
                                             <span className="font-bold" style={{ color: 'var(--text-primary)' }}>
-                                                Rp {(selectedProduct.quantity * (storeSettings?.discount_enabled ? storeSettings?.base_price_per_500 * (1 - (storeSettings?.discount_percentage / 100)) : storeSettings?.base_price_per_500 || 1000)).toLocaleString('id-ID')}
+                                                Rp {(selectedProduct ? (selectedProduct.quantity * (storeSettings?.discount_enabled ? storeSettings?.base_price_per_500 * (1 - (storeSettings?.discount_percentage / 100)) : storeSettings?.base_price_per_500 || 1000)) : getCartSubtotal()).toLocaleString('id-ID')}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center text-sm">
@@ -569,7 +674,7 @@ export default function Store() {
                                         <div className="pt-3 flex justify-between items-center border-t border-gray-200">
                                             <span className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>Total Pembayaran</span>
                                             <span className="font-black text-lg" style={{ color: 'var(--brand-secondary)' }}>
-                                                Rp {((selectedProduct.quantity * (storeSettings?.discount_enabled ? storeSettings?.base_price_per_500 * (1 - (storeSettings?.discount_percentage / 100)) : storeSettings?.base_price_per_500 || 1000)) + 1000).toLocaleString('id-ID')}
+                                                Rp {((selectedProduct ? (selectedProduct.quantity * (storeSettings?.discount_enabled ? storeSettings?.base_price_per_500 * (1 - (storeSettings?.discount_percentage / 100)) : storeSettings?.base_price_per_500 || 1000)) : getCartSubtotal()) + 1000).toLocaleString('id-ID')}
                                             </span>
                                         </div>
                                     </div>
@@ -886,10 +991,10 @@ export default function Store() {
 
                                             {/* Buy Button */}
                                             <button
-                                                onClick={() => openPurchaseModal(product)}
-                                                className="w-full py-3 rounded-xl font-extrabold text-sm transition-all duration-300 text-white glow-button hover:shadow-lg"
+                                                onClick={() => addToCart(product)}
+                                                className="w-full py-3 px-2 rounded-xl font-extrabold text-sm transition-all duration-300 text-white glow-button hover:shadow-lg flex items-center justify-center gap-1.5"
                                             >
-                                                BELI SEKARANG
+                                                TAMBAH KE KERANJANG
                                             </button>
                                         </div>
                                     </div>
@@ -933,6 +1038,104 @@ export default function Store() {
                         </div>
                     </div>
                 </>
+            )}
+
+            {/* Cart Overlay */}
+            <div className={`cart-overlay ${showCart ? 'cart-open' : ''}`} onClick={() => setShowCart(false)} />
+
+            {/* Cart Drawer */}
+            <div className={`cart-drawer ${showCart ? 'cart-open' : ''}`}>
+                {/* Cart Header */}
+                <div className="p-5 flex items-center justify-between" style={{ borderBottom: '1px solid #e8e0f0' }}>
+                    <div className="flex items-center gap-3">
+                        <svg className="w-6 h-6" style={{ color: 'var(--brand-secondary)' }} fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M15.3709 3.44L18.5819 9.002L22.0049 9.00218V11.0022L20.8379 11.002L20.0813 20.0852C20.0381 20.6035 19.6048 21.0022 19.0847 21.0022H4.92502C4.40493 21.0022 3.97166 20.6035 3.92847 20.0852L3.17088 11.002L2.00488 11.0022V9.00218L5.42688 9.002L8.63886 3.44L10.3709 4.44L7.73688 9.002H16.2719L13.6389 4.44L15.3709 3.44ZM18.8309 11.002L5.17788 11.0022L5.84488 19.0022H18.1639L18.8309 11.002ZM13.0049 13.0022V17.0022H11.0049V13.0022H13.0049ZM9.00488 13.0022V17.0022H7.00488V13.0022H9.00488ZM17.0049 13.0022V17.0022H15.0049V13.0022H17.0049Z" />
+                        </svg>
+                        <h3 className="text-lg font-extrabold" style={{ color: 'var(--text-primary)' }}>Keranjang ({cartItemCount})</h3>
+                    </div>
+                    <button onClick={() => setShowCart(false)} className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors">
+                        <Icons.X className="h-5 w-5" style={{ color: 'var(--text-muted)' }} />
+                    </button>
+                </div>
+
+                {/* Cart Items */}
+                <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                    {cart.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-16 text-center">
+                            <svg className="w-20 h-20 mb-4" style={{ color: '#e8e0f0' }} fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M15.3709 3.44L18.5819 9.002L22.0049 9.00218V11.0022L20.8379 11.002L20.0813 20.0852C20.0381 20.6035 19.6048 21.0022 19.0847 21.0022H4.92502C4.40493 21.0022 3.97166 20.6035 3.92847 20.0852L3.17088 11.002L2.00488 11.0022V9.00218L5.42688 9.002L8.63886 3.44L10.3709 4.44L7.73688 9.002H16.2719L13.6389 4.44L15.3709 3.44ZM18.8309 11.002L5.17788 11.0022L5.84488 19.0022H18.1639L18.8309 11.002ZM13.0049 13.0022V17.0022H11.0049V13.0022H13.0049ZM9.00488 13.0022V17.0022H7.00488V13.0022H9.00488ZM17.0049 13.0022V17.0022H15.0049V13.0022H17.0049Z" />
+                            </svg>
+                            <p className="font-extrabold text-lg mb-1" style={{ color: 'var(--text-muted)' }}>Keranjang Kosong</p>
+                            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Tambahkan produk dari store untuk mulai belanja!</p>
+                        </div>
+                    ) : (
+                        cart.map(item => (
+                            <div key={item.product.id} className="mc-card p-4 flex items-center gap-4" style={{ border: '1px solid #e8e0f0' }}>
+                                <img src={item.product.image} alt={item.product.name} className="w-14 h-14 object-contain flex-shrink-0" style={item.product.imageStyle} />
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-extrabold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{item.product.points.toLocaleString('id-ID')} Points</p>
+                                    <p className="font-bold text-sm mt-0.5" style={{ color: 'var(--brand-secondary)' }}>{item.product.price}</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <button
+                                            onClick={() => updateCartQty(item.product.id, item.quantity - 1)}
+                                            className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-sm transition-colors"
+                                            style={{ background: '#f5f3f8', color: 'var(--text-secondary)' }}
+                                        >−</button>
+                                        <span className="font-extrabold text-sm w-6 text-center" style={{ color: 'var(--text-primary)' }}>{item.quantity}</span>
+                                        <button
+                                            onClick={() => updateCartQty(item.product.id, item.quantity + 1)}
+                                            className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-sm transition-colors"
+                                            style={{ background: '#f5f3f8', color: 'var(--text-secondary)' }}
+                                        >+</button>
+                                    </div>
+                                </div>
+                                <button onClick={() => removeFromCart(item.product.id)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 transition-colors flex-shrink-0">
+                                    <Icons.X className="h-4 w-4" style={{ color: '#dc2626' }} />
+                                </button>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* Cart Footer */}
+                {cart.length > 0 && (
+                    <div className="p-5" style={{ borderTop: '1px solid #e8e0f0' }}>
+                        <div className="flex justify-between items-center mb-4">
+                            <span className="font-bold" style={{ color: 'var(--text-muted)' }}>Subtotal</span>
+                            <span className="font-black text-lg" style={{ color: 'var(--brand-secondary)' }}>
+                                Rp {getCartSubtotal().toLocaleString('id-ID')}
+                            </span>
+                        </div>
+                        <button
+                            onClick={openCartCheckout}
+                            className="w-full py-3.5 rounded-xl font-extrabold text-white glow-button hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                        >
+                            Checkout ({cartItemCount} item)
+                        </button>
+                        <button
+                            onClick={clearCart}
+                            className="w-full py-2.5 mt-2 rounded-xl font-bold text-sm transition-colors"
+                            style={{ color: 'var(--text-muted)' }}
+                        >
+                            Kosongkan Keranjang
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* Floating Cart Button */}
+            {!showCart && (
+                <button
+                    onClick={() => setShowCart(true)}
+                    className={`cart-fab ${cartBounce ? 'cart-fab-bounce' : ''}`}
+                >
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.3709 3.44L18.5819 9.002L22.0049 9.00218V11.0022L20.8379 11.002L20.0813 20.0852C20.0381 20.6035 19.6048 21.0022 19.0847 21.0022H4.92502C4.40493 21.0022 3.97166 20.6035 3.92847 20.0852L3.17088 11.002L2.00488 11.0022V9.00218L5.42688 9.002L8.63886 3.44L10.3709 4.44L7.73688 9.002H16.2719L13.6389 4.44L15.3709 3.44ZM18.8309 11.002L5.17788 11.0022L5.84488 19.0022H18.1639L18.8309 11.002ZM13.0049 13.0022V17.0022H11.0049V13.0022H13.0049ZM9.00488 13.0022V17.0022H7.00488V13.0022H9.00488ZM17.0049 13.0022V17.0022H15.0049V13.0022H17.0049Z" />
+                    </svg>
+                    {cartItemCount > 0 && (
+                        <span className="cart-fab-badge">{cartItemCount}</span>
+                    )}
+                </button>
             )}
         </Wrapper>
     )

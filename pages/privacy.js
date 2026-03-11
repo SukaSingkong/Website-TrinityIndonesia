@@ -22,17 +22,21 @@ export default function PrivacyPolicy() {
                     <p>
                         Selain itu, saat Anda melakukan pembelian atau mencoba melakukan pembelian melalui Situs, kami mengumpulkan informasi tertentu dari Anda, termasuk nama Anda (Username Minecraft), alamat email, dan informasi pembayaran. Kami menyebut informasi ini sebagai "Informasi Pemesanan".
                     </p>
+                    <p>
+                        Saat Anda terhubung dan bermain di server Minecraft kami, kami juga secara aktif mengumpulkan data terkait aktivitas in-game Anda. Ini mencakup, namun tidak terbatas pada, waktu bermain (playtime), riwayat aktivitas, perilaku saat bermain (in-game behavior), interaksi dengan pemain lain maupun fitur server, serta statistik in-game lainnya.
+                    </p>
 
                     <h2 className="text-xl font-bold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>2. Bagaimana Kami Menggunakan Informasi Pribadi Anda?</h2>
                     <p>
                         Kami menggunakan Informasi Pemesanan yang kami kumpulkan secara umum untuk memenuhi setiap pesanan yang ditempatkan melalui Situs (termasuk memproses informasi pembayaran Anda, menyediakan produk atau layanan in-game, dan memberi Anda faktur dan/atau konfirmasi pesanan).
                     </p>
                     <p>
-                        Selain itu, kami menggunakan Informasi Pemesanan ini untuk:
+                        Selain itu, kami menggunakan informasi yang dikumpulkan untuk:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
                         <li>Berkomunikasi dengan Anda;</li>
-                        <li>Memeriksa pesanan kami untuk potensi risiko atau penipuan; dan</li>
+                        <li>Memeriksa akun dan pesanan untuk potensi risiko, pelanggaran aturan server, atau penipuan;</li>
+                        <li>Menganalisis data waktu bermain dan perilaku in-game untuk meningkatkan pengalaman bermain, menjaga moderasi dan keamanan server, serta merencanakan pembaruan fitur; dan</li>
                         <li>Saat sesuai dengan preferensi yang Anda bagikan dengan kami, memberikan Anda informasi atau iklan yang berkaitan dengan produk atau layanan kami.</li>
                     </ul>
 
