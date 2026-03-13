@@ -2,6 +2,125 @@ import { Wrapper } from '@layer/components/layout/Wrapper.jsx'
 import { Icons } from '@layer/components/elements/Icons.jsx'
 import { useState, useEffect, useRef, useCallback } from "react"
 
+// Countdown timer hook — re-renders every second, calls onExpire when done
+function useCountdown(endMs, onExpire) {
+    const [remaining, setRemaining] = useState(() => {
+        if (!endMs) return null;
+        return Math.max(0, endMs - Date.now());
+    });
+
+    useEffect(() => {
+        if (!endMs) return;
+        const tick = () => {
+            const left = Math.max(0, endMs - Date.now());
+            setRemaining(left);
+            if (left === 0 && onExpire) onExpire();
+        };
+        tick();
+        const id = setInterval(tick, 1000);
+        return () => clearInterval(id);
+    }, [endMs, onExpire]);
+
+    return remaining;
+}
+
+// Single row with its own countdown
+function PunishmentRow({ p, onExpired, formatDate }) {
+    const isPermanent = !p.end;
+
+    const handleExpire = useCallback(() => {
+        onExpired(p.id);
+    }, [p.id, onExpired]);
+
+    const remaining = useCountdown(isPermanent ? null : p.end, handleExpire);
+
+    const formatCountdown = (ms) => {
+        if (ms === null || ms === undefined) return null;
+        if (ms <= 0) return null;
+        const totalSec = Math.floor(ms / 1000);
+        const d = Math.floor(totalSec / 86400);
+        const h = Math.floor((totalSec % 86400) / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
+        if (d > 0) return `${d}h ${h}j ${m}m ${s}d`;
+        if (h > 0) return `${h}j ${m}m ${s}d`;
+        if (m > 0) return `${m}m ${s}d`;
+        return `${s}d`;
+    };
+
+    const formatDuration = (start, end) => {
+        if (!end) return 'Permanen';
+        const duration = end - start;
+        if (duration <= 0) return 'Selesai';
+        const days = Math.floor(duration / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        if (days > 0) return `${days} Hari ${hours} Jam`;
+        return `${hours} Jam`;
+    };
+
+    const countdownText = formatCountdown(remaining);
+
+    return (
+        <tr className="hover:bg-gray-50 transition-colors group">
+            {/* Pemain */}
+            <td className="px-5 py-4">
+                <div className="flex items-center gap-3">
+                    <div className="relative flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                        <img
+                            src={`https://minotar.net/helm/${p.nickname}/36.png`}
+                            alt={p.nickname}
+                            className="w-9 h-9 rounded-lg shadow-sm"
+                            onError={(e) => { e.target.src = 'https://minotar.net/helm/Steve/36.png'; }}
+                        />
+                    </div>
+                    <div className="flex flex-col overflow-hidden justify-center">
+                        <span className="font-extrabold text-sm truncate leading-none" style={{ color: 'var(--text-primary)' }}>{p.nickname}</span>
+                    </div>
+                </div>
+            </td>
+
+            {/* Tanggal */}
+            <td className="px-5 py-4">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold" style={{ color: 'var(--text-muted)' }}>
+                    <Icons.Clock className="w-3.5 h-3.5 opacity-60 flex-shrink-0" />
+                    <span className="truncate">{formatDate(p.start)}</span>
+                </div>
+            </td>
+
+            {/* Alasan */}
+            <td className="px-5 py-4">
+                <p className="text-xs italic font-medium leading-relaxed truncate" style={{ color: 'var(--text-secondary)' }} title={p.reason}>
+                    &ldquo;{p.reason}&rdquo;
+                </p>
+            </td>
+
+            {/* Masa Hukuman */}
+            <td className="px-6 py-4 text-right whitespace-nowrap">
+                <div className="flex flex-col items-end">
+                    <div className="flex items-center gap-1.5 font-bold text-sm" style={{ color: isPermanent ? '#dc2626' : 'var(--text-primary)' }}>
+                        {isPermanent ? (
+                            <Icons.Lock className="w-4 h-4 opacity-80" />
+                        ) : (
+                            <Icons.Clock className="w-4 h-4 opacity-80" />
+                        )}
+                        {isPermanent ? 'Permanen' : formatDuration(p.start, p.end)}
+                    </div>
+                    {!isPermanent && p.end && countdownText && (
+                        <span className="text-[10px] font-bold mt-0.5" style={{ color: '#ea580c' }}>
+                            ⏱ Sisa {countdownText}
+                        </span>
+                    )}
+                    {!isPermanent && p.end && (
+                        <span className="text-[10px] font-bold mt-0.5 opacity-60" style={{ color: 'var(--text-muted)' }}>
+                            Hingga {formatDate(p.end)}
+                        </span>
+                    )}
+                </div>
+            </td>
+        </tr>
+    );
+}
+
 export default function Punishments() {
     const [punishments, setPunishments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -89,29 +208,10 @@ export default function Punishments() {
         });
     };
 
-    const formatDuration = (start, end) => {
-        if (end === 0 || !end) return 'Permanen';
-
-        const duration = end - start;
-        if (duration <= 0) return 'Selesai';
-
-        const days = Math.floor(duration / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
-
-        if (days > 0) return `${days} Hari ${hours} Jam`;
-        if (hours > 0) return `${hours} Jam ${minutes} Menit`;
-        return `${minutes} Menit`;
-    };
-
-    const getStatusInfo = (p) => {
-        const isPermanent = p.end === 0 || !p.end;
-        const isExpired = !isPermanent && p.end < Date.now();
-
-        if (isPermanent) return { label: 'Permanen', bg: '#fef2f2', text: '#dc2626', border: '#fecaca' };
-        if (isExpired) return { label: 'Selesai', bg: '#f3f4f6', text: '#6b7280', border: '#e5e7eb' };
-        return { label: 'Aktif', bg: '#fff7ed', text: '#ea580c', border: '#fed7aa' };
-    };
+    const handleExpired = useCallback((expiredId) => {
+        setPunishments(prev => prev.filter(p => p.id !== expiredId));
+        setPagination(prev => ({ ...prev, total: Math.max(0, prev.total - 1) }));
+    }, []);
 
     return (
         <Wrapper
@@ -216,66 +316,14 @@ export default function Punishments() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 bg-white">
-                                {punishments.map((p, index) => {
-                                    const status = getStatusInfo(p);
-                                    const isPermanent = p.end === 0 || !p.end;
-                                    const isExpired = !isPermanent && p.end < Date.now();
-
-                                    return (
-                                        <tr key={index} className="hover:bg-gray-50 transition-colors group">
-                                            {/* Pemain */}
-                                            <td className="px-5 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="relative flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
-                                                        <img
-                                                            src={`https://minotar.net/helm/${p.nickname}/36.png`}
-                                                            alt={p.nickname}
-                                                            className="w-9 h-9 rounded-lg shadow-sm"
-                                                            onError={(e) => { e.target.src = 'https://minotar.net/helm/Steve/36.png'; }}
-                                                        />
-                                                    </div>
-                                                    <div className="flex flex-col overflow-hidden justify-center">
-                                                        <span className="font-extrabold text-sm truncate leading-none" style={{ color: 'var(--text-primary)' }}>{p.nickname}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-
-                                            {/* Tanggal */}
-                                            <td className="px-5 py-4">
-                                                <div className="flex items-center gap-1.5 text-[11px] font-bold" style={{ color: 'var(--text-muted)' }}>
-                                                    <Icons.Clock className="w-3.5 h-3.5 opacity-60 flex-shrink-0" />
-                                                    <span className="truncate">{formatDate(p.start)}</span>
-                                                </div>
-                                            </td>
-
-                                            {/* Alasan */}
-                                            <td className="px-5 py-4">
-                                                <p className="text-xs italic font-medium leading-relaxed truncate" style={{ color: 'var(--text-secondary)' }} title={p.reason}>
-                                                    &ldquo;{p.reason}&rdquo;
-                                                </p>
-                                            </td>
-
-                                            {/* Masa Hukuman */}
-                                            <td className="px-6 py-4 text-right whitespace-nowrap">
-                                                <div className="flex flex-col items-end">
-                                                    <div className="flex items-center gap-1.5 font-bold text-sm" style={{ color: isPermanent ? '#dc2626' : 'var(--text-primary)' }}>
-                                                        {isPermanent ? (
-                                                            <Icons.Lock className="w-4 h-4 opacity-80" />
-                                                        ) : (
-                                                            <Icons.Clock className="w-4 h-4 opacity-80" />
-                                                        )}
-                                                        {formatDuration(p.start, p.end)}
-                                                    </div>
-                                                    {!isPermanent && !isExpired && p.end && (
-                                                        <span className="text-[10px] font-bold mt-0.5 opacity-80" style={{ color: 'var(--text-muted)' }}>
-                                                            Hingga {formatDate(p.end)}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
+                                {punishments.map((p) => (
+                                    <PunishmentRow
+                                        key={p.id}
+                                        p={p}
+                                        onExpired={handleExpired}
+                                        formatDate={formatDate}
+                                    />
+                                ))}
                             </tbody>
                         </table>
                     </div>
