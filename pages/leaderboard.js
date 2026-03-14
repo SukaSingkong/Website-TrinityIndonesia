@@ -18,6 +18,7 @@ export default function Leaderboard() {
     const [error, setError] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
     const [cooldown, setCooldown] = useState(0);
+    const [verifiedList, setVerifiedList] = useState([]);
     const cooldownRef = useRef(null);
 
     const COOLDOWN_KEY = 'leaderboard_refresh_cooldown';
@@ -92,6 +93,11 @@ export default function Leaderboard() {
 
     useEffect(() => {
         fetchStats();
+        // Fetch verified players list
+        fetch('/api/verified')
+            .then(res => res.json())
+            .then(data => { if (data.verified) setVerifiedList(data.verified); })
+            .catch(() => {});
         // Removed setInterval logic
     }, []);
 
@@ -254,7 +260,89 @@ export default function Leaderboard() {
                                                 className="w-8 h-8 rounded shadow-sm"
                                                 onError={(e) => { e.target.src = 'https://minotar.net/helm/Steve/32.png'; }}
                                             />
-                                            <span className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>{row.player}</span>
+                                            <span className="font-bold text-base flex items-center gap-1.5" style={{ color: 'var(--text-primary)' }}>
+                                                {row.player}
+                                                {verifiedList.includes(row.player) && (
+                                                    <span style={{ position: 'relative', display: 'inline-flex', flexShrink: 0 }} className="verified-badge-wrap">
+                                                        {/* Badge icon */}
+                                                        <span
+                                                            style={{
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                width: '18px',
+                                                                height: '18px',
+                                                                borderRadius: '50%',
+                                                                background: '#2563eb',
+                                                                cursor: 'default',
+                                                                flexShrink: 0
+                                                            }}
+                                                        >
+                                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                                <path d="M2 5L4 7L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                            </svg>
+                                                        </span>
+                                                        {/* Tooltip */}
+                                                        <span className="verified-tooltip" style={{
+                                                            position: 'absolute',
+                                                            bottom: 'calc(100% + 12px)',
+                                                            left: '50%',
+                                                            transform: 'translateX(-50%) translateY(4px) scale(0.95)',
+                                                            background: '#18181b', // dark zinc
+                                                            color: '#fff',
+                                                            borderRadius: '12px',
+                                                            padding: '12px 16px',
+                                                            width: 'max-content',
+                                                            maxWidth: '220px',
+                                                            whiteSpace: 'normal',
+                                                            lineHeight: '1.4',
+                                                            textAlign: 'center',
+                                                            pointerEvents: 'none',
+                                                            opacity: 0,
+                                                            visibility: 'hidden',
+                                                            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                                                            transformOrigin: 'bottom center',
+                                                            zIndex: 50,
+                                                            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2)',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            gap: '6px',
+                                                            border: '1px solid rgba(255,255,255,0.08)'
+                                                        }}>
+                                                            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                <svg width="14" height="14" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
+                                                                    <path d="M2 5L4 7L8 3" stroke="#60a5fa" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                                                </svg>
+                                                                <strong style={{ color: '#fff', fontSize: '12px', fontWeight: 800, letterSpacing: '0.02em' }}>Terverifikasi</strong>
+                                                            </span>
+                                                            <span style={{ color: '#a1a1aa', fontSize: '10px', fontWeight: 500 }}>
+                                                                Akun resmi konten kreator, anggota terkemuka, atau figur publik Trinity Indonesia.
+                                                            </span>
+                                                            {/* Arrow */}
+                                                            <span style={{
+                                                                position: 'absolute',
+                                                                bottom: '-5px',
+                                                                left: '50%',
+                                                                transform: 'translateX(-50%) rotate(45deg)',
+                                                                width: '10px',
+                                                                height: '10px',
+                                                                background: '#18181b',
+                                                                borderBottom: '1px solid rgba(255,255,255,0.08)',
+                                                                borderRight: '1px solid rgba(255,255,255,0.08)',
+                                                                borderRadius: '2px'
+                                                            }} />
+                                                        </span>
+                                                        <style>{`
+                                                            .verified-badge-wrap:hover .verified-tooltip {
+                                                                opacity: 1 !important;
+                                                                visibility: visible !important;
+                                                                transform: translateX(-50%) translateY(0) scale(1) !important;
+                                                            }
+                                                        `}</style>
+                                                    </span>
+                                                )}
+                                            </span>
                                         </div>
                                     </div>
 

@@ -44,7 +44,20 @@ export default function TermsOfService() {
                         <li>Pembuatan konten yang bertujuan mencemarkan nama baik server, menyebarkan hoaks, atau provokasi merupakan pelanggaran berat.</li>
                     </ul>
 
-                    <h2 className="text-xl font-bold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>5. Perubahan Syarat dan Ketentuan</h2>
+                    <h2 className="text-xl font-bold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>5. Status Verified Player</h2>
+                    <ul className="list-disc pl-6 space-y-2">
+                        <li>Status Verified adalah bentuk pengakuan resmi dari Trinity Indonesia yang diberikan kepada figur publik, konten kreator aktif, atau anggota komunitas yang memiliki rekam jejak kontribusi positif yang luar biasa.</li>
+                        <li><b>Keuntungan:</b> Pemain yang terverifikasi akan mendapatkan badge icon &#10003; biru resmi di Leaderboard website dan juga akan mendapatkan tag khusus [Verified] di dalam game.</li>
+                        <li><b>Syarat Pemeliharaan Status:</b>
+                            <ul className="list-circle pl-6 mt-2 space-y-1">
+                                <li>Pemain harus menjaga nama baik server Trinity Indonesia baik di dalam game maupun di platform luar (sosial media, dll).</li>
+                                <li>Tidak boleh terlibat dalam drama toksik, eksploitasi bug fatal, penggunaan program ilegal (cheat), atau pelanggaran berat lainnya.</li>
+                            </ul>
+                        </li>
+                        <li>Pihak manajemen Trinity Indonesia berhak penuh mencabut status Verified kapan saja tanpa pemberitahuan sebelumnya jika pemain terbukti melanggar Syarat dan Ketentuan ini atau merusak citra server.</li>
+                    </ul>
+
+                    <h2 className="text-xl font-bold mt-8 mb-4" style={{ color: 'var(--text-primary)' }}>6. Perubahan Syarat dan Ketentuan</h2>
                     <p>
                         Kami berhak untuk memperbarui dan mengubah Syarat dan Layanan ini sewaktu-waktu tanpa pemberitahuan sebelumnya. Penggunaan berkelanjutan atas layanan kami merupakan persetujuan Anda terhadap perubahan ini.
                     </p>

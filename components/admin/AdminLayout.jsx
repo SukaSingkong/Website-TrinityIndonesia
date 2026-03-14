@@ -8,6 +8,7 @@ const navItems = [
     { name: 'Dashboard', path: '/admin', icon: 'ri-dashboard-line' },
     { name: 'Purchase Logs', path: '/admin/purchases', icon: 'ri-file-list-3-line' },
     { name: 'Server Updates', path: '/admin/updates', icon: 'ri-sparkling-2-line' },
+    { name: 'Verified Players', path: '/admin/verified', icon: 'ri-shield-check-line' },
     { name: 'Store Settings', path: '/admin/settings', icon: 'ri-settings-3-line' },
     { name: 'Withdrawal', path: 'https://tako.id/c/TrinityIndonesia/withdrawal', icon: 'ri-bank-card-line', isExternal: true },
 ]
@@ -16,6 +17,7 @@ const pageIconClasses = {
     '/admin': 'ri-dashboard-line',
     '/admin/purchases': 'ri-file-list-3-line',
     '/admin/updates': 'ri-sparkling-2-line',
+    '/admin/verified': 'ri-shield-check-line',
     '/admin/settings': 'ri-settings-3-line',
 }
 

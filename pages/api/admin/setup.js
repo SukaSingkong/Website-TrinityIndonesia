@@ -122,6 +122,21 @@ export default async function handler(req, res) {
             )
         `);
 
+        // Create Verified Players table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS verified_players (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nickname VARCHAR(100) NOT NULL UNIQUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Seed first verified player
+        const [verifiedRows] = await pool.query('SELECT COUNT(*) as count FROM verified_players');
+        if (verifiedRows[0].count === 0) {
+            await pool.query(`INSERT INTO verified_players (nickname) VALUES (?)`, ['LouYz_']);
+        }
+
         res.status(200).json({ message: 'Database Setup Complete!' })
     } catch (e) {
         console.error(e)
