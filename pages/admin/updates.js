@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import AdminLayout from '../../components/admin/AdminLayout'
-import { Icons } from '../../components/elements/Icons'
 
 export default function AdminUpdates() {
     const [updates, setUpdates] = useState([])
@@ -12,6 +11,7 @@ export default function AdminUpdates() {
         month_group: '',
         title: '',
         type: 'added',
+        icon: 'ri-sparkling-2-line',
         contentRaw: ''
     })
 
@@ -48,6 +48,7 @@ export default function AdminUpdates() {
                 month_group: update.month_group,
                 title: update.title,
                 type: update.type || 'added',
+                icon: update.icon || 'ri-sparkling-2-line',
                 contentRaw: textContent
             });
         } else {
@@ -56,6 +57,7 @@ export default function AdminUpdates() {
                 month_group: '',
                 title: '',
                 type: 'added',
+                icon: 'ri-sparkling-2-line',
                 contentRaw: ''
             });
         }
@@ -78,6 +80,7 @@ export default function AdminUpdates() {
             month_group: formData.month_group,
             title: formData.title,
             type: formData.type,
+            icon: formData.icon || 'ri-sparkling-2-line',
             content: parsedContent
         };
 
@@ -168,7 +171,7 @@ export default function AdminUpdates() {
                             onClick={() => handleOpenForm()}
                             className="mc-btn font-extrabold shadow-sm flex items-center gap-2"
                         >
-                            <Icons.Plus className="w-5 h-5" /> Tambah Patch
+                            <i className="ri-add-line text-lg" /> Tambah Patch
                         </button>
                     )}
                 </div>
@@ -198,6 +201,46 @@ export default function AdminUpdates() {
                                     <option value="fixed">Fixed (Perbaikan Bug - Warna Biru)</option>
                                     <option value="removed">Removed (Penghapusan - Warna Merah)</option>
                                 </select>
+                            </div>
+
+                            {/* Icon Picker */}
+                            <div>
+                                <label className="block text-sm font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>
+                                    Icon Remix Icons <span className="font-normal text-xs opacity-70">(class ri-xxx, cari di <a href="https://remixicon.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--brand-secondary)' }}>remixicon.com</a>)</span>
+                                </label>
+                                <div className="flex items-center gap-3">
+                                    {/* Preview */}
+                                    <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 border-2" style={{ background: '#f0edf4', borderColor: 'var(--bg-body)' }}>
+                                        <i className={`${formData.icon || 'ri-sparkling-2-line'} text-2xl`} style={{ color: 'var(--brand-secondary)' }} />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        className="flex-1 mc-input font-mono text-sm"
+                                        value={formData.icon}
+                                        onChange={e => setFormData({ ...formData, icon: e.target.value })}
+                                        placeholder="ri-sparkling-2-line"
+                                    />
+                                </div>
+                                {/* Quick picks */}
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {[
+                                        'ri-sparkling-2-line', 'ri-sword-line', 'ri-shield-line', 'ri-bug-line',
+                                        'ri-fire-line', 'ri-star-line', 'ri-trophy-line', 'ri-settings-3-line',
+                                        'ri-user-line', 'ri-hammer-line', 'ri-map-line', 'ri-rocket-line',
+                                        'ri-gift-line', 'ri-anchor-line', 'ri-heart-line', 'ri-checkbox-circle-line',
+                                        'ri-time-line', 'ri-cloud-line', 'ri-thunderstorms-line', 'ri-leaf-line',
+                                    ].map(ic => (
+                                        <button
+                                            key={ic}
+                                            type="button"
+                                            title={ic}
+                                            onClick={() => setFormData({ ...formData, icon: ic })}
+                                            className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all border-2 ${formData.icon === ic ? 'border-[var(--brand-secondary)] bg-[rgba(226,110,16,0.08)]' : 'border-transparent bg-[#f0edf4] hover:bg-[#e8e0f0]'}`}
+                                        >
+                                            <i className={`${ic} text-lg`} style={{ color: formData.icon === ic ? 'var(--brand-secondary)' : 'var(--text-muted)' }} />
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             <div>
@@ -253,10 +296,10 @@ export default function AdminUpdates() {
                                     </td>
                                     <td className="p-5 flex items-center gap-2">
                                         <button onClick={() => handleOpenForm(update)} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100" title="Edit">
-                                            <Icons.Server className="w-4 h-4" /> {/* Fallback icon for Edit */}
+                                            <i className="ri-edit-line text-base" />
                                         </button>
                                         <button onClick={() => handleDelete(update.id)} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100" title="Hapus">
-                                            <Icons.X className="w-4 h-4" />
+                                            <i className="ri-delete-bin-6-line text-base" />
                                         </button>
                                     </td>
                                 </tr>

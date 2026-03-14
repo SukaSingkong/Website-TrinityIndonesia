@@ -1,10 +1,10 @@
 import { Wrapper } from '@layer/components/layout/Wrapper.jsx'
-import { Icons } from '@layer/components/elements/Icons.jsx'
 import config from '@layer/theme.config'
 import { useState } from "react"
 import { getDbConnection } from '@layer/lib/db'
+import Head from 'next/head'
 
-function UpdateAccordion({ title, content, type }) {
+function UpdateAccordion({ title, content, type, icon }) {
     const [isOpen, setIsOpen] = useState(false);
 
     // Color based on type
@@ -36,7 +36,7 @@ function UpdateAccordion({ title, content, type }) {
                 <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300"
                     style={{ background: iconBg, color: iconColor }}
                 >
-                    <Icons.Sparkles className="h-5 w-5" />
+                    <i className={`${icon || 'ri-sparkling-2-line'} text-xl`} />
                 </div>
                 <div className="flex-1">
                     <h3 className="font-bold text-sm" style={{ color: isOpen ? accentColor : 'var(--text-primary)' }}>
@@ -44,7 +44,7 @@ function UpdateAccordion({ title, content, type }) {
                     </h3>
                 </div>
                 <div className={`flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
-                    <Icons.ChevronDown className="h-5 w-5" style={{ color: isOpen ? accentColor : 'var(--text-muted)' }} />
+                    <i className={`ri-arrow-down-s-line text-xl`} style={{ color: isOpen ? accentColor : 'var(--text-muted)' }} />
                 </div>
             </button>
 
@@ -83,6 +83,9 @@ export default function Update({ groupedUpdates }) {
             description="Riwayat pembaruan dan patch notes terbaru untuk server Trinity Indonesia."
             path="/update"
         >
+            <Head>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+            </Head>
             {/* Header */}
             <div className="mc-content-card mb-8">
                 <h2 className="text-2xl font-extrabold mb-2" style={{ color: 'var(--text-primary)' }}>
@@ -108,7 +111,7 @@ export default function Update({ groupedUpdates }) {
                         {/* Accordions for that month */}
                         <div className="flex flex-col">
                             {monthGroup.logs.map((log, j) => (
-                                <UpdateAccordion key={j} title={log.title} content={log.content} type={log.type} />
+                                <UpdateAccordion key={j} title={log.title} content={log.content} type={log.type} icon={log.icon} />
                             ))}
                         </div>
                     </div>

@@ -3,23 +3,20 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Head from 'next/head'
 import { useEffect } from 'react'
-import { Icons } from '../elements/Icons'
 
 const navItems = [
-    { name: 'Dashboard', path: '/admin', icon: 'Home' },
-    { name: 'Purchase Logs', path: '/admin/purchases', icon: 'Clipboard' },
-
-    { name: 'Server Updates', path: '/admin/updates', icon: 'Sparkles' },
-    { name: 'Store Settings', path: '/admin/settings', icon: 'Cog' },
-    { name: 'Withdrawal', path: 'https://tako.id/c/TrinityIndonesia/withdrawal', icon: 'Cash', isExternal: true },
+    { name: 'Dashboard', path: '/admin', icon: 'ri-dashboard-line' },
+    { name: 'Purchase Logs', path: '/admin/purchases', icon: 'ri-file-list-3-line' },
+    { name: 'Server Updates', path: '/admin/updates', icon: 'ri-sparkling-2-line' },
+    { name: 'Store Settings', path: '/admin/settings', icon: 'ri-settings-3-line' },
+    { name: 'Withdrawal', path: 'https://tako.id/c/TrinityIndonesia/withdrawal', icon: 'ri-bank-card-line', isExternal: true },
 ]
 
-const pageIcons = {
-    '/admin': Icons.Home,
-
-    '/admin/purchases': Icons.Clipboard,
-    '/admin/updates': Icons.Sparkles,
-    '/admin/settings': Icons.Cog,
+const pageIconClasses = {
+    '/admin': 'ri-dashboard-line',
+    '/admin/purchases': 'ri-file-list-3-line',
+    '/admin/updates': 'ri-sparkling-2-line',
+    '/admin/settings': 'ri-settings-3-line',
 }
 
 export default function AdminLayout({ children, title }) {
@@ -44,6 +41,7 @@ export default function AdminLayout({ children, title }) {
         <div className="min-h-screen flex text-[#1c1917]" style={{ background: 'var(--bg-body)' }}>
             <Head>
                 <title>{title} | Trinity Indonesia</title>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
             </Head>
             {/* Sidebar */}
             <div className="w-72 m-4 mr-0 rounded-2xl flex flex-col shadow-xl overflow-hidden relative" style={{ background: 'var(--bg-card)' }}>
@@ -70,7 +68,6 @@ export default function AdminLayout({ children, title }) {
                         <p className="px-3 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-3">Menu Utama</p>
                         {navItems.map((item) => {
                             const isActive = router.pathname === item.path
-                            const IconComp = Icons[item.icon]
                             const commonClasses = `flex items-center gap-3 px-4 py-3 text-sm font-extrabold rounded-xl transition-all duration-300 ${isActive
                                 ? 'text-white shadow-md'
                                 : 'hover:bg-[#ece8f2] hover:text-[#1c1917]'
@@ -89,7 +86,7 @@ export default function AdminLayout({ children, title }) {
                                         className={commonClasses}
                                         style={commonStyles}
                                     >
-                                        <span style={{ color: isActive ? '#fff' : '#9b8fb0' }}><IconComp className="w-[18px] h-[18px] flex-shrink-0" /></span>
+                                        <i className={`${item.icon} text-lg flex-shrink-0`} style={{ color: isActive ? '#fff' : '#9b8fb0' }} />
                                         {item.name}
                                     </a>
                                 )
@@ -101,7 +98,7 @@ export default function AdminLayout({ children, title }) {
                                     className={commonClasses}
                                     style={commonStyles}
                                 >
-                                    <span style={{ color: isActive ? '#fff' : '#9b8fb0' }}><IconComp className="w-[18px] h-[18px] flex-shrink-0" /></span>
+                                    <i className={`${item.icon} text-lg flex-shrink-0`} style={{ color: isActive ? '#fff' : '#9b8fb0' }} />
                                     {item.name}
                                 </Link>
                             )
@@ -124,7 +121,7 @@ export default function AdminLayout({ children, title }) {
                         onClick={() => signOut({ callbackUrl: '/' })}
                         className="w-full py-2.5 px-4 bg-[#fee2e2] text-[#ef4444] rounded-xl text-sm font-extrabold hover:bg-[#fecaca] transition-colors flex items-center justify-center gap-2"
                     >
-                        <Icons.X className="w-4 h-4" />
+                        <i className="ri-logout-box-line text-base" />
                         Keluar
                     </button>
                 </div>
@@ -134,7 +131,7 @@ export default function AdminLayout({ children, title }) {
             <div className="flex-1 flex flex-col min-w-0">
                 <header className="h-20 flex items-center px-8 mx-8 mt-4 rounded-2xl bg-white shadow-sm" style={{ background: 'var(--bg-card)' }}>
                     <div className="w-10 h-10 rounded-xl bg-[var(--bg-body)] flex items-center justify-center mr-4">
-                        {(() => { const Icon = pageIcons[router.pathname] || Icons.Home; return <Icon className="w-5 h-5 text-[var(--brand-secondary)]" /> })()}
+                        <i className={`${pageIconClasses[router.pathname] || 'ri-dashboard-line'} text-xl`} style={{ color: 'var(--brand-secondary)' }} />
                     </div>
                     <div>
                         <h2 className="text-xl font-black text-[var(--text-primary)] leading-tight">{title}</h2>

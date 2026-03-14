@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 import AdminLayout from '../../components/admin/AdminLayout'
-import { Icons } from '../../components/elements/Icons'
 
 export default function AdminSettings() {
     const [settings, setSettings] = useState({
@@ -189,7 +188,7 @@ export default function AdminSettings() {
                     <div className="absolute top-0 right-0 w-48 h-48 opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" style={{ background: 'var(--brand-secondary)' }}></div>
 
                     <h3 className="text-2xl font-black mb-2 relative z-10" style={{ color: 'var(--text-primary)' }}>
-                        <Icons.Photo className="w-6 h-6 inline mr-2" style={{ color: 'var(--brand-secondary)' }} />
+                        <i className="ri-image-line text-2xl inline mr-2" style={{ color: 'var(--brand-secondary)', verticalAlign: 'middle' }} />
                         Pengaturan Popup Diskon
                     </h3>
                     <p className="text-sm font-bold mb-6 relative z-10" style={{ color: 'var(--text-muted)' }}>
@@ -327,7 +326,7 @@ export default function AdminSettings() {
 
                         <div className="flex items-center gap-3 relative z-10">
                             <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm border border-white/20">
-                                <Icons.Exclamation className="w-5 h-5 text-white" />
+                                <i className="ri-error-warning-line text-xl text-white" />
                             </div>
                             <div>
                                 <span className="text-white font-extrabold text-sm block leading-tight">Perubahan Belum Tersimpan</span>

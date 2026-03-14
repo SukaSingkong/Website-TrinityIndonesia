@@ -18,13 +18,13 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-        const { month_group, title, type, content } = req.body;
+        const { month_group, title, type, icon, content } = req.body;
         // content is expected to be an array of objects e.g., [{num: "+", text: "..."}]
 
         try {
             const [result] = await pool.query(
-                'INSERT INTO store_updates (month_group, title, type, content) VALUES (?, ?, ?, ?)',
-                [month_group, title, type, JSON.stringify(content)]
+                'INSERT INTO store_updates (month_group, title, type, icon, content) VALUES (?, ?, ?, ?, ?)',
+                [month_group, title, type, icon || 'ri-sparkling-2-line', JSON.stringify(content)]
             );
             return res.status(200).json({ success: true, id: result.insertId });
         } catch (error) {
@@ -33,14 +33,14 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'PUT') {
-        const { id, month_group, title, type, content } = req.body;
+        const { id, month_group, title, type, icon, content } = req.body;
 
         if (!id) return res.status(400).json({ message: "ID is required" });
 
         try {
             await pool.query(
-                'UPDATE store_updates SET month_group = ?, title = ?, type = ?, content = ? WHERE id = ?',
-                [month_group, title, type, JSON.stringify(content), id]
+                'UPDATE store_updates SET month_group = ?, title = ?, type = ?, icon = ?, content = ? WHERE id = ?',
+                [month_group, title, type, icon || 'ri-sparkling-2-line', JSON.stringify(content), id]
             );
             return res.status(200).json({ success: true });
         } catch (error) {

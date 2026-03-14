@@ -1,5 +1,4 @@
 import AdminLayout from '../../components/admin/AdminLayout'
-import { Icons } from '../../components/elements/Icons'
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 
@@ -204,7 +203,7 @@ export default function AdminDashboard() {
                         <p className="text-white/80 font-medium">Pantau performa toko, analisa penjualan, dan kelola produk dari sini.</p>
                     </div>
                     <div className="hidden md:flex w-16 h-16 rounded-2xl bg-white/20 items-center justify-center backdrop-blur-sm border border-white/30 shadow-inner">
-                        <Icons.Cube className="w-8 h-8 text-white" />
+                        <i className="ri-box-3-line text-3xl text-white" />
                     </div>
                 </div>
             </div>
@@ -212,19 +211,19 @@ export default function AdminDashboard() {
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
                 {[{
-                    icon: <Icons.CheckCircle className="w-6 h-6 text-[#16a34a]" />,
+                    icon: <i className="ri-checkbox-circle-line text-2xl text-[#16a34a]" />,
                     bg: '#dcfce7', label: 'Webhook',
                     value: 'Aktif', loading: false
                 }, {
-                    icon: <Icons.ShoppingBag className="w-6 h-6 text-[#2563eb]" />,
+                    icon: <i className="ri-shopping-bag-3-line text-2xl text-[#2563eb]" />,
                     bg: '#dbeafe', label: 'Produk',
                     value: stats.products, loading: stats.loading
                 }, {
-                    icon: <Icons.Coins className="w-6 h-6 text-[#d97706]" />,
+                    icon: <i className="ri-copper-coin-line text-2xl text-[#d97706]" />,
                     bg: '#fef3c7', label: 'Transaksi',
                     value: stats.purchases, loading: stats.loading
                 }, {
-                    icon: <Icons.Users className="w-6 h-6 text-[#7c3aed]" />,
+                    icon: <i className="ri-group-line text-2xl text-[#7c3aed]" />,
                     bg: '#f3e8ff', label: 'Pembeli Unik',
                     value: analytics?.totals?.unique_buyers || 0, loading: analyticsLoading
                 }].map((stat, i) => (
@@ -267,7 +266,7 @@ export default function AdminDashboard() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-extrabold" style={{ background: 'rgba(226,110,16,0.08)', color: '#E26E10' }}>
-                            <Icons.Coins className="w-3.5 h-3.5" />
+                            <i className="ri-copper-coin-line text-sm" />
                             {analyticsLoading ? (
                                 <div className="h-3 w-24 rounded bg-[#E26E10]/20 animate-pulse"></div>
                             ) : (
@@ -300,7 +299,7 @@ export default function AdminDashboard() {
                     <div className="absolute top-0 right-0 w-32 h-32 opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" style={{ background: 'var(--brand-primary)' }}></div>
                     <div className="flex items-center justify-between mb-4 relative z-10">
                         <h3 className="text-lg font-black flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                            <Icons.Trophy className="w-5 h-5 text-[#d97706]" />
+                            <i className="ri-award-line text-xl text-[#d97706]" />
                             Top Donators
                         </h3>
                         <div className="flex items-center gap-1 bg-black/5 p-1 rounded-lg">
@@ -367,7 +366,7 @@ export default function AdminDashboard() {
                     <div className="absolute top-0 right-0 w-32 h-32 opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" style={{ background: 'var(--brand-secondary)' }}></div>
                     <div className="flex items-start justify-between mb-4 relative z-10">
                         <h3 className="text-lg font-black flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                            <Icons.Fire className="w-5 h-5 text-[#ef4444]" />
+                            <i className="ri-fire-line text-xl text-[#ef4444]" />
                             Produk Terlaris
                         </h3>
                         <div className="flex flex-wrap items-center gap-1 bg-black/5 p-1 rounded-lg">
@@ -425,7 +424,7 @@ export default function AdminDashboard() {
                     <div className="absolute top-0 right-0 w-32 h-32 opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" style={{ background: 'var(--brand-primary)' }}></div>
                     <div className="flex items-start justify-between mb-4 relative z-10">
                         <h3 className="text-lg font-black flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                            <Icons.Clock className="w-5 h-5 text-[#6366f1]" />
+                            <i className="ri-time-line text-xl text-[#6366f1]" />
                             Transaksi Terbaru
                         </h3>
                         <div className="flex flex-wrap items-center gap-1 bg-black/5 p-1 rounded-lg">
@@ -486,7 +485,7 @@ export default function AdminDashboard() {
                 <Link href="/admin/purchases" className="mc-card p-5 group hover:shadow-lg transition-all border-2 border-transparent hover:border-[#E26E10]">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="w-9 h-9 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform bg-[#fff5eb]">
-                            <Icons.Clipboard className="w-4 h-4 text-[#E26E10]" />
+                            <i className="ri-file-list-3-line text-lg text-[#E26E10]" />
                         </div>
                         <h4 className="font-extrabold text-[var(--text-primary)] group-hover:text-[#E26E10] transition-colors">Purchase Logs</h4>
                     </div>
@@ -496,7 +495,7 @@ export default function AdminDashboard() {
                 <Link href="/admin/settings" className="mc-card p-5 group hover:shadow-lg transition-all border-2 border-transparent hover:border-[#E26E10]">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="w-9 h-9 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform bg-[#fff5eb]">
-                            <Icons.Cog className="w-4 h-4 text-[#E26E10]" />
+                            <i className="ri-settings-3-line text-lg text-[#E26E10]" />
                         </div>
                         <h4 className="font-extrabold text-[var(--text-primary)] group-hover:text-[#E26E10] transition-colors">Settings</h4>
                     </div>

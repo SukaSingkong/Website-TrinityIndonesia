@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import AdminLayout from '../../components/admin/AdminLayout'
-import { Icons } from '../../components/elements/Icons'
 
 export default function AdminPurchases() {
     const [purchases, setPurchases] = useState([])
@@ -97,7 +96,7 @@ export default function AdminPurchases() {
                             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-extrabold transition-colors flex-shrink-0"
                             style={{ background: '#fee2e2', color: '#ef4444' }}
                         >
-                            <Icons.X className="w-4 h-4" /> Hapus Semua
+                            <i className="ri-close-line text-base" /> Hapus Semua
                         </button>
                     )}
                 </div>
@@ -150,11 +149,11 @@ export default function AdminPurchases() {
                                     <td className="p-5">
                                         {log.status === 'success' ? (
                                             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 font-extrabold text-xs rounded-xl shadow-sm" style={{ background: '#dcfce7', color: '#16a34a' }}>
-                                                <Icons.Check className="w-3.5 h-3.5" /> Success
+                                                <i className="ri-check-line text-base" /> Success
                                             </div>
                                         ) : (
                                             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 font-extrabold text-xs rounded-xl shadow-sm" style={{ background: '#fee2e2', color: '#ef4444' }}>
-                                                <Icons.X className="w-3.5 h-3.5" /> Failed
+                                                <i className="ri-close-line text-base" /> Failed
                                             </div>
                                         )}
                                     </td>
@@ -165,7 +164,7 @@ export default function AdminPurchases() {
                                             style={{ background: '#fee2e2', color: '#ef4444' }}
                                             title="Hapus log ini"
                                         >
-                                            <Icons.X className="w-4 h-4" />
+                                            <i className="ri-delete-bin-6-line text-base" />
                                         </button>
                                     </td>
                                 </tr>
