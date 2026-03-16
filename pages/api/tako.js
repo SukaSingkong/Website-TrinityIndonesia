@@ -119,6 +119,8 @@ export default async function handler(req, res) {
         // Use a small tolerance for float comparison to ensure robustness
         const EPSILON = 0.5;
 
+        let matchedRupiahPaid = 0;
+
         for (const p of productRows) {
             const basePrice = p.quantity * dbSettings.base_price_per_500;
             const currentPrice = dbSettings.discount_enabled ? (basePrice * (1 - (dbSettings.discount_percentage / 100))) : basePrice;
@@ -129,6 +131,7 @@ export default async function handler(req, res) {
                 quantity = p.quantity;
                 matchedProductPoints = p.points;
                 matchedProductName = p.name;
+                matchedRupiahPaid = currentPrice;
                 break;
             }
         }
@@ -139,9 +142,9 @@ export default async function handler(req, res) {
             // Log this mismatch so it's not lost (Admin can give points manually)
             try {
                 await pool.query(`
-                    INSERT INTO store_purchases (player_name, product_name, points_purchased, commands_executed, status)
-                    VALUES (?, ?, ?, ?, ?)
-                `, [supporterName, `MISMATCH: Rp ${amount}`, 0, JSON.stringify({ received_amount: amount }), 'mismatch_requires_manual']);
+                    INSERT INTO store_purchases (player_name, product_name, points_purchased, rupiah_paid, commands_executed, status)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                `, [supporterName, `MISMATCH: Rp ${amount}`, 0, 0, JSON.stringify({ received_amount: amount }), 'mismatch_requires_manual']);
             } catch (logErr) {
                 console.error("Failed to log mismatching purchase:", logErr);
             }
@@ -185,9 +188,9 @@ export default async function handler(req, res) {
         if (executedCommands.length > 0) {
             try {
                 await pool.query(`
-                    INSERT INTO store_purchases (player_name, product_name, points_purchased, commands_executed, status)
-                    VALUES (?, ?, ?, ?, ?)
-                `, [supporterName, matchedProductName || `Product ID ${productId}`, matchedProductPoints, JSON.stringify(executedCommands), 'success']);
+                    INSERT INTO store_purchases (player_name, product_name, points_purchased, rupiah_paid, commands_executed, status)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                `, [supporterName, matchedProductName || `Product ID ${productId}`, matchedProductPoints, matchedRupiahPaid, JSON.stringify(executedCommands), 'success']);
             } catch (logErr) {
                 console.error("Failed to log purchase to DB:", logErr);
             }

@@ -78,11 +78,34 @@ export default async function handler(req, res) {
                 player_name VARCHAR(100),
                 product_name VARCHAR(100),
                 points_purchased INT,
+                rupiah_paid INT DEFAULT 0,
                 commands_executed TEXT,
                 status VARCHAR(50) DEFAULT 'success',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+
+        // Add rupiah_paid column if it doesn't exist (migration for existing tables)
+        try {
+            await pool.query(`ALTER TABLE store_purchases ADD COLUMN rupiah_paid INT DEFAULT 0`);
+        } catch (e) {
+            // Column likely already exists, ignore
+        }
+
+        // Backfill rupiah_paid for old records that have 0
+        try {
+            const [stRows] = await pool.query('SELECT base_price_per_500 FROM store_settings LIMIT 1');
+            const basePricePer500 = stRows[0]?.base_price_per_500 || 1000;
+            await pool.query(`
+                UPDATE store_purchases sp
+                INNER JOIN store_products prod ON sp.product_name = prod.name
+                SET sp.rupiah_paid = prod.quantity * ?
+                WHERE (sp.rupiah_paid IS NULL OR sp.rupiah_paid = 0)
+                  AND sp.product_name IS NOT NULL
+            `, [basePricePer500]);
+        } catch (e) {
+            console.error('Backfill rupiah_paid migration error (non-fatal):', e.message);
+        }
 
         // Insert default products if empty
         const [productRows] = await pool.query('SELECT COUNT(*) as count FROM store_products');

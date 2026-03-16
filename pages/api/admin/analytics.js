@@ -11,6 +11,22 @@ export default async function handler(req, res) {
     const pool = await getDbConnection()
 
     try {
+        // Ensure rupiah_paid column exists and backfill old records
+        try {
+            await pool.query(`ALTER TABLE store_purchases ADD COLUMN rupiah_paid INT DEFAULT 0`);
+        } catch (e) { /* column already exists */ }
+        try {
+            const [stRows] = await pool.query('SELECT base_price_per_500 FROM store_settings LIMIT 1');
+            const bpp = stRows[0]?.base_price_per_500 || 1000;
+            await pool.query(`
+                UPDATE store_purchases sp
+                INNER JOIN store_products prod ON sp.product_name = prod.name
+                SET sp.rupiah_paid = prod.quantity * ?
+                WHERE (sp.rupiah_paid IS NULL OR sp.rupiah_paid = 0)
+                  AND sp.product_name IS NOT NULL
+            `, [bpp]);
+        } catch (e) { /* backfill non-fatal */ }
+
         const getFilter = (range) => {
             const r = range || '14d';
             if (r === '1d') return 'WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)';
@@ -29,15 +45,29 @@ export default async function handler(req, res) {
         const [settingsRows] = await pool.query('SELECT discount_enabled, base_price_per_500, discount_percentage FROM store_settings LIMIT 1')
         const settings = settingsRows[0] || {}
         const discount_enabled = settings.discount_enabled === 1 || settings.discount_enabled === true
-        const price_per_500 = discount_enabled ? (settings.base_price_per_500 * (1 - (settings.discount_percentage / 100))) : (settings.base_price_per_500 || 1000)
-        const pricePerPoint = price_per_500 / 500
+        const currentPricePer500 = discount_enabled ? (settings.base_price_per_500 * (1 - (settings.discount_percentage / 100))) : (settings.base_price_per_500 || 1000)
+
+        // Fetch products for fallback calculation on old records without rupiah_paid
+        const [productsList] = await pool.query('SELECT name, quantity FROM store_products')
+        const productMap = {}
+        for (const p of productsList) {
+            productMap[p.name] = p.quantity
+        }
+
+        // Helper: calculate rupiah for a row/aggregate, with fallback
+        const calcRupiah = (rupiahPaid, productName, pointsFallback) => {
+            if (rupiahPaid && rupiahPaid > 0) return rupiahPaid;
+            if (productMap[productName]) return productMap[productName] * currentPricePer500;
+            return 0;
+        }
 
         // Daily sales for last 14 days
         const [dailySalesRaw] = await pool.query(`
             SELECT 
                 DATE(created_at) as date,
                 COUNT(*) as total_transactions,
-                SUM(points_purchased) as total_points
+                SUM(points_purchased) as total_points,
+                SUM(rupiah_paid) as total_rupiah
             FROM store_purchases 
             ${graphFilter}
             GROUP BY DATE(created_at)
@@ -66,13 +96,15 @@ export default async function handler(req, res) {
                     filledDailySales.push({
                         ...existingData,
                         date: dateString,
-                        total_points: parseFloat(existingData.total_points || 0)
+                        total_points: parseFloat(existingData.total_points || 0),
+                        total_rupiah: parseFloat(existingData.total_rupiah || 0)
                     });
                 } else {
                     filledDailySales.push({
                         date: dateString,
                         total_transactions: 0,
-                        total_points: 0
+                        total_points: 0,
+                        total_rupiah: 0
                     });
                 }
             }
@@ -80,7 +112,8 @@ export default async function handler(req, res) {
             filledDailySales = dailySalesRaw.map(d => ({
                 ...d,
                 date: new Date(d.date).toISOString().split('T')[0],
-                total_points: parseFloat(d.total_points || 0)
+                total_points: parseFloat(d.total_points || 0),
+                total_rupiah: parseFloat(d.total_rupiah || 0)
             }));
         }
 
@@ -89,7 +122,8 @@ export default async function handler(req, res) {
             SELECT 
                 player_name,
                 COUNT(*) as total_purchases,
-                SUM(points_purchased) as total_points
+                SUM(points_purchased) as total_points,
+                SUM(rupiah_paid) as total_rupiah
             FROM store_purchases
             ${donatorFilter}
             GROUP BY player_name
@@ -102,7 +136,8 @@ export default async function handler(req, res) {
             SELECT 
                 product_name,
                 COUNT(*) as times_purchased,
-                SUM(points_purchased) as total_points
+                SUM(points_purchased) as total_points,
+                SUM(rupiah_paid) as total_rupiah
             FROM store_purchases
             ${productFilter}
             GROUP BY product_name
@@ -112,7 +147,7 @@ export default async function handler(req, res) {
 
         // Recent 5 transactions
         const [recentPurchases] = await pool.query(`
-            SELECT player_name, product_name, points_purchased, created_at
+            SELECT player_name, product_name, points_purchased, rupiah_paid, created_at
             FROM store_purchases 
             ${recentFilter}
             ORDER BY created_at DESC 
@@ -124,19 +159,27 @@ export default async function handler(req, res) {
             SELECT 
                 COUNT(*) as total_transactions,
                 COALESCE(SUM(points_purchased), 0) as total_points,
+                COALESCE(SUM(rupiah_paid), 0) as total_rupiah,
                 COUNT(DISTINCT player_name) as unique_buyers
             FROM store_purchases
             ${graphFilter}
         `)
 
         return res.status(200).json({
-            dailySales: filledDailySales.map(d => ({ ...d, rupiah_value: d.total_points * pricePerPoint })),
-            topDonators: topDonators.map(d => ({ ...d, rupiah_value: d.total_points * pricePerPoint })),
-            popularProducts: popularProducts.map(d => ({ ...d, rupiah_value: d.total_points * pricePerPoint })),
-            recentPurchases: recentPurchases.map(d => ({ ...d, rupiah_value: d.points_purchased * pricePerPoint })),
+            dailySales: filledDailySales.map(d => ({ ...d, rupiah_value: d.total_rupiah || 0 })),
+            topDonators: topDonators.map(d => ({ ...d, rupiah_value: d.total_rupiah || 0 })),
+            popularProducts: popularProducts.map(d => {
+                let rupiah = parseFloat(d.total_rupiah || 0);
+                // Fallback: if no rupiah_paid stored, calculate from product quantity
+                if (!rupiah && productMap[d.product_name]) {
+                    rupiah = productMap[d.product_name] * currentPricePer500 * d.times_purchased;
+                }
+                return { ...d, rupiah_value: rupiah };
+            }),
+            recentPurchases: recentPurchases.map(d => ({ ...d, rupiah_value: calcRupiah(d.rupiah_paid, d.product_name, d.points_purchased) })),
             totals: {
                 ...totals[0],
-                rupiah_value: (totals[0]?.total_points || 0) * pricePerPoint
+                rupiah_value: parseFloat(totals[0]?.total_rupiah || 0) || 0
             }
         })
     } catch (error) {

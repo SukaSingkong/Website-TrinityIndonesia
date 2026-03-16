@@ -10,14 +10,32 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
         try {
+            // Ensure rupiah_paid column exists (self-healing migration)
+            try {
+                await pool.query(`ALTER TABLE store_purchases ADD COLUMN rupiah_paid INT DEFAULT 0`);
+            } catch (e) { /* column already exists */ }
+
             const [settingsRows] = await pool.query('SELECT discount_enabled, base_price_per_500, discount_percentage FROM store_settings LIMIT 1')
             const settings = settingsRows[0] || {}
             const discount_enabled = settings.discount_enabled === 1 || settings.discount_enabled === true
-            const price_per_500 = discount_enabled ? (settings.base_price_per_500 * (1 - (settings.discount_percentage / 100))) : (settings.base_price_per_500 || 1000)
-            const pricePerPoint = price_per_500 / 500
+            const currentPricePer500 = discount_enabled ? (settings.base_price_per_500 * (1 - (settings.discount_percentage / 100))) : (settings.base_price_per_500 || 1000)
+
+            // Fetch products for fallback calculation on old records
+            const [products] = await pool.query('SELECT name, quantity FROM store_products')
+            const productMap = {}
+            for (const p of products) {
+                productMap[p.name] = p.quantity
+            }
 
             const [rows] = await pool.query('SELECT * FROM store_purchases ORDER BY created_at DESC LIMIT 100');
-            const data = rows.map(r => ({ ...r, rupiah_value: r.points_purchased * pricePerPoint }));
+            const data = rows.map(r => {
+                let rupiah = r.rupiah_paid || 0;
+                // Fallback for old records that don't have rupiah_paid
+                if (!rupiah && productMap[r.product_name]) {
+                    rupiah = productMap[r.product_name] * currentPricePer500;
+                }
+                return { ...r, rupiah_value: rupiah };
+            });
             return res.status(200).json(data);
         } catch (error) {
             return res.status(500).json({ error: error.message });
