@@ -12,7 +12,8 @@ export default function AdminUpdates() {
         title: '',
         type: 'added',
         icon: 'ri-sparkling-2-line',
-        contentRaw: ''
+        contentRaw: '',
+        patch_date: ''
     })
 
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -49,7 +50,8 @@ export default function AdminUpdates() {
                 title: update.title,
                 type: update.type || 'added',
                 icon: update.icon || 'ri-sparkling-2-line',
-                contentRaw: textContent
+                contentRaw: textContent,
+                patch_date: update.patch_date ? update.patch_date.split('T')[0] : ''
             });
         } else {
             setEditId(null);
@@ -58,7 +60,8 @@ export default function AdminUpdates() {
                 title: '',
                 type: 'added',
                 icon: 'ri-sparkling-2-line',
-                contentRaw: ''
+                contentRaw: '',
+                patch_date: new Date().toISOString().split('T')[0]
             });
         }
         setIsFormOpen(true);
@@ -81,7 +84,8 @@ export default function AdminUpdates() {
             title: formData.title,
             type: formData.type,
             icon: formData.icon || 'ri-sparkling-2-line',
-            content: parsedContent
+            content: parsedContent,
+            patch_date: formData.patch_date || null
         };
 
         try {
@@ -244,6 +248,11 @@ export default function AdminUpdates() {
                             </div>
 
                             <div>
+                                <label className="block text-sm font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Tanggal Patch</label>
+                                <input required type="date" className="w-full mc-input" value={formData.patch_date} onChange={e => setFormData({ ...formData, patch_date: e.target.value })} />
+                            </div>
+
+                            <div>
                                 <label className="block text-sm font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>
                                     Isi Patch Notes <span className="font-normal text-xs">(Gunakan prefix +, -, atau * di awal baris)</span>
                                 </label>
@@ -273,6 +282,7 @@ export default function AdminUpdates() {
                         <thead>
                             <tr style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)' }} className="text-xs uppercase tracking-widest">
                                 <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Bulan</th>
+                                <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Tanggal</th>
                                 <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Title</th>
                                 <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Label</th>
                                 <th className="p-5 font-black" style={{ borderBottom: '1px solid var(--bg-body)' }}>Isi Notes</th>
@@ -283,6 +293,7 @@ export default function AdminUpdates() {
                             {updates.length > 0 ? updates.map(update => (
                                 <tr key={update.id} className="hover:bg-[var(--brand-primary)]/5 transition-colors group" style={{ borderBottom: '1px solid var(--bg-body)' }}>
                                     <td className="p-5 font-bold" style={{ color: 'var(--text-secondary)' }}>{update.month_group}</td>
+                                    <td className="p-5 font-bold" style={{ color: 'var(--text-secondary)' }}>{update.patch_date ? new Date(update.patch_date).toLocaleDateString('id-ID') : '-'}</td>
                                     <td className="p-5 font-extrabold" style={{ color: 'var(--text-primary)' }}>{update.title}</td>
                                     <td className="p-5">
                                         <div className={`inline-flex px-2 py-1 rounded-md text-xs font-bold uppercase shadow-sm

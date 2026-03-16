@@ -11,7 +11,8 @@ export default function AdminSettings() {
         popup_title: '',
         popup_subtitle: '',
         popup_discount_text: '20%',
-        discount_timer: ''
+        discount_timer: '',
+        discord_webhook_url: ''
     })
     const [isLoading, setIsLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
@@ -35,7 +36,8 @@ export default function AdminSettings() {
                         popup_title: data.popup_title || '',
                         popup_subtitle: data.popup_subtitle || '',
                         popup_discount_text: data.popup_discount_text || '20%',
-                        discount_timer: data.discount_timer || ''
+                        discount_timer: data.discount_timer || '',
+                        discord_webhook_url: data.discord_webhook_url || ''
                     }
                     setSettings(loaded)
                     savedSettingsRef.current = loaded
@@ -179,6 +181,21 @@ export default function AdminSettings() {
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold" style={{ color: 'var(--text-muted)' }}>%</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-extrabold mb-2" style={{ color: 'var(--text-secondary)' }}>Discord Webhook URL</label>
+                            <input
+                                type="text"
+                                value={settings.discord_webhook_url}
+                                onChange={(e) => setSettings({ ...settings, discord_webhook_url: e.target.value })}
+                                className="w-full p-4 rounded-xl border-2 focus:bg-white focus:outline-none transition-all font-bold"
+                                style={{ borderColor: 'var(--bg-body)', background: 'rgba(232,224,240,0.3)', color: 'var(--text-primary)' }}
+                                placeholder="https://discord.com/api/webhooks/..."
+                            />
+                            <p className="text-xs font-bold mt-2 opacity-60" style={{ color: 'var(--text-muted)' }}>
+                                Digunakan untuk mengirim notifikasi update otomatis ke Discord.
+                            </p>
                         </div>
                     </form>
                 </div>

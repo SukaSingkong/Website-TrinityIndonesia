@@ -19,7 +19,8 @@ export default async function handler(req, res) {
                 popup_bg_image VARCHAR(500) DEFAULT '',
                 popup_title VARCHAR(200) DEFAULT '',
                 popup_subtitle VARCHAR(500) DEFAULT '',
-                popup_discount_text VARCHAR(200) DEFAULT '20%'
+                popup_discount_text VARCHAR(200) DEFAULT '20%',
+                discord_webhook_url VARCHAR(500) DEFAULT ''
             )
         `);
 
@@ -29,6 +30,7 @@ export default async function handler(req, res) {
             { name: 'popup_title', type: "VARCHAR(200) DEFAULT ''" },
             { name: 'popup_subtitle', type: "VARCHAR(500) DEFAULT ''" },
             { name: 'popup_discount_text', type: "VARCHAR(200) DEFAULT '20%'" },
+            { name: 'discord_webhook_url', type: "VARCHAR(500) DEFAULT ''" },
         ];
         for (const col of columnsToAdd) {
             try {
@@ -141,9 +143,20 @@ export default async function handler(req, res) {
                 title VARCHAR(200),
                 type VARCHAR(50),
                 content JSON,
+                patch_date DATE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+
+        // Migration for patch_date
+        try {
+            await pool.query(`ALTER TABLE store_updates ADD COLUMN patch_date DATE AFTER content`);
+        } catch (e) {}
+
+        // Backfill patch_date from created_at if null
+        try {
+            await pool.query(`UPDATE store_updates SET patch_date = DATE(created_at) WHERE patch_date IS NULL`);
+        } catch (e) {}
 
         // Create Verified Players table
         await pool.query(`

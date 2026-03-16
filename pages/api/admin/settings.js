@@ -10,6 +10,7 @@ async function ensurePopupColumns(pool) {
         { name: 'popup_subtitle', type: "VARCHAR(500) DEFAULT ''" },
         { name: 'popup_discount_text', type: "VARCHAR(200) DEFAULT '20%'" },
         { name: 'discount_timer', type: "VARCHAR(200) DEFAULT ''" },
+        { name: 'discord_webhook_url', type: "VARCHAR(500) DEFAULT ''" },
     ];
     for (const col of cols) {
         try {
@@ -39,7 +40,7 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
         const {
             event_name, discount_enabled, base_price_per_500, discount_percentage,
-            popup_bg_image, popup_title, popup_subtitle, popup_discount_text, discount_timer
+            popup_bg_image, popup_title, popup_subtitle, popup_discount_text, discount_timer, discord_webhook_url
         } = req.body;
 
         try {
@@ -50,22 +51,22 @@ export default async function handler(req, res) {
                 await pool.query(
                     `UPDATE store_settings SET 
                         event_name=?, discount_enabled=?, base_price_per_500=?, discount_percentage=?,
-                        popup_bg_image=?, popup_title=?, popup_subtitle=?, popup_discount_text=?, discount_timer=?
+                        popup_bg_image=?, popup_title=?, popup_subtitle=?, popup_discount_text=?, discount_timer=?, discord_webhook_url=?
                     WHERE id=?`,
                     [
                         event_name, discount_enabled ? 1 : 0, base_price_per_500, discount_percentage,
-                        popup_bg_image || '', popup_title || '', popup_subtitle || '', popup_discount_text || '', discount_timer || '',
+                        popup_bg_image || '', popup_title || '', popup_subtitle || '', popup_discount_text || '', discount_timer || '', discord_webhook_url || '',
                         rows[0].id
                     ]
                 );
             } else {
                 await pool.query(
                     `INSERT INTO store_settings 
-                        (event_name, discount_enabled, base_price_per_500, discount_percentage, popup_bg_image, popup_title, popup_subtitle, popup_discount_text, discount_timer) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        (event_name, discount_enabled, base_price_per_500, discount_percentage, popup_bg_image, popup_title, popup_subtitle, popup_discount_text, discount_timer, discord_webhook_url) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         event_name, discount_enabled ? 1 : 0, base_price_per_500, discount_percentage,
-                        popup_bg_image || '', popup_title || '', popup_subtitle || '', popup_discount_text || '', discount_timer || ''
+                        popup_bg_image || '', popup_title || '', popup_subtitle || '', popup_discount_text || '', discount_timer || '', discord_webhook_url || ''
                     ]
                 );
             }

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { getDbConnection } from '@layer/lib/db'
 import Head from 'next/head'
 
-function UpdateAccordion({ title, content, type, icon }) {
+function UpdateAccordion({ title, content, type, icon, patchDate }) {
     const [isOpen, setIsOpen] = useState(false);
 
     // Color based on type
@@ -42,6 +42,11 @@ function UpdateAccordion({ title, content, type, icon }) {
                     <h3 className="font-bold text-sm" style={{ color: isOpen ? accentColor : 'var(--text-primary)' }}>
                         Patch {title}
                     </h3>
+                    {patchDate && (
+                        <p className="text-[10px] font-black opacity-50 uppercase tracking-tighter" style={{ color: isOpen ? accentColor : 'var(--text-muted)' }}>
+                            {new Date(patchDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </p>
+                    )}
                 </div>
                 <div className={`flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
                     <i className={`ri-arrow-down-s-line text-xl`} style={{ color: isOpen ? accentColor : 'var(--text-muted)' }} />
@@ -111,7 +116,7 @@ export default function Update({ groupedUpdates }) {
                         {/* Accordions for that month */}
                         <div className="flex flex-col">
                             {monthGroup.logs.map((log, j) => (
-                                <UpdateAccordion key={j} title={log.title} content={log.content} type={log.type} icon={log.icon} />
+                                <UpdateAccordion key={j} title={log.title} content={log.content} type={log.type} icon={log.icon} patchDate={log.patch_date} />
                             ))}
                         </div>
                     </div>
@@ -134,7 +139,8 @@ export async function getServerSideProps() {
         const stringifiedRows = rows.map(r => ({
             ...r,
             content: typeof r.content === 'string' ? JSON.parse(r.content) : r.content,
-            created_at: r.created_at.toISOString()
+            created_at: r.created_at.toISOString(),
+            patch_date: r.patch_date ? r.patch_date.toISOString() : r.created_at.toISOString()
         }))
 
         // Group by month
