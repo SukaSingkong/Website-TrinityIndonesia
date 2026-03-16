@@ -118,7 +118,7 @@ export default function AdminPurchases() {
                             {purchases.length > 0 ? purchases.map(log => (
                                 <tr key={log.id} className="hover:bg-[var(--brand-primary)]/5 transition-colors group" style={{ borderBottom: '1px solid var(--bg-body)' }}>
                                     <td className="p-5 font-mono text-xs whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
-                                        {new Date(log.created_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                                        {new Date(log.created_at).toLocaleString('id-ID')}
                                     </td>
                                     <td className="p-5">
                                         <div className="flex items-center gap-3">

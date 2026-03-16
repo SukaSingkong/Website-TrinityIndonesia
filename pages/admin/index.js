@@ -246,7 +246,7 @@ export default function AdminDashboard() {
             {/* Analytics Row: Chart + Top Donators */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
                 {/* Sales Chart - 2 cols wide */}
-                <div className="xl:col-span-2 mc-card p-6 relative overflow-hidden">
+                <div className="xl:col-span-2 mc-card p-6 relative">
                     <div className="absolute top-0 right-0 w-48 h-48 opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" style={{ background: 'var(--brand-secondary)' }}></div>
                     <div className="flex items-center justify-between mb-6 relative z-10 flex-wrap gap-4">
                         <div>
@@ -403,7 +403,10 @@ export default function AdminDashboard() {
                                 return (
                                     <div key={i}>
                                         <div className="flex items-center justify-between mb-1.5">
-                                            <span className="text-sm font-extrabold truncate" style={{ color: 'var(--text-primary)' }}>{prod.product_name}</span>
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <span className="text-sm font-extrabold truncate" style={{ color: 'var(--text-primary)' }}>{prod.product_name}</span>
+                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md flex-shrink-0" style={{ background: 'rgba(226,110,16,0.1)', color: '#E26E10' }}>{prod.total_points?.toLocaleString('id-ID')} pts</span>
+                                            </div>
                                             <span className="text-xs font-bold ml-2 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>{prod.times_purchased}x</span>
                                         </div>
                                         <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-body)' }}>
