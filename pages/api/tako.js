@@ -38,7 +38,7 @@ export default async function handler(req, res) {
         return res.status(500).json({ message: 'Failed to read raw body' });
     }
 
-    // --- TEMPORARY LOGGING FOR DEBUGGING ---
+    // --- WEBHOOK RAW LOG (for debugging / audit) ---
     try {
         const pool = await getDbConnection();
         await pool.query(
@@ -48,8 +48,9 @@ export default async function handler(req, res) {
     } catch (logErr) {
         console.error("Failed to insert into webhook logs:", logErr);
     }
-    // ---------------------------------------
+    // -----------------------------------------------
 
+    // Verify signature if webhookToken is set
     if (webhookToken && signatureFromHeader) {
         const computedSignature = crypto
             .createHmac("sha256", webhookToken)
@@ -78,9 +79,10 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true, message: "Webhook received successfully (test mode)" });
         }
 
-        // Tako provides name, amount, message, etc. based on the gift API specs.
         const supporterName = payload.gifterName || payload.name;
         const amount = parseFloat(payload.amount);
+        // Tako may send a unique transaction/order ID — use it for deduplication
+        const takoTransactionId = payload.transactionId || payload.orderId || payload.id || null;
 
         if (!supporterName || !amount) {
             console.error("Missing supporter name or amount in payload", payload);
@@ -89,9 +91,20 @@ export default async function handler(req, res) {
 
         const pool = await getDbConnection();
 
-        // Find product based on price/amount (handling discounts if necessary, assuming base point = Rp 10 / point -> 500 = 5000)
-        // Store saves base_price_per_500 and discounted_price_per_500, we check if this matches any product.
-        // Easiest is to find the exact price matched
+        // --- DUPLICATE WEBHOOK GUARD ---
+        // Tako sometimes retries webhooks on timeout. If we already processed this
+        // transaction successfully, return 200 immediately so Tako stops retrying.
+        if (takoTransactionId) {
+            const [dupRows] = await pool.query(
+                "SELECT id FROM store_purchases WHERE tako_transaction_id = ? AND status = 'success' LIMIT 1",
+                [takoTransactionId]
+            );
+            if (dupRows.length > 0) {
+                console.log(`Duplicate webhook for transaction ${takoTransactionId} — already processed. Returning 200.`);
+                return res.status(200).json({ success: true, message: 'Already processed' });
+            }
+        }
+        // --------------------------------
 
         const [settingsRows] = await pool.query('SELECT * FROM store_settings LIMIT 1');
         let dbSettings = settingsRows[0] || { discount_enabled: 0, base_price_per_500: 1000, discount_percentage: 0 };
@@ -108,43 +121,72 @@ export default async function handler(req, res) {
             }
         }
 
-        // Find which quantity this amount corresponds to
+        // --- PRODUCT MATCHING ---
+        // Try to match the received amount to a known product.
+        // We use a generous EPSILON to absorb float rounding from Tako's side.
+        // We also try BOTH discounted and base price to handle the race condition where:
+        //   - Player paid during an active discount
+        //   - But the webhook arrived after the discount timer expired
         let quantity = 0;
         let matchedProductPoints = 0;
         let matchedProductName = "";
         let productId = null;
+        let matchedRupiahPaid = 0;
 
         const [productRows] = await pool.query('SELECT id, name, quantity, points FROM store_products');
 
-        // Use a small tolerance for float comparison to ensure robustness
-        const EPSILON = 0.5;
-
-        let matchedRupiahPaid = 0;
+        // Tolerance: 1.5 covers most float rounding (Tako rounds to nearest rupiah)
+        const EPSILON = 1.5;
 
         for (const p of productRows) {
             const basePrice = p.quantity * dbSettings.base_price_per_500;
-            const currentPrice = dbSettings.discount_enabled ? (basePrice * (1 - (dbSettings.discount_percentage / 100))) : basePrice;
-            const totalWithFee = currentPrice + 1000;
+            const discountedPrice = dbSettings.discount_percentage > 0
+                ? Math.round(basePrice * (1 - (dbSettings.discount_percentage / 100)))
+                : null;
 
-            if (Math.abs(amount - totalWithFee) < EPSILON) {
-                productId = p.id;
-                quantity = p.quantity;
-                matchedProductPoints = p.points;
-                matchedProductName = p.name;
-                matchedRupiahPaid = currentPrice;
-                break;
+            // Candidate prices to try, in order of priority:
+            // 1. Currently active price (discounted if ON, base if OFF)
+            // 2. Discounted price (fallback for race condition — webhook arrived after expiry)
+            // 3. Base price (final fallback)
+            const candidatePrices = [];
+            if (dbSettings.discount_enabled && discountedPrice !== null) {
+                candidatePrices.push(discountedPrice);
+            } else {
+                candidatePrices.push(basePrice);
             }
+            if (!dbSettings.discount_enabled && discountedPrice !== null) {
+                candidatePrices.push(discountedPrice); // race condition fallback
+            }
+            if (!candidatePrices.includes(basePrice)) {
+                candidatePrices.push(basePrice);
+            }
+
+            let matched = false;
+            for (const candidatePrice of candidatePrices) {
+                const totalWithFee = candidatePrice + 1000; // +1000 = Tako transfer fee
+                if (Math.abs(amount - totalWithFee) < EPSILON) {
+                    productId = p.id;
+                    quantity = p.quantity;
+                    matchedProductPoints = p.points;
+                    matchedProductName = p.name;
+                    matchedRupiahPaid = candidatePrice;
+                    matched = true;
+                    break;
+                }
+            }
+            if (matched) break;
         }
+        // -------------------------
 
         if (!productId) {
-            console.error(`Product mismatch - Received Amount: ${amount}. Check if it includes fees or if settings changed.`);
+            console.error(`Product mismatch - Received Amount: ${amount}. No matching product found.`);
 
-            // Log this mismatch so it's not lost (Admin can give points manually)
+            // Log mismatch so admin can manually deliver points
             try {
                 await pool.query(`
-                    INSERT INTO store_purchases (player_name, product_name, points_purchased, rupiah_paid, commands_executed, status)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                `, [supporterName, `MISMATCH: Rp ${amount}`, 0, 0, JSON.stringify({ received_amount: amount }), 'mismatch_requires_manual']);
+                    INSERT INTO store_purchases (player_name, product_name, points_purchased, rupiah_paid, commands_executed, status, tako_transaction_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `, [supporterName, `MISMATCH: Rp ${amount}`, 0, 0, JSON.stringify({ received_amount: amount }), 'mismatch_requires_manual', takoTransactionId]);
             } catch (logErr) {
                 console.error("Failed to log mismatching purchase:", logErr);
             }
@@ -158,13 +200,29 @@ export default async function handler(req, res) {
         const apiKey = process.env.PTERODACTYL_API_KEY;
         const serverId = process.env.PTERODACTYL_SERVER_ID;
 
+        if (!panelUrl || !apiKey || !serverId) {
+            console.error("Missing Pterodactyl Environment Variables");
+            // Log as pending so admin knows to deliver manually
+            try {
+                await pool.query(`
+                    INSERT INTO store_purchases (player_name, product_name, points_purchased, rupiah_paid, commands_executed, status, tako_transaction_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `, [supporterName, matchedProductName, matchedProductPoints, matchedRupiahPaid, JSON.stringify([]), 'failed_missing_panel_config', takoTransactionId]);
+            } catch (logErr) {
+                console.error("Failed to log panel config failure:", logErr);
+            }
+            return res.status(500).json({ message: 'Missing panel credentials configuration' });
+        }
+
+        // --- EXECUTE COMMANDS ---
         const executedCommands = [];
+        const failedCommands = [];
 
-        if (panelUrl && apiKey && serverId) {
-            for (const row of commands) {
-                const finalCommand = row.command.replace(/{player}/g, supporterName);
+        for (const row of commands) {
+            const finalCommand = row.command.replace(/{player}/g, supporterName);
 
-                const ptData = await fetch(`${panelUrl.replace(/\/\$/, '')}/api/client/servers/${serverId}/command`, {
+            try {
+                const ptData = await fetch(`${panelUrl.replace(/\/$/, '')}/api/client/servers/${serverId}/command`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${apiKey}`,
@@ -177,26 +235,58 @@ export default async function handler(req, res) {
                 if (ptData.ok) {
                     executedCommands.push(finalCommand);
                 } else {
-                    console.error("Failed to execute command:", finalCommand, "Pterodactyl Response:", await ptData.text());
+                    const errText = await ptData.text();
+                    console.error("Failed to execute command:", finalCommand, "Pterodactyl:", errText);
+                    failedCommands.push({ command: finalCommand, error: errText });
                 }
+            } catch (fetchErr) {
+                console.error("Network error executing command:", finalCommand, fetchErr);
+                failedCommands.push({ command: finalCommand, error: fetchErr.message });
             }
+        }
+        // ------------------------
+
+        // Determine final status:
+        // - 'success': all commands executed
+        // - 'partial': some commands failed (admin needs to resend missing ones)
+        // - 'failed_panel_error': all commands failed (panel offline, etc.)
+        let finalStatus;
+        if (executedCommands.length === commands.length) {
+            finalStatus = 'success';
+        } else if (executedCommands.length > 0) {
+            finalStatus = 'partial';
         } else {
-            console.error("Missing Pterodactyl Environment Variables");
-            return res.status(500).json({ message: 'Missing panel credentials configuration' });
+            finalStatus = 'failed_panel_error';
         }
 
-        if (executedCommands.length > 0) {
-            try {
-                await pool.query(`
-                    INSERT INTO store_purchases (player_name, product_name, points_purchased, rupiah_paid, commands_executed, status)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                `, [supporterName, matchedProductName || `Product ID ${productId}`, matchedProductPoints, matchedRupiahPaid, JSON.stringify(executedCommands), 'success']);
-            } catch (logErr) {
-                console.error("Failed to log purchase to DB:", logErr);
-            }
+        // Always log the purchase outcome, regardless of success/failure,
+        // so admin can see what happened and manually fix if needed.
+        try {
+            await pool.query(`
+                INSERT INTO store_purchases (player_name, product_name, points_purchased, rupiah_paid, commands_executed, status, tako_transaction_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `, [
+                supporterName,
+                matchedProductName || `Product ID ${productId}`,
+                matchedProductPoints,
+                matchedRupiahPaid,
+                JSON.stringify({ executed: executedCommands, failed: failedCommands }),
+                finalStatus,
+                takoTransactionId
+            ]);
+        } catch (logErr) {
+            console.error("Failed to log purchase to DB:", logErr);
         }
 
-        return res.status(200).json({ success: true, executed: executedCommands });
+        // Always return 200 to Tako so they don't retry already-processed webhooks.
+        // If delivery failed, admin can re-send manually from the purchases page.
+        return res.status(200).json({
+            success: true,
+            status: finalStatus,
+            executed: executedCommands,
+            failed: failedCommands
+        });
+
     } catch (e) {
         console.error("Webhook processing error:", e)
         return res.status(500).json({ message: 'Webhook processing error', error: e.message })

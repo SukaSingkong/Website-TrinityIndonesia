@@ -83,6 +83,7 @@ export default async function handler(req, res) {
                 rupiah_paid INT DEFAULT 0,
                 commands_executed TEXT,
                 status VARCHAR(50) DEFAULT 'success',
+                tako_transaction_id VARCHAR(100) DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
@@ -90,6 +91,13 @@ export default async function handler(req, res) {
         // Add rupiah_paid column if it doesn't exist (migration for existing tables)
         try {
             await pool.query(`ALTER TABLE store_purchases ADD COLUMN rupiah_paid INT DEFAULT 0`);
+        } catch (e) {
+            // Column likely already exists, ignore
+        }
+
+        // Add tako_transaction_id column for duplicate webhook deduplication
+        try {
+            await pool.query(`ALTER TABLE store_purchases ADD COLUMN tako_transaction_id VARCHAR(100) DEFAULT NULL`);
         } catch (e) {
             // Column likely already exists, ignore
         }

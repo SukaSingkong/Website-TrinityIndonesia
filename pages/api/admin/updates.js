@@ -29,13 +29,8 @@ export default async function handler(req, res) {
 
             // Send Discord Notification if webhook is configured
             try {
-                // Prioritize ENV, fallback to database settings
-                let webhookUrl = process.env.DISCORD_UPDATE_WEBHOOK;
-                
-                if (!webhookUrl) {
-                    const [settings] = await pool.query('SELECT discord_webhook_url FROM store_settings LIMIT 1');
-                    webhookUrl = settings[0]?.discord_webhook_url;
-                }
+                // Strictly use the global Update Webhook from .env
+                const webhookUrl = process.env.DISCORD_UPDATE_WEBHOOK;
 
                 if (webhookUrl) {
                     const color = type === 'added' ? 3066993 : (type === 'removed' ? 15158332 : 3447003); // Green, Red, Blue

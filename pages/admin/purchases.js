@@ -141,8 +141,25 @@ export default function AdminPurchases() {
                                             {(() => {
                                                 try {
                                                     const cmds = JSON.parse(log.commands_executed)
-                                                    return Array.isArray(cmds) ? cmds.map((c, i) => <div key={i} className="py-0.5 last:border-0" style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>{c}</div>) : cmds
-                                                } catch (e) { return log.commands_executed }
+                                                    if (Array.isArray(cmds)) {
+                                                        return cmds.map((c, i) => <div key={i} className="py-0.5 last:border-0" style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>{c}</div>)
+                                                    }
+                                                    if (typeof cmds === 'object' && cmds !== null) {
+                                                        if (cmds.received_amount) {
+                                                            return <div style={{ color: '#ef4444', fontWeight: 'bold' }}>Mismatch (Rp {cmds.received_amount.toLocaleString('id-ID')})</div>
+                                                        }
+                                                        return (
+                                                            <>
+                                                                {cmds.executed?.map((c, i) => <div key={`exec-${i}`} className="py-0.5" style={{ color: '#16a34a', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>✓ {c}</div>)}
+                                                                {cmds.failed?.map((f, i) => <div key={`fail-${i}`} className="py-0.5" style={{ color: '#ef4444', borderBottom: '1px solid rgba(0,0,0,0.05)' }} title={f.error}>✗ {f.command}</div>)}
+                                                                {(!cmds.executed?.length && !cmds.failed?.length) && <div style={{ color: 'var(--text-muted)' }}>No commands</div>}
+                                                            </>
+                                                        )
+                                                    }
+                                                    return String(cmds)
+                                                } catch (e) { 
+                                                    return String(log.commands_executed) 
+                                                }
                                             })()}
                                         </div>
                                     </td>

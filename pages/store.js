@@ -44,10 +44,10 @@ function CountdownTimer({ targetDate, onExpire }) {
     const TimeBox = ({ value, label }) => (
         <div className="flex flex-col items-center">
             <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center font-black text-xl md:text-2xl text-white"
-                style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 4px 12px rgba(0,0,0,0.25)' }}>
+                style={{ background: 'rgba(8,15,40,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', boxShadow: '0 4px 16px rgba(0,0,0,0.5)' }}>
                 {f(value)}
             </div>
-            <span className="text-[9px] font-bold text-white/60 mt-1.5 uppercase tracking-widest">{label}</span>
+            <span className="text-[9px] font-bold text-white/80 mt-1.5 uppercase tracking-widest" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{label}</span>
         </div>
     );
 
@@ -768,36 +768,43 @@ export default function Store() {
 
                         {Boolean(discountEnabled) && event && (
                             <div
-                                className="mc-card p-6 sm:p-8 overflow-hidden relative"
+                                className="mc-card p-5 sm:p-7 overflow-hidden relative shadow-lg transition-all duration-300 border-0"
                                 style={{
                                     background: 'var(--brand-secondary)',
                                     backgroundImage: storeSettings.popup_bg_image ? `url(${storeSettings.popup_bg_image})` : 'none',
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center',
-                                    border: 'none'
+                                    borderRadius: '16px'
                                 }}
                             >
-                                {/* Overlay for readability when using bg image */}
+                                {/* Premium Gradient Overlay Fade */}
                                 {storeSettings.popup_bg_image && (
-                                    <div className="absolute inset-0 bg-black/40"></div>
+                                    <div 
+                                        className="absolute inset-0" 
+                                        style={{ background: 'linear-gradient(90deg, rgba(8,15,40,0.95) 0%, rgba(8,15,40,0.7) 45%, rgba(8,15,40,0.2) 100%)' }}
+                                    ></div>
                                 )}
-                                {/* Background Effects */}
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-black opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
-                                <div className="absolute bottom-0 left-0 w-48 h-48 bg-black opacity-10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4"></div>
-
-                                <div className="relative z-10 flex flex-row items-center justify-between gap-6">
-                                    <div className="flex-1">
-                                        <h2 className="text-3xl md:text-5xl font-black text-white mb-3" style={{ textShadow: '0 4px 12px rgba(0,0,0,0.4)' }}>
-                                            {storeSettings.popup_title || `SPESIAL EVENT ${event.toUpperCase()}!`}
+                                
+                                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                                    <div className="flex-1 max-w-xl">
+                                        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE066] text-amber-900 border border-amber-500/30 text-[10px] font-black uppercase tracking-wider mb-2 shadow-sm">
+                                            <i className="ri-flashlight-fill"></i> Spesial Event
+                                        </div>
+                                        <h2 className="text-2xl md:text-3xl font-black text-white mb-1.5 leading-tight" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
+                                            {storeSettings.popup_title || event.toUpperCase()}
                                         </h2>
-                                        <p className="text-white font-bold text-sm md:text-lg leading-relaxed" style={{ textShadow: '0 2px 6px rgba(0,0,0,0.4)' }}>
+                                        <p className="text-white/95 font-bold text-sm leading-relaxed max-w-lg" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
                                             {storeSettings.popup_subtitle || (
-                                                <>Nikmati diskon eksklusif sebesar <strong className="text-[#FFE066] font-black bg-black/20 px-2 py-1 rounded-md shadow-inner">{storeSettings.popup_discount_text || '20%'}</strong> untuk semua pembelian Points selama event berlangsung.</>
+                                                <>Nikmati diskon spesial <strong className="text-[#FFE066] font-black">{storeSettings.popup_discount_text || '20%'}</strong> untuk pembelian Points selama event ini.</>
                                             )}
                                         </p>
-                                        {storeSettings.discount_timer && <CountdownTimer targetDate={storeSettings.discount_timer} onExpire={() => fetchStore()} />}
                                     </div>
-
+                                    
+                                    {storeSettings.discount_timer && (
+                                        <div className="shrink-0 md:-mt-5">
+                                            <CountdownTimer targetDate={storeSettings.discount_timer} onExpire={() => fetchStore()} />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
