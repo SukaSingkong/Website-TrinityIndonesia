@@ -637,3 +637,89 @@ footer {
 .animate-slide-in-left {
 	animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ==================== ONLINE PLAYERS ==================== */
+.online-pulse-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: #22c55e;
+	box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+	animation: pulse-green 2s ease-in-out infinite;
+}
+
+@keyframes pulse-green {
+	0%, 100% {
+		box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+		transform: scale(1);
+	}
+	50% {
+		box-shadow: 0 0 16px rgba(34, 197, 94, 0.7);
+		transform: scale(1.15);
+	}
+}
+
+.online-players-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	gap: 0.25rem 0.5rem;
+	max-height: 250px;
+	overflow-y: auto;
+	padding-right: 0.5rem;
+	scrollbar-width: thin;
+	scrollbar-color: var(--brand-secondary) transparent;
+}
+
+.online-players-grid::-webkit-scrollbar {
+	display: block;
+	width: 5px;
+}
+
+.online-players-grid::-webkit-scrollbar-track {
+	background: rgba(45, 38, 64, 0.05);
+	border-radius: 999px;
+}
+
+.online-players-grid::-webkit-scrollbar-thumb {
+	background: var(--brand-secondary);
+	border-radius: 999px;
+}
+
+.online-player-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.35rem 0.5rem;
+	border-radius: 0.5rem;
+	transition: all 0.2s ease;
+	cursor: default;
+}
+
+.online-player-item:hover {
+	background: rgba(226, 110, 16, 0.06);
+}
+
+.online-player-head {
+	width: 24px;
+	height: 24px;
+	border-radius: 0.25rem;
+	image-rendering: pixelated;
+	flex-shrink: 0;
+	background: #f5f3f8;
+}
+
+.online-player-name {
+	font-size: 0.8125rem;
+	font-weight: 700;
+	color: var(--text-secondary);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+@media (max-width: 640px) {
+	.online-players-grid {
+		grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+		max-height: 200px;
+	}
+}

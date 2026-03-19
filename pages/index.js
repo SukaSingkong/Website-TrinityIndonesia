@@ -1,7 +1,7 @@
 import { Wrapper } from '@layer/components/layout/Wrapper.jsx'
 import { Icons } from '@layer/components/elements/Icons.jsx'
 import config from '@layer/theme.config'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 const features = [
 	{ icon: Icons.Clock, title: 'AFK Rewards', description: 'Dapatkan Premium Points & AFK Crate Keys lewat AFK House' },
@@ -93,6 +93,35 @@ function FaqAccordion({ question, answer }) {
 export default function Home() {
 	const carouselRef = useRef(null)
 	const [isVideoPlaying, setIsVideoPlaying] = useState(false)
+	const [onlinePlayers, setOnlinePlayers] = useState([])
+	const [playerCount, setPlayerCount] = useState(0)
+	const [isLoadingPlayers, setIsLoadingPlayers] = useState(true)
+	const [verifiedList, setVerifiedList] = useState([])
+
+	useEffect(() => {
+		const fetchPlayers = async () => {
+			try {
+				const res = await fetch('/api/online-players')
+				const data = await res.json()
+				setOnlinePlayers(data.players || [])
+				setPlayerCount(data.count || 0)
+			} catch (err) {
+				console.error('Failed to fetch players:', err)
+			} finally {
+				setIsLoadingPlayers(false)
+			}
+		}
+
+		fetchPlayers()
+		const interval = setInterval(fetchPlayers, 30000)
+
+		fetch('/api/verified')
+			.then(res => res.json())
+			.then(data => { if (data.verified) setVerifiedList(data.verified); })
+			.catch(() => {});
+
+		return () => clearInterval(interval)
+	}, [])
 
 	const scrollCarousel = (direction) => {
 		if (carouselRef.current) {
@@ -141,6 +170,132 @@ export default function Home() {
 							Gabung Discord
 						</a>
 					</div>
+				</div>
+			</div>
+
+			{/* Online Players Section */}
+			<div className="online-players-section mb-12">
+				<div className="mc-content-card p-4 md:p-6 shadow-sm border-l-4">
+					{/* Header */}
+					<div className="flex items-center justify-between mb-4">
+						<div className="flex items-center gap-3">
+							<div className="online-pulse-dot"></div>
+							<h3 className="text-lg md:text-xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
+								Player Online
+							</h3>
+						</div>
+						<div className="px-3 py-1 rounded-full text-xs md:text-sm font-bold" style={{
+							background: 'rgba(34, 197, 94, 0.1)',
+							color: '#22c55e',
+							border: '1px solid rgba(34, 197, 94, 0.2)'
+						}}>
+							{isLoadingPlayers ? '...' : `${playerCount} Online`}
+						</div>
+					</div>
+
+					{/* Player List */}
+					{isLoadingPlayers ? (
+						<div className="flex items-center justify-center py-8">
+							<div className="text-sm" style={{ color: 'var(--text-muted)' }}>Memuat data pemain...</div>
+						</div>
+					) : onlinePlayers.length === 0 ? (
+						<div className="flex items-center justify-center py-8">
+							<div className="text-sm" style={{ color: 'var(--text-muted)' }}>Tidak ada pemain online saat ini</div>
+						</div>
+					) : (
+						<div className="online-players-grid">
+							{onlinePlayers.map((player) => (
+								<div key={player} className="online-player-item flex items-center">
+									<div className="flex items-center gap-2.5 overflow-hidden flex-1">
+										<img
+											src={`https://mc-heads.net/avatar/${player}/24`}
+											alt={player}
+											className="online-player-head"
+											loading="lazy"
+										/>
+										<span className="online-player-name flex items-center gap-1.5" style={{ display: 'flex', minWidth: 0 }}>
+											<span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+												{player}
+											</span>
+											{verifiedList.includes(player) && (
+												<span style={{ position: 'relative', display: 'inline-flex', flexShrink: 0 }} className="verified-badge-wrap">
+													{/* Badge icon */}
+													<span
+														style={{
+															display: 'inline-flex',
+															alignItems: 'center',
+															justifyContent: 'center',
+															width: '14px',
+															height: '14px',
+															borderRadius: '50%',
+															background: '#2563eb',
+															cursor: 'default',
+															flexShrink: 0
+														}}
+													>
+														<svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+															<path d="M2 5L4 7L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+														</svg>
+													</span>
+													{/* Tooltip */}
+													<span className="verified-tooltip" style={{
+														position: 'absolute',
+														bottom: 'calc(100% + 10px)',
+														left: '50%',
+														transform: 'translateX(-50%) translateY(4px) scale(0.95)',
+														background: '#18181b', // dark zinc
+														color: '#fff',
+														borderRadius: '8px',
+														padding: '8px 12px',
+														width: 'max-content',
+														maxWidth: '200px',
+														whiteSpace: 'normal',
+														lineHeight: '1.4',
+														textAlign: 'center',
+														pointerEvents: 'none',
+														opacity: 0,
+														visibility: 'hidden',
+														transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+														transformOrigin: 'bottom center',
+														zIndex: 50,
+														boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
+														display: 'flex',
+														flexDirection: 'column',
+														alignItems: 'center',
+														gap: '4px',
+														border: '1px solid rgba(255,255,255,0.08)'
+													}}>
+														<span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+															<svg width="12" height="12" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
+																<path d="M2 5L4 7L8 3" stroke="#60a5fa" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+															</svg>
+															<strong style={{ color: '#fff', fontSize: '11px', fontWeight: 800 }}>Terverifikasi</strong>
+														</span>
+														<span style={{ color: '#a1a1aa', fontSize: '9px', fontWeight: 500 }}>
+															Pemain terverifikasi resmi Trinity Indonesia.
+														</span>
+														{/* Arrow */}
+														<span style={{
+															position: 'absolute',
+															bottom: '-4px',
+															left: '50%',
+															transform: 'translateX(-50%) rotate(45deg)',
+															width: '8px',
+															height: '8px',
+															background: '#18181b',
+															borderBottom: '1px solid rgba(255,255,255,0.08)',
+															borderRight: '1px solid rgba(255,255,255,0.08)',
+															borderRadius: '2px'
+														}} />
+													</span>
+												</span>
+											)}
+										</span>
+									</div>
+								</div>
+							))}
+						</div>
+					)}
 				</div>
 			</div>
 
