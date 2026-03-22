@@ -7,36 +7,38 @@ const allRules = [
 		title: 'Pasal 1: Ketentuan Umum',
 		type: 'warning',
 		content: [
-			{ num: '1.1', text: 'Ketidaktahuan terhadap aturan tidak dapat dijadikan alasan untuk menghindari sanksi.' },
-			{ num: '1.2', text: 'Dengan masuk dan bermain di server Trinity Indonesia, pemain dianggap telah membaca, memahami, dan menyetujui seluruh aturan yang berlaku.' },
-			{ num: '1.3', text: 'Keputusan Staff dalam memberikan sanksi atau menyelesaikan perselisihan bersifat mutlak dan final.' }
+			{ num: '1.1', text: 'Tidak mengetahui aturan bukan alasan yang sah untuk menghindari sanksi. Setiap pemain wajib membaca aturan ini sebelum bermain.' },
+			{ num: '1.2', text: 'Dengan login dan bermain di server Trinity Indonesia, pemain secara otomatis dianggap telah membaca, memahami, dan menyetujui seluruh aturan yang tercantum di halaman ini.' },
+			{ num: '1.3', text: 'Seluruh keputusan Staff, termasuk pemberian sanksi, penyelesaian sengketa antar pemain, dan penanganan laporan, bersifat mutlak dan tidak dapat diganggu gugat.' },
+			{ num: '1.4', text: 'Aturan dapat diperbarui sewaktu-waktu tanpa pemberitahuan terlebih dahulu. Pemain bertanggung jawab untuk mengecek halaman ini secara berkala.' }
 		]
 	},
 	{
 		title: 'Pasal 2: Gameplay & Klien',
 		type: 'info',
 		content: [
-			{ num: '2.1', text: 'Penggunaan hack client (seperti KillAura, Fly, Speed, X-Ray), modifikasi klien, Auto-clicker, dan Macro Diperbolehkan.' },
-			{ num: '2.2', text: 'Membunuh pemain lain (PvP), menghancurkan bangunan (Griefing), mencuri barang (Stealing), dan melakukan penipuan dalam transaksi in-game (Scamming) Diperbolehkan.' },
-			{ num: '2.3', text: 'Eksploitasi bug server (Dupe item) atau penggunaan alat/mesin yang secara sengaja ditujukan untuk membuat server lag atau crash (Lag Machines/Packet Exploits) Dilarang.' }
+			{ num: '2.1', text: 'Cheat yang berhubungan dengan movement (Fly, Speed, NoFall), combat (KillAura, Reach, AutoArmor), dan cheat lain yang memberikan keuntungan tidak wajar terhadap pemain lain atau merugikan server Dilarang.' },
+			{ num: '2.2', text: 'Cheat bersifat grinding/utility yang tidak merugikan pemain lain Diperbolehkan, contoh: AutoFish, AutoClicker (bukan untuk PvP), Fullbright, Freecam, X-Ray, Baritone, dsb.' },
+			{ num: '2.3', text: 'PvP, Griefing (menghancurkan bangunan), Stealing (mencuri barang), dan Scamming (menipu dalam transaksi in-game) sepenuhnya Diperbolehkan sebagai bagian dari gameplay Anarchy.' },
+			{ num: '2.4', text: 'Eksploitasi bug seperti duplikasi item (Dupe), serta pembuatan Lag Machine atau Packet Exploit yang bertujuan membuat server lag/crash Dilarang dan akan dikenakan sanksi berat.' }
 		]
 	},
 	{
 		title: 'Pasal 3: Komunikasi & Interaksi',
 		type: 'info',
 		content: [
-			{ num: '3.1', text: 'Toxic chat dan trash talk diperbolehkan sebatas persaingan in-game.' },
-			{ num: '3.2', text: 'DILARANG: Melontarkan ancaman dunia nyata, pelecehan seksual, ujaran kebencian ekstrem/SARA, penyebaran konten NSFW, dan Doxxing (menyebarkan data pribadi orang lain).' },
-			{ num: '3.3', text: 'Spamming yang berlebihan atau mempromosikan server/layanan lain di chat in-game tidak diperkenankan.' }
+			{ num: '3.1', text: 'Trash talk dan toxic chat Diperbolehkan selama masih dalam konteks persaingan in-game dan bukan serangan personal di luar permainan.' },
+			{ num: '3.2', text: 'Dilarang keras: ancaman dunia nyata, pelecehan seksual, ujaran kebencian SARA, penyebaran konten NSFW/pornografi, serta Doxxing (menyebarkan informasi pribadi pemain lain tanpa izin). Pelanggaran akan dikenakan ban permanen.' },
+			{ num: '3.3', text: 'Spam chat secara berlebihan (flood) dan promosi server/layanan lain di dalam chat server Dilarang.' }
 		]
 	},
 	{
 		title: 'Pasal 4: Keamanan Akun & Komunitas',
 		type: 'info',
 		content: [
-			{ num: '4.1', text: 'Jaga keamanan akunmu sendiri. Server tidak mengembalikan barang atau poin yang hilang akibat akun yang diretas, dicuri, ataupun dipinjamkan.' },
-			{ num: '4.2', text: 'Berpura-pura menjadi anggota Staff (Impersonation) untuk menipu pemain lain adalah pelanggaran serius.' },
-			{ num: '4.3', text: 'Keputusan Staff dalam menindaklanjuti eksploitasi yang merusak infrastruktur server (seperti lag machine/dupe) bersifat final.' }
+			{ num: '4.1', text: 'Setiap pemain bertanggung jawab penuh atas keamanan akunnya. Server tidak akan mengembalikan item, poin, atau data apapun yang hilang akibat akun diretas, dicuri, atau dipinjamkan ke pihak lain.' },
+			{ num: '4.2', text: 'Impersonation (berpura-pura menjadi Staff atau pemain lain) untuk tujuan penipuan atau manipulasi merupakan pelanggaran serius dan akan dikenakan sanksi.' },
+			{ num: '4.3', text: 'Segala bentuk eksploitasi yang merusak infrastruktur server (lag machine, dupe, crash exploit) akan ditangani langsung oleh Staff, dan keputusan yang diambil bersifat final tanpa banding.' }
 		]
 	}
 ]
