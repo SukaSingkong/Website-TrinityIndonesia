@@ -27,7 +27,7 @@ const allRules = [
 		title: 'Pasal 3: Komunikasi & Interaksi',
 		type: 'info',
 		content: [
-			{ num: '3.1', text: 'Trash talk dan toxic chat Diperbolehkan selama masih dalam konteks persaingan in-game dan bukan serangan personal di luar permainan.' },
+			{ num: '3.1', text: 'Trash talk dan toxic chat Diperbolehkan selama masih dalam konteks persaingan in-game, tidak berlebihan, dan bukan serangan personal di luar permainan.' },
 			{ num: '3.2', text: 'Dilarang keras: ancaman dunia nyata, pelecehan seksual, ujaran kebencian SARA, penyebaran konten NSFW/pornografi, serta Doxxing (menyebarkan informasi pribadi pemain lain tanpa izin). Pelanggaran akan dikenakan ban permanen.' },
 			{ num: '3.3', text: 'Spam chat secara berlebihan (flood) dan promosi server/layanan lain di dalam chat server Dilarang.' }
 		]
