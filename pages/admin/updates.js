@@ -1,5 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import AdminLayout from '../../components/admin/AdminLayout'
+
+const MONTH_NAMES_ID = [
+    'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
+    'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'
+];
 
 export default function AdminUpdates() {
     const [updates, setUpdates] = useState([])
@@ -8,18 +13,44 @@ export default function AdminUpdates() {
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [editId, setEditId] = useState(null)
     const [formData, setFormData] = useState({
-        month_group: '',
-        title: '',
         type: 'added',
         icon: 'ri-sparkling-2-line',
         contentRaw: '',
         patch_date: ''
     })
 
+    // Auto-compute month preview from patch_date
+    const autoMonth = useMemo(() => {
+        if (!formData.patch_date) return '-';
+        const parts = formData.patch_date.split('-');
+        const monthIndex = parseInt(parts[1], 10) - 1;
+        return `${MONTH_NAMES_ID[monthIndex]} ${parts[0]}`;
+    }, [formData.patch_date]);
+
+    const [nextBuildNumber, setNextBuildNumber] = useState(null);
+
+    // Auto-compute version preview from patch_date + real build number
+    const autoVersionPreview = useMemo(() => {
+        if (!formData.patch_date || nextBuildNumber === null) return 'Memuat...';
+        const parts = formData.patch_date.split('-');
+        return `${parts[0]}.${parts[1]}.${nextBuildNumber}`;
+    }, [formData.patch_date, nextBuildNumber]);
+
+    async function fetchNextBuildNumber() {
+        try {
+            const res = await fetch('/api/admin/updates?nextBuild=1');
+            const data = await res.json();
+            if (data.nextBuild) setNextBuildNumber(data.nextBuild);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     useEffect(() => {
         fetchUpdates()
+        fetchNextBuildNumber()
     }, [])
 
     async function fetchUpdates() {
@@ -46,8 +77,6 @@ export default function AdminUpdates() {
             }
             const textContent = Array.isArray(parsedContent) ? parsedContent.map(c => `${c.num} ${c.text}`).join('\n') : '';
             setFormData({
-                month_group: update.month_group,
-                title: update.title,
                 type: update.type || 'added',
                 icon: update.icon || 'ri-sparkling-2-line',
                 contentRaw: textContent,
@@ -56,13 +85,12 @@ export default function AdminUpdates() {
         } else {
             setEditId(null);
             setFormData({
-                month_group: '',
-                title: '',
                 type: 'added',
                 icon: 'ri-sparkling-2-line',
                 contentRaw: '',
-                patch_date: new Date().toISOString().split('T')[0]
+                patch_date: new Date(new Date().getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0]
             });
+            fetchNextBuildNumber();
         }
         setIsFormOpen(true);
     }
@@ -80,8 +108,6 @@ export default function AdminUpdates() {
         });
 
         const payload = {
-            month_group: formData.month_group,
-            title: formData.title,
             type: formData.type,
             icon: formData.icon || 'ri-sparkling-2-line',
             content: parsedContent,
@@ -105,6 +131,7 @@ export default function AdminUpdates() {
             }
             setIsFormOpen(false);
             fetchUpdates();
+            fetchNextBuildNumber();
         } catch (err) {
             console.error(err);
             alert("Gagal menahan data.");
@@ -116,6 +143,7 @@ export default function AdminUpdates() {
         if (!confirm('Hapus update ini?')) return;
         await fetch(`/api/admin/updates?id=${id}`, { method: 'DELETE' });
         fetchUpdates();
+        fetchNextBuildNumber();
     }
 
     if (isLoading) return (
@@ -187,14 +215,27 @@ export default function AdminUpdates() {
                                 {editId ? 'Edit Patch Note' : 'Tambah Patch Baru'}
                             </h4>
 
+                            {/* Tanggal Patch - locked to today */}
+                            <div>
+                                <label className="block text-sm font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Tanggal Patch <span className="text-xs font-normal opacity-70">(Otomatis hari ini)</span></label>
+                                <div className="w-full mc-input flex items-center" style={{ background: '#f3f0f7', color: 'var(--text-muted)', cursor: 'default' }}>
+                                    {formData.patch_date}
+                                </div>
+                            </div>
+
+                            {/* Auto-generated previews */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Bulan (Misal: MARET 2026)</label>
-                                    <input required type="text" className="w-full mc-input" value={formData.month_group} onChange={e => setFormData({ ...formData, month_group: e.target.value })} placeholder="MARET 2026" />
+                                    <label className="block text-sm font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Bulan <span className="text-xs font-normal opacity-70">(Otomatis)</span></label>
+                                    <div className="w-full mc-input flex items-center" style={{ background: '#f3f0f7', color: 'var(--text-muted)', cursor: 'default' }}>
+                                        {autoMonth}
+                                    </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Versi / Judul (Misal: 2026.03.1)</label>
-                                    <input required type="text" className="w-full mc-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="2026.03.1" />
+                                    <label className="block text-sm font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Versi <span className="text-xs font-normal opacity-70">(Otomatis)</span></label>
+                                    <div className="w-full mc-input flex items-center" style={{ background: '#f3f0f7', color: 'var(--text-muted)', cursor: 'default' }}>
+                                        {editId ? 'Tidak berubah saat edit' : autoVersionPreview}
+                                    </div>
                                 </div>
                             </div>
 
@@ -247,10 +288,7 @@ export default function AdminUpdates() {
                                 </div>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Tanggal Patch</label>
-                                <input required type="date" className="w-full mc-input" value={formData.patch_date} onChange={e => setFormData({ ...formData, patch_date: e.target.value })} />
-                            </div>
+
 
                             <div>
                                 <label className="block text-sm font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>
