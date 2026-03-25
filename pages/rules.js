@@ -17,8 +17,8 @@ const allRules = [
 		title: 'Pasal 2: Gameplay & Klien',
 		type: 'info',
 		content: [
-			{ num: '2.1', text: 'Cheat yang berhubungan dengan movement (Fly, Speed, NoFall), combat (KillAura, Reach, AutoArmor), dan cheat lain yang memberikan keuntungan tidak wajar terhadap pemain lain atau merugikan server Dilarang.' },
-			{ num: '2.2', text: 'Cheat bersifat grinding/utility yang tidak merugikan pemain lain Diperbolehkan, contoh: AutoFish, AutoClicker (bukan untuk PvP), Fullbright, Freecam, X-Ray, Baritone, dsb.' },
+			{ num: '2.1', text: 'Semua bentuk cheat, hack client, dan modifikasi klien yang memberikan keuntungan tidak wajar secara tegas Dilarang.' },
+			{ num: '2.2', text: 'Pengecualian diberikan (Diperbolehkan) HANYA untuk AutoFish, Fullbright, serta mod Quality of Life (QoL) dasar yang tidak merugikan pemain lain (seperti Minimap tanpa radar entitas/gua, OptiFine, dsb).' },
 			{ num: '2.3', text: 'PvP, Griefing (menghancurkan bangunan), Stealing (mencuri barang), dan Scamming (menipu dalam transaksi in-game) sepenuhnya Diperbolehkan sebagai bagian dari gameplay Anarchy.' },
 			{ num: '2.4', text: 'Eksploitasi bug seperti duplikasi item (Dupe), serta pembuatan Lag Machine atau Packet Exploit yang bertujuan membuat server lag/crash Dilarang dan akan dikenakan sanksi berat.' }
 		]
