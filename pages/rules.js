@@ -17,8 +17,16 @@ const allRules = [
 		title: 'Pasal 2: Gameplay & Klien',
 		type: 'info',
 		content: [
-			{ num: '2.1', text: 'Semua bentuk cheat, hack client, dan modifikasi klien yang memberikan keuntungan tidak wajar secara tegas Dilarang.' },
-			{ num: '2.2', text: 'Pengecualian diberikan (Diperbolehkan) HANYA untuk AutoFish, Fullbright, serta mod Quality of Life (QoL) dasar yang tidak merugikan pemain lain (seperti Minimap tanpa radar entitas/gua, OptiFine, dsb).' },
+			{ num: '2.1', text: 'Mod Quality of Life (QoL) berikut Diperbolehkan untuk digunakan:' },
+			{ num: '', text: '• OptiFine / Sodium / Iris (mod performa & shader)' },
+			{ num: '', text: '• Fullbright / Gamma mod (penerangan penuh)' },
+			{ num: '', text: '• Minimap (TANPA radar entitas & TANPA radar gua)' },
+			{ num: '', text: '• Armor/Status HUD (tampilan info armor & efek)' },
+			{ num: '', text: '• Inventory Sorter (penataan inventori otomatis)' },
+			{ num: '', text: '• Litematica / Schematica (mod blueprint bangunan)' },
+			{ num: '', text: '• Replay Mod (perekam gameplay)' },
+			{ num: '', text: 'Mod yang memiliki fungsi serupa tanpa mengubah gameplay secara signifikan dan tidak memberikan keuntungan tidak wajar Diperbolehkan.' },
+			{ num: '2.2', text: 'Seluruh mod, hack client, dan modifikasi klien di luar daftar di atas secara tegas Dilarang. Jika ragu apakah suatu mod diperbolehkan, tanyakan ke Staff terlebih dahulu sebelum menggunakannya.' },
 			{ num: '2.3', text: 'PvP, Griefing (menghancurkan bangunan), Stealing (mencuri barang), dan Scamming (menipu dalam transaksi in-game) sepenuhnya Diperbolehkan sebagai bagian dari gameplay Anarchy.' },
 			{ num: '2.4', text: 'Eksploitasi bug seperti duplikasi item (Dupe), serta pembuatan Lag Machine atau Packet Exploit yang bertujuan membuat server lag/crash Dilarang dan akan dikenakan sanksi berat.' }
 		]
