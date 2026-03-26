@@ -930,20 +930,26 @@ export default function Store() {
                                     <button
                                         onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); document.getElementById('products-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
                                         disabled={currentPage === 1}
-                                        className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                        style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid #e8e0f0' }}
+                                        className="px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                                        style={{
+                                            background: currentPage === 1 ? '#f0edf4' : 'var(--brand-secondary)',
+                                            color: currentPage === 1 ? 'var(--text-muted)' : '#fff',
+                                            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                                            opacity: currentPage === 1 ? 0.5 : 1
+                                        }}
                                     >
-                                        ‹
+                                        ← Sebelumnya
                                     </button>
                                     {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                                         <button
                                             key={page}
                                             onClick={() => { setCurrentPage(page); document.getElementById('products-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
-                                            className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm transition-all"
-                                            style={currentPage === page
-                                                ? { background: 'var(--brand-secondary)', color: '#fff', boxShadow: '0 4px 12px rgba(226,110,16,0.3)' }
-                                                : { background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid #e8e0f0' }
-                                            }
+                                            className="w-10 h-10 rounded-xl text-sm font-bold transition-all"
+                                            style={{
+                                                background: page === currentPage ? 'var(--brand-secondary)' : '#f0edf4',
+                                                color: page === currentPage ? '#fff' : 'var(--text-secondary)',
+                                                fontWeight: page === currentPage ? 800 : 600
+                                            }}
                                         >
                                             {page}
                                         </button>
@@ -951,10 +957,15 @@ export default function Store() {
                                     <button
                                         onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); document.getElementById('products-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
                                         disabled={currentPage === totalPages}
-                                        className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                        style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid #e8e0f0' }}
+                                        className="px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                                        style={{
+                                            background: currentPage === totalPages ? '#f0edf4' : 'var(--brand-secondary)',
+                                            color: currentPage === totalPages ? 'var(--text-muted)' : '#fff',
+                                            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                                            opacity: currentPage === totalPages ? 0.5 : 1
+                                        }}
                                     >
-                                        ›
+                                        Selanjutnya →
                                     </button>
                                 </div>
                             )}

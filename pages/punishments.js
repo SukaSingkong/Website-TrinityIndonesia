@@ -331,74 +331,70 @@ export default function Punishments() {
             </div>
 
             {/* Pagination */}
-            <div className={`mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`} style={{ backgroundColor: '#fdfdfd', border: '1px solid #f3f4f6' }}>
+            <div className={`mt-8 mb-12 flex flex-col items-center gap-4 transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
                     Menampilkan <span className="font-extrabold" style={{ color: 'var(--text-primary)' }}>{Math.min((pagination.page - 1) * 10 + 1, pagination.total || 0)}</span> - <span className="font-extrabold" style={{ color: 'var(--text-primary)' }}>{Math.min(pagination.page * 10, pagination.total || 0)}</span> dari <span className="font-extrabold" style={{ color: 'var(--text-primary)' }}>{pagination.total || 0}</span> catatan
                 </p>
 
-                <div className="flex items-center p-1 bg-white rounded-xl shadow-sm border border-gray-200/60">
-                    {/* Previous Button */}
+                <div className="flex items-center justify-center gap-2">
                     <button
                         onClick={() => handlePageChange(pagination.page - 1)}
                         disabled={pagination.page <= 1}
-                        className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold rounded-lg transition-all duration-300 hover:bg-gray-50 disabled:opacity-30 disabled:hover:bg-transparent"
-                        style={{ color: 'var(--text-secondary)' }}
+                        className="px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                        style={{
+                            background: pagination.page <= 1 ? '#f0edf4' : 'var(--brand-secondary)',
+                            color: pagination.page <= 1 ? 'var(--text-muted)' : '#fff',
+                            cursor: pagination.page <= 1 ? 'not-allowed' : 'pointer',
+                            opacity: pagination.page <= 1 ? 0.5 : 1
+                        }}
                     >
-                        <Icons.ChevronDown className="w-4 h-4 rotate-90" />
-                        <span className="hidden sm:inline">Prev</span>
+                        ← Sebelumnya
                     </button>
 
-                    <div className="h-5 w-px bg-gray-200 mx-1"></div>
+                    {(pagination.totalPages <= 0 ? [1] : [...Array(pagination.totalPages)].map((_, i) => i + 1)).map(pageNum => {
+                        const isCurrent = pageNum === pagination.page;
 
-                    {/* Page Numbers */}
-                    <div className="flex items-center px-1">
-                        {(pagination.totalPages <= 0 ? [1] : [...Array(pagination.totalPages)].map((_, i) => i + 1)).map(pageNum => {
-                            const isCurrent = pageNum === pagination.page;
-
-                            if (pagination.totalPages > 7) {
-                                if (
-                                    pageNum !== 1 &&
-                                    pageNum !== pagination.totalPages &&
-                                    Math.abs(pageNum - pagination.page) > 2
-                                ) {
-                                    if (Math.abs(pageNum - pagination.page) === 3) {
-                                        return <span key={pageNum} className="px-2 font-bold text-xs tracking-widest text-gray-400">...</span>;
-                                    }
-                                    return null;
+                        if (pagination.totalPages > 7) {
+                            if (
+                                pageNum !== 1 &&
+                                pageNum !== pagination.totalPages &&
+                                Math.abs(pageNum - pagination.page) > 2
+                            ) {
+                                if (Math.abs(pageNum - pagination.page) === 3) {
+                                    return <span key={pageNum} className="px-1 font-bold text-xs text-gray-400">...</span>;
                                 }
+                                return null;
                             }
+                        }
 
-                            return (
-                                <button
-                                    key={pageNum}
-                                    onClick={() => handlePageChange(pageNum)}
-                                    className={`relative flex items-center justify-center w-8 h-8 rounded-lg text-sm font-extrabold transition-all duration-300 mx-0.5 ${isCurrent
-                                        ? 'scale-110 shadow-sm z-10'
-                                        : 'hover:bg-gray-100 hover:scale-105 active:scale-95 text-gray-500'
-                                        }`}
-                                    style={isCurrent ? {
-                                        backgroundColor: 'var(--brand-secondary)',
-                                        color: '#ffffff',
-                                        boxShadow: '0 4px 12px rgba(226, 110, 16, 0.3)',
-                                    } : {}}
-                                >
-                                    {pageNum}
-                                </button>
-                            );
-                        })}
-                    </div>
+                        return (
+                            <button
+                                key={pageNum}
+                                onClick={() => handlePageChange(pageNum)}
+                                className="w-10 h-10 rounded-xl text-sm font-bold transition-all"
+                                style={{
+                                    background: isCurrent ? 'var(--brand-secondary)' : '#f0edf4',
+                                    color: isCurrent ? '#fff' : 'var(--text-secondary)',
+                                    fontWeight: isCurrent ? 800 : 600
+                                }}
+                            >
+                                {pageNum}
+                            </button>
+                        );
+                    })}
 
-                    <div className="h-5 w-px bg-gray-200 mx-1"></div>
-
-                    {/* Next Button */}
                     <button
                         onClick={() => handlePageChange(pagination.page + 1)}
                         disabled={pagination.page >= pagination.totalPages}
-                        className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold rounded-lg transition-all duration-300 hover:bg-gray-50 disabled:opacity-30 disabled:hover:bg-transparent"
-                        style={{ color: 'var(--text-secondary)' }}
+                        className="px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                        style={{
+                            background: pagination.page >= pagination.totalPages ? '#f0edf4' : 'var(--brand-secondary)',
+                            color: pagination.page >= pagination.totalPages ? 'var(--text-muted)' : '#fff',
+                            cursor: pagination.page >= pagination.totalPages ? 'not-allowed' : 'pointer',
+                            opacity: pagination.page >= pagination.totalPages ? 0.5 : 1
+                        }}
                     >
-                        <span className="hidden sm:inline">Next</span>
-                        <Icons.ChevronDown className="w-4 h-4 -rotate-90" />
+                        Selanjutnya →
                     </button>
                 </div>
             </div>

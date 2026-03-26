@@ -1,8 +1,10 @@
 import { Wrapper } from '@layer/components/layout/Wrapper.jsx'
 import config from '@layer/theme.config'
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { getDbConnection } from '@layer/lib/db'
 import Head from 'next/head'
+
+const ITEMS_PER_PAGE = 5
 
 function UpdateAccordion({ title, content, type, icon, patchDate }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -82,6 +84,38 @@ function UpdateAccordion({ title, content, type, icon, patchDate }) {
 }
 
 export default function Update({ groupedUpdates }) {
+    // Flatten all logs for pagination
+    const allLogs = useMemo(() => {
+        const logs = []
+        for (const group of groupedUpdates) {
+            for (const log of group.logs) {
+                logs.push({ ...log, monthGroup: group.month })
+            }
+        }
+        return logs
+    }, [groupedUpdates])
+
+    const totalPages = Math.max(1, Math.ceil(allLogs.length / ITEMS_PER_PAGE))
+    const [currentPage, setCurrentPage] = useState(1)
+
+    // Get paginated logs and re-group by month
+    const paginatedGroups = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE
+        const slice = allLogs.slice(start, start + ITEMS_PER_PAGE)
+        const groups = {}
+        for (const item of slice) {
+            if (!groups[item.monthGroup]) groups[item.monthGroup] = []
+            groups[item.monthGroup].push(item)
+        }
+        return Object.keys(groups).map(k => ({ month: k, logs: groups[k] }))
+    }, [allLogs, currentPage])
+
+    function goToPage(page) {
+        const p = Math.max(1, Math.min(page, totalPages))
+        setCurrentPage(p)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
     return (
         <Wrapper
             title="Update & Patch Notes"
@@ -102,8 +136,8 @@ export default function Update({ groupedUpdates }) {
             </div>
 
             {/* Update Logs Grouped by Month */}
-            <div className="flex flex-col mb-12 space-y-8">
-                {groupedUpdates.length > 0 ? groupedUpdates.map((monthGroup, i) => (
+            <div className="flex flex-col mb-8 space-y-8">
+                {paginatedGroups.length > 0 ? paginatedGroups.map((monthGroup, i) => (
                     <div key={i} className="space-y-4">
                         {/* Month Separator */}
                         <div className="flex items-center gap-4">
@@ -126,6 +160,54 @@ export default function Update({ groupedUpdates }) {
                     </div>
                 )}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mb-12">
+                    <button
+                        onClick={() => goToPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                        style={{
+                            background: currentPage === 1 ? '#f0edf4' : 'var(--brand-secondary)',
+                            color: currentPage === 1 ? 'var(--text-muted)' : '#fff',
+                            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                            opacity: currentPage === 1 ? 0.5 : 1
+                        }}
+                    >
+                        ← Sebelumnya
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                        <button
+                            key={page}
+                            onClick={() => goToPage(page)}
+                            className="w-10 h-10 rounded-xl text-sm font-bold transition-all"
+                            style={{
+                                background: page === currentPage ? 'var(--brand-secondary)' : '#f0edf4',
+                                color: page === currentPage ? '#fff' : 'var(--text-secondary)',
+                                fontWeight: page === currentPage ? 800 : 600
+                            }}
+                        >
+                            {page}
+                        </button>
+                    ))}
+
+                    <button
+                        onClick={() => goToPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                        style={{
+                            background: currentPage === totalPages ? '#f0edf4' : 'var(--brand-secondary)',
+                            color: currentPage === totalPages ? 'var(--text-muted)' : '#fff',
+                            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                            opacity: currentPage === totalPages ? 0.5 : 1
+                        }}
+                    >
+                        Selanjutnya →
+                    </button>
+                </div>
+            )}
         </Wrapper>
     )
 }
