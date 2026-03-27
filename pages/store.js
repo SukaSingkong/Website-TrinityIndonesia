@@ -136,7 +136,7 @@ export default function Store() {
 
     async function fetchStore() {
         try {
-            const res = await fetch('/api/store')
+            const res = await fetch('/api/store?t=' + Date.now())
             const data = await res.json()
             setStoreData(data)
         } catch (err) {
@@ -718,7 +718,16 @@ export default function Store() {
                                     
                                     {storeSettings.discount_timer && (
                                         <div className="shrink-0 md:-mt-5">
-                                            <CountdownTimer targetDate={storeSettings.discount_timer} onExpire={() => fetchStore()} />
+                                            <CountdownTimer targetDate={storeSettings.discount_timer} onExpire={() => {
+                                                setStoreData(prev => prev ? {
+                                                    ...prev,
+                                                    storeSettings: {
+                                                        ...prev.storeSettings,
+                                                        discount_enabled: 0
+                                                    }
+                                                } : prev);
+                                                fetchStore();
+                                            }} />
                                         </div>
                                     )}
                                 </div>

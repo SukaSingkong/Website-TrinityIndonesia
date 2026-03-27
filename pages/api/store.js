@@ -5,6 +5,8 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: 'Method not allowed' })
     }
 
+    res.setHeader('Cache-Control', 'no-store, max-age=0');
+
     try {
         const pool = await getDbConnection();
         const [settingsRows] = await pool.query('SELECT * FROM store_settings LIMIT 1');
