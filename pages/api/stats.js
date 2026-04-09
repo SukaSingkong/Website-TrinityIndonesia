@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     res.setHeader('Expires', '0');
 
     try {
-        const response = await fetch(`http://160.187.210.22:30069/stats.json?t=${new Date().getTime()}`, {
+        const response = await fetch(`http://208.84.103.189:30069/stats.json?t=${new Date().getTime()}`, {
             headers: {
                 'Accept': 'application/json',
                 'Cache-Control': 'no-cache'
