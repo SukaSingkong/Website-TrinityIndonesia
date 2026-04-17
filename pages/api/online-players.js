@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
 	try {
-		const response = await fetch('http://208.84.103.189:30069/stats.json')
+		const response = await fetch('http://185.128.227.112:30069/stats.json')
 		const data = await response.json()
 
 		const onlinePlayers = data.online ? Object.keys(data.online) : []
