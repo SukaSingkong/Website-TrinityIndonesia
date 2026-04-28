@@ -12,7 +12,6 @@ const navLinks = [
     { name: 'Leaderboard', href: '/leaderboard' },
     { name: 'Vote', href: '/vote' },
     { name: 'Update', href: '/update' },
-    { name: 'Punishments', href: '/punishments' },
     { name: 'Wiki', href: 'https://wiki.trinityindonesia.cc' },
     { name: 'Rules', href: '/rules' },
 ]
