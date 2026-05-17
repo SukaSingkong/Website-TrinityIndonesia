@@ -1,3 +1,4 @@
+export const config = { runtime: 'edge' };
 import { getDbConnection } from '../../lib/db'
 import crypto from 'crypto';
 
@@ -292,3 +293,4 @@ export default async function handler(req, res) {
         return res.status(500).json({ message: 'Webhook processing error', error: e.message })
     }
 }
+
