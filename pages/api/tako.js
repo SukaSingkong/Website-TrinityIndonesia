@@ -1,4 +1,3 @@
-export const config = { runtime: 'edge' };
 import { getDbConnection } from '../../lib/db'
 import crypto from 'crypto';
 

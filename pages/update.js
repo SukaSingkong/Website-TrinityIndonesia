@@ -1,4 +1,3 @@
-export const config = { runtime: 'edge' };
 import { Wrapper } from '@layer/components/layout/Wrapper.jsx'
 import config from '@layer/theme.config'
 import { useState, useMemo } from "react"
