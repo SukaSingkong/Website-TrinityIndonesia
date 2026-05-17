@@ -9,7 +9,6 @@ import { useRouter } from 'next/router'
 const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'Connect', href: '/connect' },
-    { name: 'Leaderboard', href: '/leaderboard' },
     { name: 'Vote', href: '/vote' },
     { name: 'Update', href: '/update' },
     { name: 'Wiki', href: 'https://wiki.trinityindonesia.cc' },
